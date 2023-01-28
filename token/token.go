@@ -15,8 +15,8 @@ const (
 	RPAREN   TokenType = 41  // )
 	LBRACKET TokenType = 91  // [
 	RBRACKET TokenType = 93  // ]
-	LBRACE   TokenType = 107 // {
-	RBRACE   TokenType = 109 // }
+	LBRACE   TokenType = 123 // {
+	RBRACE   TokenType = 125 // }
 
 	// 基本运算符
 	ASSIGN   TokenType = 61 // =
