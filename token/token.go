@@ -40,7 +40,12 @@ const (
 	OR   TokenType = 124 // |
 
 	// 结束符
-	END_MARK = TokenType(iota + 127)
+	END_MARK TokenType = 0
+
+	// 组合运算符
+	EQ = TokenType(iota + 127) // ==
+	LE                         // <=
+	GE                         // >=
 
 	// 非法符
 	ILLEGAL
