@@ -68,6 +68,7 @@ const (
 	ELSE
 	FUNC
 	METH
+	RETURN
 )
 
 // Token 词法分析器识别出来的词法对象
