@@ -3,12 +3,19 @@ package token
 type TokenType uint8 // Token 类型
 
 const (
-	// ======================== 符号 Token ========================
+	// ======================== 符号 Token (定义参照 ASCII) ========================
+	// 非打印控制符
+	TAB   TokenType = 9  // 制表符
+	LF    TokenType = 10 // 换行符
+	CR    TokenType = 13 // 回车符
+	BLANK TokenType = 32 // 空白符
+
 	// 分隔符
 	COMMA     TokenType = 44 // ,
 	DOT       TokenType = 46 // .
 	COLON     TokenType = 58 // :
 	SEMICOLON TokenType = 59 // ;
+	UNDERLINE TokenType = 95 // _
 
 	// 边界符
 	LPAREN   TokenType = 40  // (
@@ -32,8 +39,6 @@ const (
 	AND  TokenType = 38  // &
 	OR   TokenType = 124 // |
 
-	// ======================== 关键字 Token ========================
-
 	// 结束符
 	END_MARK = TokenType(iota + 127)
 
@@ -43,6 +48,7 @@ const (
 	// 标识符
 	IDENT
 
+	// ======================== 关键字 Token ========================
 	// 基本类型关键字
 	BYTE
 	I32
