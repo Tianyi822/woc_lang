@@ -30,6 +30,8 @@ func New(input string) *Lexer {
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	l.skipWhitespace()
+
 	switch token.TokenType(l.cur_rune) {
 	case token.ASSIGN:
 		tok = newToken(token.ASSIGN, string(l.cur_rune))
@@ -40,12 +42,22 @@ func (l *Lexer) NextToken() token.Token {
 		}
 	case token.ASTERISK:
 		tok = newToken(token.ASTERISK, string(l.cur_rune))
+	case token.ADD:
+		tok = newToken(token.ADD, string(l.cur_rune))
 	case token.MINUS:
 		tok = newToken(token.MINUS, string(l.cur_rune))
 	case token.SLASH:
 		tok = newToken(token.SLASH, string(l.cur_rune))
 	case token.SEMICOLON:
 		tok = newToken(token.SEMICOLON, string(l.cur_rune))
+	case token.LPAREN:
+		tok = newToken(token.LPAREN, string(l.cur_rune))
+	case token.RPAREN:
+		tok = newToken(token.RPAREN, string(l.cur_rune))
+	case token.LBRACE:
+		tok = newToken(token.LBRACE, string(l.cur_rune))
+	case token.RBRACE:
+		tok = newToken(token.RBRACE, string(l.cur_rune))
 	case token.END_MARK:
 		tok = newToken(token.END_MARK, "")
 	default:
@@ -53,7 +65,6 @@ func (l *Lexer) NextToken() token.Token {
 	}
 
 	l.readRune()
-	l.skipWhitespace()
 
 	return tok
 }
@@ -61,26 +72,34 @@ func (l *Lexer) NextToken() token.Token {
 func (l *Lexer) readToken() token.Token {
 	var str string
 
-	if isLetter(l.cur_rune) {
+	// 判断第一个字符是数字还是字母
+	if isIdentCharacter(l.cur_rune) {
 		str = l.readIdentifier()
 	} else if isDigit(l.cur_rune) {
 		str = l.readNumber()
 		return newToken(token.I32, str)
 	}
 
+	// 将关键字转换成 Token
 	switch str {
 	case "var":
 		return newToken(token.VAR, str)
+	case "func":
+		return newToken(token.FUNC, str)
+	case "return":
+		return newToken(token.RETURN, str)
 	default:
 		return newToken(token.IDENT, str)
 	}
 }
 
-// readStr 读取一个字符串
+// readStr 读取一个标识符
 func (l *Lexer) readIdentifier() string {
 	i := l.cur_index
 
-	for !isBlank(l.cur_rune) && !isBlank(l.peerRune()) &&
+	// 如果是标识符，则允许字母，下划线以及数字组合，不允许以数字开头
+	for isIdentCharacter(l.cur_rune) &&
+		(isIdentCharacter(l.peerRune()) || isDigit(l.peerRune())) &&
 		token.TokenType(l.peerRune()) != token.SEMICOLON &&
 		token.TokenType(l.peerRune()) != token.END_MARK {
 		l.readRune()
@@ -150,13 +169,16 @@ func newIllegalToken() token.Token {
 	}
 }
 
+// isDigit 判断是否是数字
 func isDigit(r rune) bool {
 	return r >= '0' && r <= '9'
 }
 
-// 判断是否是数字
-func isLetter(r rune) bool {
-	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z'
+// isIdentCharacter 判断是否是字母和规则允许的字符
+func isIdentCharacter(r rune) bool {
+	return r >= 'a' && r <= 'z' ||
+		r >= 'A' && r <= 'Z' ||
+		r == '_'
 }
 
 // isBlank 判断是否是空白符

@@ -139,6 +139,27 @@ func TestNextToken(t *testing.T) {
 				{token.END_MARK, ""},
 			},
 		},
+		{
+			`
+			func main_cty_1() {
+				return x + y;
+			}
+			`,
+			[]token.Token{
+				{token.FUNC, "func"},
+				{token.IDENT, "main_cty_1"},
+				{token.LPAREN, "("},
+				{token.RPAREN, ")"},
+				{token.LBRACE, "{"},
+				{token.RETURN, "return"},
+				{token.IDENT, "x"},
+				{token.ADD, "+"},
+				{token.IDENT, "y"},
+				{token.SEMICOLON, ";"},
+				{token.RBRACE, "}"},
+				{token.END_MARK, ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {
