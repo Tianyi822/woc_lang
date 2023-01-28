@@ -1,44 +1,41 @@
 package token
 
-type TokenType byte // Token 类型
+type TokenType uint8 // Token 类型
 
 const (
+	// ======================== 符号 Token ========================
 	// 分隔符
-	COMMA     = TokenType(iota) // ,
-	DOT                         // .
-	COLON                       // :
-	SEMICOLON                   // ;
+	COMMA     TokenType = 44 // ,
+	DOT       TokenType = 46 // .
+	COLON     TokenType = 58 // :
+	SEMICOLON TokenType = 59 // ;
 
 	// 边界符
-	LPAREN   // (
-	RPAREN   // )
-	LBRACKET // [
-	RBRACKET // ]
-	LBRACE   // {
-	RBRACE   // }
+	LPAREN   TokenType = 40  // (
+	RPAREN   TokenType = 41  // )
+	LBRACKET TokenType = 91  // [
+	RBRACKET TokenType = 93  // ]
+	LBRACE   TokenType = 107 // {
+	RBRACE   TokenType = 109 // }
 
 	// 基本运算符
-	ASSIGN   // =
-	ADD      // +
-	MINUS    // -
-	ASTERISK // *
-	SLASH    // /
+	ASSIGN   TokenType = 61 // =
+	ADD      TokenType = 43 // +
+	MINUS    TokenType = 45 // -
+	ASTERISK TokenType = 42 // *
+	SLASH    TokenType = 47 // /
 
 	// 布尔运算符
-	LT   // <
-	GT   // >
-	LE   // <=
-	GE   // >=
-	EQ   // ==
-	NEQ  // !=
-	BANG // !
-	AND  // &
-	OR   // |
+	LT   TokenType = 60  // <
+	GT   TokenType = 62  // >
+	BANG TokenType = 33  // !
+	AND  TokenType = 38  // &
+	OR   TokenType = 124 // |
 
-	// TODO: 位运算符
+	// ======================== 关键字 Token ========================
 
 	// 结束符
-	END_MARK
+	END_MARK = TokenType(iota + 127)
 
 	// 非法符
 	ILLEGAL
@@ -46,7 +43,7 @@ const (
 	// 标识符
 	IDENT
 
-	// 基本类型
+	// 基本类型关键字
 	BYTE
 	I32
 	I64
@@ -71,14 +68,4 @@ type Token struct {
 	// token x 的字面量就是 x，类型是 _IDENT
 	// token 5 的字面量就是 5，类型是 _I32
 	Literal string
-}
-
-var kwTable = map[string]TokenType{
-	"true":  TRUE,
-	"false": FALSE,
-	"var":   VAR,
-	"if":    IF,
-	"else":  ELSE,
-	"func":  FUNC,
-	"meth":  METH,
 }
