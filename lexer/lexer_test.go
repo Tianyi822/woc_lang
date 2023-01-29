@@ -106,7 +106,7 @@ func TestNextToken(t *testing.T) {
 		{
 			"822;",
 			[]token.Token{
-				{token.I32, "822"},
+				{token.NUM, "822"},
 				{token.SEMICOLON, ";"},
 				{token.END_MARK, ""},
 			},
@@ -117,7 +117,7 @@ func TestNextToken(t *testing.T) {
 				{token.VAR, "var"},
 				{token.IDENT, "x"},
 				{token.ASSIGN, "="},
-				{token.I32, "822"},
+				{token.NUM, "822"},
 				{token.SEMICOLON, ";"},
 				{token.END_MARK, ""},
 			},
@@ -130,11 +130,11 @@ func TestNextToken(t *testing.T) {
 				{token.ASSIGN, "="},
 				{token.IDENT, "cty"},
 				{token.ASTERISK, "*"},
-				{token.I32, "18"},
+				{token.NUM, "18"},
 				{token.SLASH, "/"},
-				{token.I32, "2"},
+				{token.NUM, "2"},
 				{token.MINUS, "-"},
-				{token.I32, "1"},
+				{token.NUM, "1"},
 				{token.SEMICOLON, ";"},
 				{token.END_MARK, ""},
 			},
@@ -160,15 +160,103 @@ func TestNextToken(t *testing.T) {
 				{token.END_MARK, ""},
 			},
 		},
+		{
+			`
+			var arr_1 = [1, 2, 3, 4];
+			len(arr_1);
+			arr_1.first();
+			out(arr_1[1]);
+			`,
+			[]token.Token{
+				{token.VAR, "var"},
+				{token.IDENT, "arr_1"},
+				{token.ASSIGN, "="},
+				{token.LBRACKET, "["},
+				{token.NUM, "1"},
+				{token.COMMA, ","},
+				{token.NUM, "2"},
+				{token.COMMA, ","},
+				{token.NUM, "3"},
+				{token.COMMA, ","},
+				{token.NUM, "4"},
+				{token.RBRACKET, "]"},
+				{token.SEMICOLON, ";"},
+				{token.IDENT, "len"},
+				{token.LPAREN, "("},
+				{token.IDENT, "arr_1"},
+				{token.RPAREN, ")"},
+				{token.SEMICOLON, ";"},
+				{token.IDENT, "arr_1"},
+				{token.DOT, "."},
+				{token.IDENT, "first"},
+				{token.LPAREN, "("},
+				{token.RPAREN, ")"},
+				{token.SEMICOLON, ";"},
+				{token.IDENT, "out"},
+				{token.LPAREN, "("},
+				{token.IDENT, "arr_1"},
+				{token.LBRACKET, "["},
+				{token.NUM, "1"},
+				{token.RBRACKET, "]"},
+				{token.RPAREN, ")"},
+				{token.SEMICOLON, ";"},
+				{token.END_MARK, ""},
+			},
+		},
+		{
+			`
+			func test1() -> bool {
+				bool flag = 1 == 1;
+				if (flag) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			`,
+			[]token.Token{
+				{token.FUNC, "func"},
+				{token.IDENT, "test1"},
+				{token.LPAREN, "("},
+				{token.RPAREN, ")"},
+				{token.ARROW, "->"},
+				{token.BOOL, "bool"},
+				{token.LBRACE, "{"},
+				{token.BOOL, "bool"},
+				{token.IDENT, "flag"},
+				{token.ASSIGN, "="},
+				{token.NUM, "1"},
+				{token.EQ, "=="},
+				{token.NUM, "1"},
+				{token.SEMICOLON, ";"},
+				{token.IF, "if"},
+				{token.LPAREN, "("},
+				{token.IDENT, "flag"},
+				{token.RPAREN, ")"},
+				{token.LBRACE, "{"},
+				{token.RETURN, "return"},
+				{token.TRUE, "true"},
+				{token.SEMICOLON, ";"},
+				{token.RBRACE, "}"},
+				{token.ELSE, "else"},
+				{token.LBRACE, "{"},
+				{token.RETURN, "return"},
+				{token.FALSE, "false"},
+				{token.SEMICOLON, ";"},
+				{token.RBRACE, "}"},
+				{token.RBRACE, "}"},
+				{token.END_MARK, ""},
+			},
+		},
 	}
 
 	for _, tt := range tests {
 		l := New(tt.input)
-		for _, expTok := range tt.expectedTokens {
+		for i, expTok := range tt.expectedTokens {
 			tok := l.NextToken()
 			if tok.Literal != expTok.Literal || tok.Type != expTok.Type {
-				t.Fatalf("token 错误:\n期望: %v\n实际: %v",
-					expTok, tok)
+				t.Fatalf("第 %d 个 token 解析错误:\n期望: %v\n实际: %v",
+					i+1, expTok, tok)
 			}
 		}
 	}
