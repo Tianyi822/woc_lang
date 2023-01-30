@@ -43,9 +43,10 @@ const (
 	END_MARK TokenType = 0
 
 	// 组合运算符
-	EQ = TokenType(iota + 127) // ==
-	LE                         // <=
-	GE                         // >=
+	EQ    = TokenType(iota + 127) // ==
+	LE                            // <=
+	GE                            // >=
+	ARROW                         // ->
 
 	// 非法符
 	ILLEGAL
@@ -55,9 +56,9 @@ const (
 
 	// ======================== 关键字 Token ========================
 	// 基本类型关键字
+	BOOL
 	BYTE
-	I32
-	I64
+	NUM
 	// TODO: 后续添加浮点以及无符号类型
 
 	// 语法关键字

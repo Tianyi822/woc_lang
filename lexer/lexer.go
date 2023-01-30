@@ -46,10 +46,21 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.ADD, string(l.cur_rune))
 	case token.MINUS:
 		tok = newToken(token.MINUS, string(l.cur_rune))
+		// 读取下一个字符，选择返回减号还是箭头
+		l.readRune()
+		if token.TokenType(l.cur_rune) == token.GT {
+			tok = newToken(token.ARROW, "->")
+		}
 	case token.SLASH:
 		tok = newToken(token.SLASH, string(l.cur_rune))
+	case token.COMMA:
+		tok = newToken(token.COMMA, string(l.cur_rune))
 	case token.SEMICOLON:
 		tok = newToken(token.SEMICOLON, string(l.cur_rune))
+	case token.DOT:
+		tok = newToken(token.DOT, string(l.cur_rune))
+	case token.UNDERLINE:
+		tok = newToken(token.UNDERLINE, string(l.cur_rune))
 	case token.LPAREN:
 		tok = newToken(token.LPAREN, string(l.cur_rune))
 	case token.RPAREN:
@@ -58,6 +69,10 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, string(l.cur_rune))
 	case token.RBRACE:
 		tok = newToken(token.RBRACE, string(l.cur_rune))
+	case token.LBRACKET:
+		tok = newToken(token.LBRACKET, string(l.cur_rune))
+	case token.RBRACKET:
+		tok = newToken(token.RBRACKET, string(l.cur_rune))
 	case token.END_MARK:
 		tok = newToken(token.END_MARK, "")
 	default:
@@ -77,13 +92,23 @@ func (l *Lexer) readToken() token.Token {
 		str = l.readIdentifier()
 	} else if isDigit(l.cur_rune) {
 		str = l.readNumber()
-		return newToken(token.I32, str)
+		return newToken(token.NUM, str)
 	}
 
 	// 将关键字转换成 Token
 	switch str {
+	case "bool":
+		return newToken(token.BOOL, str)
 	case "var":
 		return newToken(token.VAR, str)
+	case "if":
+		return newToken(token.IF, str)
+	case "else":
+		return newToken(token.ELSE, str)
+	case "true":
+		return newToken(token.TRUE, str)
+	case "false":
+		return newToken(token.FALSE, str)
 	case "func":
 		return newToken(token.FUNC, str)
 	case "return":
