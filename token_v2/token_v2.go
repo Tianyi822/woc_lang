@@ -30,11 +30,12 @@ const (
 	SLASH    // /
 
 	// 比较运算符
-	LT // <
-	GT // >
-	EQ // ==
-	LE // <=
-	GE // >=
+	LT  // <
+	GT  // >
+	EQ  // ==
+	NEQ // !=
+	LE  // <=
+	GE  // >=
 
 	// 逻辑运算符
 	AND  // &&
@@ -81,4 +82,43 @@ type Token struct {
 	// token x 的字面量就是 x，类型是 IDENT
 	// token 5 的字面量就是 5，类型是 NUM
 	Literal string
+}
+
+var TokenMap = map[string]TokenType{
+	",": COMMA,
+	".": DOT,
+	":": COLON,
+	";": SEMICOLON,
+	"_": UNDERLINE,
+
+	"(": LPAREN,
+	")": RPAREN,
+	"[": LBRACKET,
+	"]": RBRACKET,
+	"{": LBRACE,
+	"}": RBRACE,
+
+	"=": ASSIGN,
+	"+": ADD,
+	"-": MINUS,
+	"*": ASTERISK,
+	"/": SLASH,
+
+	"<":  LT,
+	">":  GT,
+	"==": EQ,
+	"!=": NEQ,
+	"<=": LE,
+	">=": GE,
+
+	"&&": AND,
+	"||": OR,
+	"!":  BANG,
+
+	"&":  BIT_AND,
+	"|":  BIT_OR,
+	"<<": BIT_L_OFFSET,
+	">>": BIT_R_OFFSET,
+
+	"->": ARROW,
 }
