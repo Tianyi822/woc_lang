@@ -29,32 +29,26 @@ const (
 	Slash_State    // /
 
 	// 比较运算符
-	LT_State   // <
-	GT_State   // >
-	EQ_State_1 // ==
-	EQ_State_2
-	LE_State_1 // <=
-	LE_State_2
-	GE_State_1 // >=
-	GE_State_2
+	Lt_State  // <
+	Gt_State  // >
+	Eq_State  // ==
+	Neq_State // !=
+	Le_State  // <=
+	Ge_State  // >=
 
 	// 逻辑运算符
-	AND_State_1 // &&
-	AND_State_2
-	OR_State_1 // ||
-	OR_State_2
-	BANG_State // !
+	And_State  // &&
+	Or_State   // ||
+	Bang_State // !
 
 	// 位运算符
-	BIT_AND_State        // &
-	BIT_OR_State         // |
-	BIT_L_OFFSET_State_1 // <<
-	BIT_L_OFFSET_State_2
-	BIT_R_OFFSET_State_1 // >>
-	BIT_R_OFFSET_State_2
+	Bit_And_State      // &
+	Bit_Or_State       // |
+	Bit_L_Offset_State // <<
+	Bit_R_Offset_State // >>
 
-	Eq_State_1
-	Eq_State_2
+	// 组合运算符
+	Arrow_State
 
 	If_State_1
 	If_State_2
