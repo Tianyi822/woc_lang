@@ -260,10 +260,7 @@ func (l *Lexer) addToken(end_index int, tokenType token_v2.TokenType) {
 	}
 
 	tokLiteral := string(realToken)
-	if !checkToken(tokLiteral) {
-		msg := fmt.Sprintf("该符号/关键字未定义，请检查代码是否有误: %s", tokLiteral)
-		l.errors = append(l.errors, msg)
-	}
+	l.checkToken(tokLiteral)
 
 	tok := token_v2.Token{
 		Type:    tokenType,
@@ -277,8 +274,12 @@ func (l *Lexer) addToken(end_index int, tokenType token_v2.TokenType) {
 }
 
 // checkToken 检查是否有定义此类型 Token
-func checkToken(tokLiteral string) bool {
+func (l *Lexer) checkToken(tokLiteral string) bool {
 	_, ok := token_v2.TokenMap[tokLiteral]
+	if !ok {
+		msg := fmt.Sprintf("该符号/关键字未定义，请检查代码是否有误: %s", tokLiteral)
+		l.errors = append(l.errors, msg)
+	}
 	return ok
 }
 
