@@ -29,17 +29,25 @@ const (
 	ASTERISK // *
 	SLASH    // /
 
-	// 布尔运算符
-	LT   // <
-	GT   // >
+	// 比较运算符
+	LT // <
+	GT // >
+	EQ // ==
+	LE // <=
+	GE // >=
+
+	// 逻辑运算符
+	AND  // &&
+	OR   // ||
 	BANG // !
-	AND  // &
-	OR   // |
+
+	// 位运算符
+	BIT_AND      // &
+	BIT_OR       // |
+	BIT_L_OFFSET // <<
+	BIT_R_OFFSET // >>
 
 	// 组合运算符
-	EQ    // ==
-	LE    // <=
-	GE    // >=
 	ARROW // ->
 
 	// 非法符
