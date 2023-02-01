@@ -60,6 +60,7 @@ const (
 	// ======================== 关键字 Token ========================
 	// 基本类型关键字
 	BOOL
+	INT32
 	NUM
 
 	// 语法关键字
@@ -82,6 +83,13 @@ type Token struct {
 	// token x 的字面量就是 x，类型是 IDENT
 	// token 5 的字面量就是 5，类型是 NUM
 	Literal string
+}
+
+// ErrToken 用于保存错误 token，极其相关信息
+type ErrToken struct {
+	Type    TokenType
+	Literal string
+	Msg     string
 }
 
 var TokenMap = map[string]TokenType{
@@ -121,4 +129,16 @@ var TokenMap = map[string]TokenType{
 	">>": BIT_R_OFFSET,
 
 	"->": ARROW,
+
+	"func":   FUNC,
+	"var":    VAR,
+	"bool":   BOOL,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
+	"else":   ELSE,
+	"meth":   METH,
+	"return": RETURN,
+
+	"int32": INT32,
 }

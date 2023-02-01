@@ -16,12 +16,12 @@ import (
 // Lexer 第二版词法分析器，相较于第一版本的分析器，添加了状态检查
 // 将解析过程规范化，基于 '确定有限自动机' 原理实现，
 type Lexer struct {
-	code         []rune             // 需要解析的代码
-	reader_index int                // NextToken 方法中使用该指针指向当前需要读取的 Token
-	base_index   int                // 需解析 Token 的起始位置，每解析完一个 Token，更新 base_index
-	tokens       []token_v2.Token   // 收集解析出来的Token，按照顺序存储，向外提供函数访问
-	cur_state    dfa_state.DfaState // 用于记录分析器当前的状态
-	errors       []string           // 用于收集错误信息
+	code         []rune              // 需要解析的代码
+	reader_index int                 // NextToken 方法中使用该指针指向当前需要读取的 Token
+	base_index   int                 // 需解析 Token 的起始位置，每解析完一个 Token，更新 base_index
+	tokens       []token_v2.Token    // 收集解析出来的Token，按照顺序存储，向外提供函数访问
+	cur_state    dfa_state.DfaState  // 用于记录分析器当前的状态
+	error_tokens []token_v2.ErrToken // 错误词法集合
 }
 
 func New(input string) *Lexer {
@@ -31,14 +31,14 @@ func New(input string) *Lexer {
 		base_index:   0,
 		tokens:       []token_v2.Token{},
 		cur_state:    dfa_state.Initial,
-		errors:       []string{},
+		error_tokens: []token_v2.ErrToken{},
 	}
 	l.tokenize()
 	return l
 }
 
-func (l *Lexer) Errors() []string {
-	return l.errors
+func (l *Lexer) Errors() []token_v2.ErrToken {
+	return l.error_tokens
 }
 
 func (l *Lexer) NextToken() token_v2.Token {
@@ -144,6 +144,163 @@ func (l *Lexer) tokenize() {
 		case dfa_state.Or_State:
 			l.addToken(i, token_v2.OR)
 
+		case dfa_state.Func_State_1: // func
+			if c == 'u' {
+				l.cur_state = dfa_state.Func_State_2
+			} else if c == 'a' {
+				l.cur_state = dfa_state.False_State_2
+			}
+		case dfa_state.Func_State_2:
+			if c == 'n' {
+				l.cur_state = dfa_state.Func_State_3
+			}
+		case dfa_state.Func_State_3:
+			if c == 'c' {
+				l.cur_state = dfa_state.Func_State
+			}
+		case dfa_state.Func_State:
+			l.addToken(i, token_v2.FUNC)
+
+		case dfa_state.Meth_State_1: // meth
+			if c == 'e' {
+				l.cur_state = dfa_state.Meth_State_2
+			}
+		case dfa_state.Meth_State_2:
+			if c == 't' {
+				l.cur_state = dfa_state.Meth_State_3
+			}
+		case dfa_state.Meth_State_3:
+			if c == 'h' {
+				l.cur_state = dfa_state.Meth_State
+			}
+		case dfa_state.Meth_State:
+			l.addToken(i, token_v2.METH)
+
+		case dfa_state.Var_State_1: // var
+			if c == 'a' {
+				l.cur_state = dfa_state.Var_State_2
+			}
+		case dfa_state.Var_State_2:
+			if c == 'r' {
+				l.cur_state = dfa_state.Var_State
+			}
+		case dfa_state.Var_State:
+			l.addToken(i, token_v2.VAR)
+
+		case dfa_state.Bool_State_1: // bool
+			if c == 'o' {
+				l.cur_state = dfa_state.Bool_State_2
+			}
+		case dfa_state.Bool_State_2:
+			if c == 'o' {
+				l.cur_state = dfa_state.Bool_State_3
+			}
+		case dfa_state.Bool_State_3:
+			if c == 'l' {
+				l.cur_state = dfa_state.Bool_State
+			}
+		case dfa_state.Bool_State:
+			l.addToken(i, token_v2.BOOL)
+
+		case dfa_state.True_State_1: // true
+			if c == 'r' {
+				l.cur_state = dfa_state.True_State_2
+			}
+		case dfa_state.True_State_2:
+			if c == 'u' {
+				l.cur_state = dfa_state.True_State_3
+			}
+		case dfa_state.True_State_3:
+			if c == 'e' {
+				l.cur_state = dfa_state.True_State
+			}
+		case dfa_state.True_State:
+			l.addToken(i, token_v2.TRUE)
+
+		case dfa_state.False_State_2: // false
+			if c == 'l' {
+				l.cur_state = dfa_state.False_State_3
+			}
+		case dfa_state.False_State_3:
+			if c == 's' {
+				l.cur_state = dfa_state.False_State_4
+			}
+		case dfa_state.False_State_4:
+			if c == 'e' {
+				l.cur_state = dfa_state.False_State
+			}
+		case dfa_state.False_State:
+			l.addToken(i, token_v2.FALSE)
+
+		case dfa_state.If_State_1: // if
+			if c == 'f' {
+				l.cur_state = dfa_state.If_State
+			} else if c == 'n' {
+				l.cur_state = dfa_state.Int32_State_2
+			}
+		case dfa_state.If_State:
+			l.addToken(i, token_v2.IF)
+
+		case dfa_state.Else_State_1: // else
+			if c == 'l' {
+				l.cur_state = dfa_state.Else_State_2
+			}
+		case dfa_state.Else_State_2:
+			if c == 's' {
+				l.cur_state = dfa_state.Else_State_3
+			}
+		case dfa_state.Else_State_3:
+			if c == 'e' {
+				l.cur_state = dfa_state.Else_State
+			}
+		case dfa_state.Else_State:
+			l.addToken(i, token_v2.ELSE)
+
+		case dfa_state.Num_State: // 822
+			if isDigit(c) {
+				l.cur_state = dfa_state.Num_State
+			} else {
+				l.addToken(i, token_v2.NUM)
+			}
+
+		case dfa_state.Int32_State_2:
+			if c == 't' {
+				l.cur_state = dfa_state.Int32_State_3
+			}
+		case dfa_state.Int32_State_3:
+			if c == '3' {
+				l.cur_state = dfa_state.Int32_State_4
+			}
+		case dfa_state.Int32_State_4:
+			if c == '2' {
+				l.cur_state = dfa_state.Int32_State
+			}
+		case dfa_state.Int32_State:
+			l.addToken(i, token_v2.INT32)
+
+		case dfa_state.Return_State_1: // return
+			if c == 'e' {
+				l.cur_state = dfa_state.Return_State_2
+			}
+		case dfa_state.Return_State_2:
+			if c == 't' {
+				l.cur_state = dfa_state.Return_State_3
+			}
+		case dfa_state.Return_State_3:
+			if c == 'u' {
+				l.cur_state = dfa_state.Return_State_4
+			}
+		case dfa_state.Return_State_4:
+			if c == 'r' {
+				l.cur_state = dfa_state.Return_State_5
+			}
+		case dfa_state.Return_State_5:
+			if c == 'n' {
+				l.cur_state = dfa_state.Return_State
+			}
+		case dfa_state.Return_State:
+			l.addToken(i, token_v2.RETURN)
+
 		default:
 			// 未定义状态的就是空字符
 			continue
@@ -163,6 +320,37 @@ func (l *Lexer) stateTrans(end_index int, ch rune) {
 		return
 	}
 
+	if isLetter(ch) {
+		l.letterState(ch)
+	} else if isDigit(ch) {
+		l.cur_state = dfa_state.Num_State
+	} else {
+		l.symbolState(end_index, ch)
+	}
+}
+
+func (l *Lexer) letterState(ch rune) {
+	switch ch {
+	case 'f':
+		l.cur_state = dfa_state.Func_State_1
+	case 'v':
+		l.cur_state = dfa_state.Var_State_1
+	case 'b':
+		l.cur_state = dfa_state.Bool_State_1
+	case 't':
+		l.cur_state = dfa_state.True_State_1
+	case 'i':
+		l.cur_state = dfa_state.If_State_1
+	case 'e':
+		l.cur_state = dfa_state.Else_State_1
+	case 'm':
+		l.cur_state = dfa_state.Meth_State_1
+	case 'r':
+		l.cur_state = dfa_state.Return_State_1
+	}
+}
+
+func (l *Lexer) symbolState(end_index int, ch rune) {
 	switch ch {
 	case ',':
 		// 将解析到的 Token 添加到集合中，并修改分析器状态
@@ -260,13 +448,7 @@ func (l *Lexer) addToken(end_index int, tokenType token_v2.TokenType) {
 	}
 
 	tokLiteral := string(realToken)
-	l.checkToken(tokLiteral)
-
-	tok := token_v2.Token{
-		Type:    tokenType,
-		Literal: tokLiteral,
-	}
-	l.tokens = append(l.tokens, tok)
+	l.checkToken(tokenType, tokLiteral)
 	l.base_index = end_index + 1
 
 	// 当一个 Token 添加到集合后，就需要重置状态
@@ -274,11 +456,30 @@ func (l *Lexer) addToken(end_index int, tokenType token_v2.TokenType) {
 }
 
 // checkToken 检查是否有定义此类型 Token
-func (l *Lexer) checkToken(tokLiteral string) bool {
-	_, ok := token_v2.TokenMap[tokLiteral]
-	if !ok {
-		msg := fmt.Sprintf("该符号/关键字未定义，请检查代码是否有误: %s", tokLiteral)
-		l.errors = append(l.errors, msg)
+func (l *Lexer) checkToken(tokenType token_v2.TokenType, tokLiteral string) bool {
+	ok := true
+	// 因为数值字面量不确定，所以当传递过来的是 Num 类型，就不需要检查
+	if tokenType != token_v2.NUM {
+		// 判断关键字表中是否存在
+		_, ok = token_v2.TokenMap[tokLiteral]
+	}
+
+	if ok || tokenType == token_v2.NUM {
+		tok := token_v2.Token{
+			Type:    tokenType,
+			Literal: tokLiteral,
+		}
+		l.tokens = append(l.tokens, tok)
+	} else {
+		msg := fmt.Sprintf("该符号/关键字未定义，请检查代码是否有误")
+
+		errTok := token_v2.ErrToken{
+			Type:    token_v2.ILLEGAL,
+			Literal: tokLiteral,
+			Msg:     msg,
+		}
+
+		l.error_tokens = append(l.error_tokens, errTok)
 	}
 	return ok
 }
