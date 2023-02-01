@@ -59,6 +59,33 @@ func TestNextToken(t *testing.T) {
 	runLexerTest(t, tests)
 }
 
+func TestKeyWorkToken(t *testing.T) {
+	tests := []lexerTestCase{
+		{
+			`
+				func var  
+				bool 822 true false 
+				if else meth return int32`,
+			[]token_v2.Token{
+				{token_v2.FUNC, "func"},
+				{token_v2.VAR, "var"},
+				{token_v2.BOOL, "bool"},
+				{token_v2.NUM, "822"},
+				{token_v2.TRUE, "true"},
+				{token_v2.FALSE, "false"},
+				{token_v2.IF, "if"},
+				{token_v2.ELSE, "else"},
+				{token_v2.METH, "meth"},
+				{token_v2.RETURN, "return"},
+				{token_v2.INT32, "int32"},
+				{token_v2.EOF, ""},
+			},
+		},
+	}
+
+	runLexerTest(t, tests)
+}
+
 func runLexerTest(t *testing.T, tests []lexerTestCase) {
 	t.Helper()
 	for _, tt := range tests {
