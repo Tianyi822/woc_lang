@@ -5,11 +5,13 @@ import (
 	"woc_lang/token_v2"
 )
 
+type lexerTestCase struct {
+	input          string
+	expectedTokens []token_v2.Token
+}
+
 func TestNextToken(t *testing.T) {
-	tests := []struct {
-		input          string
-		expectedTokens []token_v2.Token
-	}{
+	tests := []lexerTestCase{
 		{
 			",.;: _ + * / ( ) {}[]",
 			[]token_v2.Token{
@@ -27,6 +29,7 @@ func TestNextToken(t *testing.T) {
 				{token_v2.RBRACE, "}"},
 				{token_v2.LBRACKET, "["},
 				{token_v2.RBRACKET, "]"},
+				{token_v2.EOF, ""},
 			},
 		},
 		{
@@ -53,6 +56,11 @@ func TestNextToken(t *testing.T) {
 		},
 	}
 
+	runLexerTest(t, tests)
+}
+
+func runLexerTest(t *testing.T, tests []lexerTestCase) {
+	t.Helper()
 	for _, tt := range tests {
 		l := New(tt.input)
 		checkParserErrors(t, l)
@@ -68,14 +76,14 @@ func TestNextToken(t *testing.T) {
 }
 
 func checkParserErrors(t *testing.T, l *Lexer) {
-	errors := l.Errors()
-	if len(errors) == 0 {
+	errTokens := l.Errors()
+	if len(errTokens) == 0 {
 		return
 	}
 
-	t.Errorf("词法分析器存在 %d 个错误", len(errors))
-	for _, msg := range errors {
-		t.Errorf("词法分析错误: %q", msg)
+	t.Errorf("词法分析器存在 %d 个错误", len(errTokens))
+	for _, errTok := range errTokens {
+		t.Errorf("(%s) 词法分析错误: %q", errTok.Literal, errTok.Msg)
 	}
 	t.FailNow()
 }
