@@ -13,13 +13,12 @@ type lexerTestCase struct {
 func TestNextToken(t *testing.T) {
 	tests := []lexerTestCase{
 		{
-			",.;: _ + * / ( ) {}[]",
+			",.;:+*/(){}[]",
 			[]token_v2.Token{
 				{token_v2.COMMA, ","},
 				{token_v2.DOT, "."},
 				{token_v2.SEMICOLON, ";"},
 				{token_v2.COLON, ":"},
-				{token_v2.UNDERLINE, "_"},
 				{token_v2.ADD, "+"},
 				{token_v2.ASTERISK, "*"},
 				{token_v2.SLASH, "/"},
@@ -32,8 +31,77 @@ func TestNextToken(t *testing.T) {
 				{token_v2.EOF, ""},
 			},
 		},
+	}
+
+	runLexerTest(t, tests)
+}
+
+func TestKeyWorkToken(t *testing.T) {
+	tests := []lexerTestCase{
 		{
-			"= == ! != > >=  < <=  & &&  |  || >> << - ->",
+			`
+				var ;
+				bool true false;
+				func if else meth return int32;`,
+			[]token_v2.Token{
+				{token_v2.VAR, "var"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.BOOL, "bool"},
+				{token_v2.TRUE, "true"},
+				{token_v2.FALSE, "false"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.FUNC, "func"},
+				{token_v2.IF, "if"},
+				{token_v2.ELSE, "else"},
+				{token_v2.METH, "meth"},
+				{token_v2.RETURN, "return"},
+				{token_v2.INT32, "int32"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.EOF, ""},
+			},
+		},
+	}
+
+	runLexerTest(t, tests)
+}
+
+func TestIdentToken(t *testing.T) {
+	tests := []lexerTestCase{
+		{
+			"cty foo view bar test icu egg money rust test_1 test_tt;",
+			[]token_v2.Token{
+				{token_v2.IDENT, "cty"},
+				{token_v2.IDENT, "foo"},
+				{token_v2.IDENT, "view"},
+				{token_v2.IDENT, "bar"},
+				{token_v2.IDENT, "test"},
+				{token_v2.IDENT, "icu"},
+				{token_v2.IDENT, "egg"},
+				{token_v2.IDENT, "money"},
+				{token_v2.IDENT, "rust"},
+				{token_v2.IDENT, "test_1"},
+				{token_v2.IDENT, "test_tt"},
+				{token_v2.SEMICOLON, ";"},
+			},
+		},
+		{
+			"tt tt_t tt_3_5_tt;",
+			[]token_v2.Token{
+				{token_v2.IDENT, "tt"},
+				{token_v2.IDENT, "tt_t"},
+				{token_v2.IDENT, "tt_3_5_tt"},
+				{token_v2.SEMICOLON, ";"},
+			},
+		},
+	}
+
+	runLexerTest(t, tests)
+}
+
+func TestPreSymbolToken(t *testing.T) {
+	tests := []lexerTestCase{
+		{
+			"= == ! != > >=  < <=  & &&  |  || >> << - -> _tt;",
 			[]token_v2.Token{
 				{token_v2.ASSIGN, "="},
 				{token_v2.EQ, "=="},
@@ -51,6 +119,8 @@ func TestNextToken(t *testing.T) {
 				{token_v2.BIT_L_OFFSET, "<<"},
 				{token_v2.MINUS, "-"},
 				{token_v2.ARROW, "->"},
+				{token_v2.IDENT, "_tt"},
+				{token_v2.SEMICOLON, ";"},
 				{token_v2.EOF, ""},
 			},
 		},
@@ -59,25 +129,110 @@ func TestNextToken(t *testing.T) {
 	runLexerTest(t, tests)
 }
 
-func TestKeyWorkToken(t *testing.T) {
+func TestNumToken(t *testing.T) {
+	tests := []lexerTestCase{
+		{
+			"822; 701;",
+			[]token_v2.Token{
+				{token_v2.NUM, "822"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.NUM, "701"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.EOF, ""},
+			},
+		},
+	}
+
+	runLexerTest(t, tests)
+}
+
+func TestCodeTokens(t *testing.T) {
 	tests := []lexerTestCase{
 		{
 			`
-				func var  
-				bool 822 true false 
-				if else meth return int32`,
+			var arr_1 = [1, 2, 3, 4];
+			len(arr_1);
+			arr_1.first();
+			out(arr_1[1]);
+			`,
+			[]token_v2.Token{
+				{token_v2.VAR, "var"},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.ASSIGN, "="},
+				{token_v2.LBRACKET, "["},
+				{token_v2.NUM, "1"},
+				{token_v2.COMMA, ","},
+				{token_v2.NUM, "2"},
+				{token_v2.COMMA, ","},
+				{token_v2.NUM, "3"},
+				{token_v2.COMMA, ","},
+				{token_v2.NUM, "4"},
+				{token_v2.RBRACKET, "]"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "len"},
+				{token_v2.LPAREN, "("},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.RPAREN, ")"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.DOT, "."},
+				{token_v2.IDENT, "first"},
+				{token_v2.LPAREN, "("},
+				{token_v2.RPAREN, ")"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "out"},
+				{token_v2.LPAREN, "("},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.LBRACKET, "["},
+				{token_v2.NUM, "1"},
+				{token_v2.RBRACKET, "]"},
+				{token_v2.RPAREN, ")"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.EOF, ""},
+			},
+		},
+		{
+			`
+			func test1() -> bool {
+				bool flag = 1 == 1;
+				if (flag) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			`,
 			[]token_v2.Token{
 				{token_v2.FUNC, "func"},
-				{token_v2.VAR, "var"},
+				{token_v2.IDENT, "test1"},
+				{token_v2.LPAREN, "("},
+				{token_v2.RPAREN, ")"},
+				{token_v2.ARROW, "->"},
 				{token_v2.BOOL, "bool"},
-				{token_v2.NUM, "822"},
-				{token_v2.TRUE, "true"},
-				{token_v2.FALSE, "false"},
+				{token_v2.LBRACE, "{"},
+				{token_v2.BOOL, "bool"},
+				{token_v2.IDENT, "flag"},
+				{token_v2.ASSIGN, "="},
+				{token_v2.NUM, "1"},
+				{token_v2.EQ, "=="},
+				{token_v2.NUM, "1"},
+				{token_v2.SEMICOLON, ";"},
 				{token_v2.IF, "if"},
-				{token_v2.ELSE, "else"},
-				{token_v2.METH, "meth"},
+				{token_v2.LPAREN, "("},
+				{token_v2.IDENT, "flag"},
+				{token_v2.RPAREN, ")"},
+				{token_v2.LBRACE, "{"},
 				{token_v2.RETURN, "return"},
-				{token_v2.INT32, "int32"},
+				{token_v2.TRUE, "true"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.RBRACE, "}"},
+				{token_v2.ELSE, "else"},
+				{token_v2.LBRACE, "{"},
+				{token_v2.RETURN, "return"},
+				{token_v2.FALSE, "false"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.RBRACE, "}"},
+				{token_v2.RBRACE, "}"},
 				{token_v2.EOF, ""},
 			},
 		},
