@@ -146,6 +146,101 @@ func TestNumToken(t *testing.T) {
 	runLexerTest(t, tests)
 }
 
+func TestCodeTokens(t *testing.T) {
+	tests := []lexerTestCase{
+		{
+			`
+			var arr_1 = [1, 2, 3, 4];
+			len(arr_1);
+			arr_1.first();
+			out(arr_1[1]);
+			`,
+			[]token_v2.Token{
+				{token_v2.VAR, "var"},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.ASSIGN, "="},
+				{token_v2.LBRACKET, "["},
+				{token_v2.NUM, "1"},
+				{token_v2.COMMA, ","},
+				{token_v2.NUM, "2"},
+				{token_v2.COMMA, ","},
+				{token_v2.NUM, "3"},
+				{token_v2.COMMA, ","},
+				{token_v2.NUM, "4"},
+				{token_v2.RBRACKET, "]"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "len"},
+				{token_v2.LPAREN, "("},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.RPAREN, ")"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.DOT, "."},
+				{token_v2.IDENT, "first"},
+				{token_v2.LPAREN, "("},
+				{token_v2.RPAREN, ")"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "out"},
+				{token_v2.LPAREN, "("},
+				{token_v2.IDENT, "arr_1"},
+				{token_v2.LBRACKET, "["},
+				{token_v2.NUM, "1"},
+				{token_v2.RBRACKET, "]"},
+				{token_v2.RPAREN, ")"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.EOF, ""},
+			},
+		},
+		{
+			`
+			func test1() -> bool {
+				bool flag = 1 == 1;
+				if (flag) {
+					return true;
+				} else {
+					return false;
+				}
+			}
+			`,
+			[]token_v2.Token{
+				{token_v2.FUNC, "func"},
+				{token_v2.IDENT, "test1"},
+				{token_v2.LPAREN, "("},
+				{token_v2.RPAREN, ")"},
+				{token_v2.ARROW, "->"},
+				{token_v2.BOOL, "bool"},
+				{token_v2.LBRACE, "{"},
+				{token_v2.BOOL, "bool"},
+				{token_v2.IDENT, "flag"},
+				{token_v2.ASSIGN, "="},
+				{token_v2.NUM, "1"},
+				{token_v2.EQ, "=="},
+				{token_v2.NUM, "1"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IF, "if"},
+				{token_v2.LPAREN, "("},
+				{token_v2.IDENT, "flag"},
+				{token_v2.RPAREN, ")"},
+				{token_v2.LBRACE, "{"},
+				{token_v2.RETURN, "return"},
+				{token_v2.TRUE, "true"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.RBRACE, "}"},
+				{token_v2.ELSE, "else"},
+				{token_v2.LBRACE, "{"},
+				{token_v2.RETURN, "return"},
+				{token_v2.FALSE, "false"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.RBRACE, "}"},
+				{token_v2.RBRACE, "}"},
+				{token_v2.EOF, ""},
+			},
+		},
+	}
+
+	runLexerTest(t, tests)
+}
+
 func runLexerTest(t *testing.T, tests []lexerTestCase) {
 	t.Helper()
 	for _, tt := range tests {
