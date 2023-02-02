@@ -6,27 +6,9 @@ const (
 	Initial = DfaState(iota)
 	End
 
-	// 分隔符状态码
-	Comma_State
-	Dot_State
-	Colon_State
-	Semicolon_State
-	Underline_State
-
-	// 边界符状态码
-	Lparen_State   // (
-	Rparen_State   // )
-	Lbracket_State // [
-	Rbracket_State // ]
-	Lbrace_State   // {
-	Rbrace_State   // }
-
 	// 基本运算符状态码
-	Assign_State   // =
-	Add_State      // +
-	Minus_State    // -
-	Asterisk_State // *
-	Slash_State    // /
+	Assign_State // =
+	Minus_State  // -
 
 	// 比较运算符
 	Lt_State  // <
@@ -52,6 +34,9 @@ const (
 
 	// 数字
 	Num_State
+
+	// 标识符
+	Ident_State
 
 	// 关键字
 	Func_State_1
