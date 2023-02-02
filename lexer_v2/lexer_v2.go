@@ -265,8 +265,6 @@ func (l *Lexer) tokenize() {
 		case dfa_state.If_State_1: // if
 			if c == 'f' {
 				l.cur_state = dfa_state.If_State
-			} else if c == 'n' {
-				l.cur_state = dfa_state.Int32_State_2
 			} else {
 				l.cur_state = dfa_state.Ident_State
 			}
@@ -301,23 +299,6 @@ func (l *Lexer) tokenize() {
 				l.addToken(i, token_v2.NUM)
 				l.stateTrans(i, c)
 			}
-
-		//  ==================== int32 ====================
-		case dfa_state.Int32_State_2:
-			if c == 't' {
-				l.cur_state = dfa_state.Int32_State_3
-			}
-		case dfa_state.Int32_State_3:
-			if c == '3' {
-				l.cur_state = dfa_state.Int32_State_4
-			}
-		case dfa_state.Int32_State_4:
-			if c == '2' {
-				l.cur_state = dfa_state.Int32_State
-			}
-		case dfa_state.Int32_State:
-			l.addToken(i, token_v2.INT32)
-			l.stateTrans(i, c)
 
 		//  ==================== return ====================
 		case dfa_state.Return_State_1: // return

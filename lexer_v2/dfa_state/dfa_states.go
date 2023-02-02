@@ -82,9 +82,4 @@ const (
 	Return_State_4
 	Return_State_5
 	Return_State
-
-	Int32_State_2
-	Int32_State_3
-	Int32_State_4
-	Int32_State
 )

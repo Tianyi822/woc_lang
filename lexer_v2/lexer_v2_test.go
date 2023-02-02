@@ -42,7 +42,7 @@ func TestKeyWorkToken(t *testing.T) {
 			`
 				var ;
 				bool true false;
-				func if else meth return int32;`,
+				func if else meth return ;`,
 			[]token_v2.Token{
 				{token_v2.VAR, "var"},
 				{token_v2.SEMICOLON, ";"},
@@ -55,7 +55,6 @@ func TestKeyWorkToken(t *testing.T) {
 				{token_v2.ELSE, "else"},
 				{token_v2.METH, "meth"},
 				{token_v2.RETURN, "return"},
-				{token_v2.INT32, "int32"},
 				{token_v2.SEMICOLON, ";"},
 				{token_v2.EOF, ""},
 			},
