@@ -60,7 +60,6 @@ const (
 	// ======================== 关键字 Token ========================
 	// 基本类型关键字
 	BOOL
-	INT32
 	NUM
 
 	// 语法关键字
@@ -139,6 +138,4 @@ var TokenMap = map[string]TokenType{
 	"else":   ELSE,
 	"meth":   METH,
 	"return": RETURN,
-
-	"int32": INT32,
 }
