@@ -2,6 +2,7 @@ package lexer_v2
 
 import (
 	"fmt"
+	"strings"
 	"woc_lang/lexer_v2/dfa_state"
 	"woc_lang/token_v2"
 )
@@ -22,6 +23,7 @@ type Lexer struct {
 	tokens       []token_v2.Token    // 收集解析出来的Token，按照顺序存储，向外提供函数访问
 	cur_state    dfa_state.DfaState  // 用于记录分析器当前的状态
 	error_tokens []token_v2.ErrToken // 错误词法集合
+	can_be_ident bool                // 判断当前 token 是否可以为 Ident(标识符)
 }
 
 func New(input string) *Lexer {
@@ -32,6 +34,7 @@ func New(input string) *Lexer {
 		tokens:       []token_v2.Token{},
 		cur_state:    dfa_state.Initial,
 		error_tokens: []token_v2.ErrToken{},
+		can_be_ident: false,
 	}
 	l.tokenize()
 	return l
@@ -147,11 +150,15 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.OR)
 			l.stateTrans(i, c)
 
+		//  ==================== 关键字解析 ====================
+		//  ==================== func ====================
 		case dfa_state.Func_State_1: // func
 			if c == 'u' {
 				l.cur_state = dfa_state.Func_State_2
 			} else if c == 'a' {
 				l.cur_state = dfa_state.False_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.Func_State_2:
 			if c == 'n' {
@@ -165,9 +172,12 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.FUNC)
 			l.stateTrans(i, c)
 
+		//  ==================== meth ====================
 		case dfa_state.Meth_State_1: // meth
 			if c == 'e' {
 				l.cur_state = dfa_state.Meth_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.Meth_State_2:
 			if c == 't' {
@@ -181,9 +191,12 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.METH)
 			l.stateTrans(i, c)
 
+		//  ==================== var ====================
 		case dfa_state.Var_State_1: // var
 			if c == 'a' {
 				l.cur_state = dfa_state.Var_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.Var_State_2:
 			if c == 'r' {
@@ -193,9 +206,12 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.VAR)
 			l.stateTrans(i, c)
 
+		//  ==================== bool ====================
 		case dfa_state.Bool_State_1: // bool
 			if c == 'o' {
 				l.cur_state = dfa_state.Bool_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.Bool_State_2:
 			if c == 'o' {
@@ -209,9 +225,12 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.BOOL)
 			l.stateTrans(i, c)
 
+		//  ==================== true ====================
 		case dfa_state.True_State_1: // true
 			if c == 'r' {
 				l.cur_state = dfa_state.True_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.True_State_2:
 			if c == 'u' {
@@ -225,6 +244,7 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.TRUE)
 			l.stateTrans(i, c)
 
+		//  ==================== false ====================
 		case dfa_state.False_State_2: // false
 			if c == 'l' {
 				l.cur_state = dfa_state.False_State_3
@@ -241,19 +261,25 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.FALSE)
 			l.stateTrans(i, c)
 
+		//  ==================== if ====================
 		case dfa_state.If_State_1: // if
 			if c == 'f' {
 				l.cur_state = dfa_state.If_State
 			} else if c == 'n' {
 				l.cur_state = dfa_state.Int32_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.If_State:
 			l.addToken(i, token_v2.IF)
 			l.stateTrans(i, c)
 
+		//  ==================== else ====================
 		case dfa_state.Else_State_1: // else
 			if c == 'l' {
 				l.cur_state = dfa_state.Else_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.Else_State_2:
 			if c == 's' {
@@ -271,10 +297,12 @@ func (l *Lexer) tokenize() {
 			if isDigit(c) {
 				l.cur_state = dfa_state.Num_State
 			} else {
+				// 当前状态结束时，需要识别新的状态
 				l.addToken(i, token_v2.NUM)
 				l.stateTrans(i, c)
 			}
 
+		//  ==================== int32 ====================
 		case dfa_state.Int32_State_2:
 			if c == 't' {
 				l.cur_state = dfa_state.Int32_State_3
@@ -291,9 +319,12 @@ func (l *Lexer) tokenize() {
 			l.addToken(i, token_v2.INT32)
 			l.stateTrans(i, c)
 
+		//  ==================== return ====================
 		case dfa_state.Return_State_1: // return
 			if c == 'e' {
 				l.cur_state = dfa_state.Return_State_2
+			} else {
+				l.cur_state = dfa_state.Ident_State
 			}
 		case dfa_state.Return_State_2:
 			if c == 't' {
@@ -344,11 +375,26 @@ func (l *Lexer) stateTrans(end_index int, ch rune) {
 		return
 	}
 
-	if isLetter(ch) {
+	if isLetter(ch) { // 字母解析
+		// 如果当前标识符是以字母开头，则允许作为标识符
+		if l.cur_state == dfa_state.Initial {
+			l.can_be_ident = true
+		}
 		l.letterState(ch)
-	} else if isDigit(ch) {
+	} else if isDigit(ch) { // 数字解析
+		// 如果当前标识符是以数字开头，则允许作为标识符
+		if l.cur_state == dfa_state.Initial {
+			l.can_be_ident = false
+		}
 		l.cur_state = dfa_state.Num_State
+	} else if isBlank(ch) {
+		l.base_index += 1
 	} else {
+		// 符号解析
+		// 只有当前状态为 Initial 状态，且当前字符为 _ 时，才可以作为标识符
+		if l.cur_state == dfa_state.Initial && ch == '_' {
+			l.can_be_ident = true
+		}
 		l.symbolState(end_index, ch)
 	}
 }
@@ -371,6 +417,8 @@ func (l *Lexer) letterState(ch rune) {
 		l.cur_state = dfa_state.Meth_State_1
 	case 'r':
 		l.cur_state = dfa_state.Return_State_1
+	default:
+		l.cur_state = dfa_state.Ident_State
 	}
 }
 
@@ -390,8 +438,7 @@ func (l *Lexer) symbolState(end_index int, ch rune) {
 		l.addToken(end_index, token_v2.COLON)
 
 	case '_':
-		l.cur_state = dfa_state.Underline_State
-		l.addToken(end_index, token_v2.UNDERLINE)
+		l.cur_state = dfa_state.Ident_State
 
 	case '+':
 		l.addToken(end_index, token_v2.ADD)
@@ -526,6 +573,14 @@ func isDigit(r rune) bool {
 // isLetter 判断是否为字母
 func isLetter(r rune) bool {
 	return r >= 'a' && r <= 'z' || r >= 'A' && r <= 'Z'
+}
+
+// isIdentLetter 判断该字符是否符合标识符的定义
+func isIdentLetter(r rune) bool {
+	return r >= 'a' && r <= 'z' ||
+		r >= 'A' && r <= 'Z' ||
+		r == '_' ||
+		r >= '0' && r <= '9'
 }
 
 // isBlank 判断是否是空白符
