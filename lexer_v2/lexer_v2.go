@@ -57,19 +57,7 @@ func (l *Lexer) tokenize() {
 		case dfa_state.Initial: // 初始状态，读取第一个字符
 			l.stateTrans(i, c)
 
-		case dfa_state.Comma_State, // ,
-			dfa_state.Dot_State,                            // .
-			dfa_state.Semicolon_State,                      // ;
-			dfa_state.Colon_State,                          // :
-			dfa_state.Underline_State,                      // _
-			dfa_state.Add_State,                            // +
-			dfa_state.Asterisk_State,                       // *
-			dfa_state.Slash_State,                          // /
-			dfa_state.Lparen_State, dfa_state.Rparen_State, // ()
-			dfa_state.Lbrace_State, dfa_state.Rbrace_State, // {}
-			dfa_state.Lbracket_State, dfa_state.Rbracket_State: // []
-			l.stateTrans(i, c)
-
+		//  ==================== 符号解析 ====================
 		case dfa_state.Assign_State: // =
 			// 判断当前字符是不是 =
 			// 如果是，则修改状态为 EQ_State，表示该 Token 是两个 = 组成的判断相等的 Token
@@ -78,27 +66,33 @@ func (l *Lexer) tokenize() {
 				l.cur_state = dfa_state.Eq_State
 			} else {
 				l.addToken(i, token_v2.ASSIGN)
+				l.stateTrans(i, c)
 			}
 		case dfa_state.Eq_State: // ==
 			l.addToken(i, token_v2.EQ)
+			l.stateTrans(i, c)
 
 		case dfa_state.Minus_State: // -
 			if c == '>' {
 				l.cur_state = dfa_state.Arrow_State
 			} else {
 				l.addToken(i, token_v2.MINUS)
+				l.stateTrans(i, c)
 			}
 		case dfa_state.Arrow_State: // ->
 			l.addToken(i, token_v2.ARROW)
+			l.stateTrans(i, c)
 
 		case dfa_state.Bang_State: // !
 			if c == '=' {
 				l.cur_state = dfa_state.Neq_State
 			} else {
 				l.addToken(i, token_v2.BANG)
+				l.stateTrans(i, c)
 			}
 		case dfa_state.Neq_State: // !=
 			l.addToken(i, token_v2.NEQ)
+			l.stateTrans(i, c)
 
 		case dfa_state.Gt_State:
 			if c == '=' {
@@ -107,11 +101,14 @@ func (l *Lexer) tokenize() {
 				l.cur_state = dfa_state.Bit_R_Offset_State
 			} else {
 				l.addToken(i, token_v2.GT)
+				l.stateTrans(i, c)
 			}
 		case dfa_state.Ge_State:
 			l.addToken(i, token_v2.GE)
+			l.stateTrans(i, c)
 		case dfa_state.Bit_R_Offset_State:
 			l.addToken(i, token_v2.BIT_R_OFFSET)
+			l.stateTrans(i, c)
 
 		case dfa_state.Lt_State:
 			if c == '=' {
@@ -120,20 +117,25 @@ func (l *Lexer) tokenize() {
 				l.cur_state = dfa_state.Bit_L_Offset_State
 			} else {
 				l.addToken(i, token_v2.LT)
+				l.stateTrans(i, c)
 			}
 		case dfa_state.Le_State:
 			l.addToken(i, token_v2.LE)
+			l.stateTrans(i, c)
 		case dfa_state.Bit_L_Offset_State:
 			l.addToken(i, token_v2.BIT_L_OFFSET)
+			l.stateTrans(i, c)
 
 		case dfa_state.Bit_And_State:
 			if c == '&' {
 				l.cur_state = dfa_state.And_State
 			} else {
 				l.addToken(i, token_v2.BIT_AND)
+				l.stateTrans(i, c)
 			}
 		case dfa_state.And_State:
 			l.addToken(i, token_v2.AND)
+			l.stateTrans(i, c)
 
 		case dfa_state.Bit_Or_State:
 			if c == '|' {
@@ -143,6 +145,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Or_State:
 			l.addToken(i, token_v2.OR)
+			l.stateTrans(i, c)
 
 		case dfa_state.Func_State_1: // func
 			if c == 'u' {
@@ -160,6 +163,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Func_State:
 			l.addToken(i, token_v2.FUNC)
+			l.stateTrans(i, c)
 
 		case dfa_state.Meth_State_1: // meth
 			if c == 'e' {
@@ -175,6 +179,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Meth_State:
 			l.addToken(i, token_v2.METH)
+			l.stateTrans(i, c)
 
 		case dfa_state.Var_State_1: // var
 			if c == 'a' {
@@ -186,6 +191,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Var_State:
 			l.addToken(i, token_v2.VAR)
+			l.stateTrans(i, c)
 
 		case dfa_state.Bool_State_1: // bool
 			if c == 'o' {
@@ -201,6 +207,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Bool_State:
 			l.addToken(i, token_v2.BOOL)
+			l.stateTrans(i, c)
 
 		case dfa_state.True_State_1: // true
 			if c == 'r' {
@@ -216,6 +223,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.True_State:
 			l.addToken(i, token_v2.TRUE)
+			l.stateTrans(i, c)
 
 		case dfa_state.False_State_2: // false
 			if c == 'l' {
@@ -231,6 +239,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.False_State:
 			l.addToken(i, token_v2.FALSE)
+			l.stateTrans(i, c)
 
 		case dfa_state.If_State_1: // if
 			if c == 'f' {
@@ -240,6 +249,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.If_State:
 			l.addToken(i, token_v2.IF)
+			l.stateTrans(i, c)
 
 		case dfa_state.Else_State_1: // else
 			if c == 'l' {
@@ -255,12 +265,14 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Else_State:
 			l.addToken(i, token_v2.ELSE)
+			l.stateTrans(i, c)
 
 		case dfa_state.Num_State: // 822
 			if isDigit(c) {
 				l.cur_state = dfa_state.Num_State
 			} else {
 				l.addToken(i, token_v2.NUM)
+				l.stateTrans(i, c)
 			}
 
 		case dfa_state.Int32_State_2:
@@ -277,6 +289,7 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Int32_State:
 			l.addToken(i, token_v2.INT32)
+			l.stateTrans(i, c)
 
 		case dfa_state.Return_State_1: // return
 			if c == 'e' {
@@ -300,6 +313,17 @@ func (l *Lexer) tokenize() {
 			}
 		case dfa_state.Return_State:
 			l.addToken(i, token_v2.RETURN)
+			l.stateTrans(i, c)
+
+		//  ==================== 标识符定义 ====================
+		//  ==================== ident ====================
+		case dfa_state.Ident_State:
+			if isIdentLetter(c) {
+				l.cur_state = dfa_state.Ident_State
+			} else {
+				l.addToken(i, token_v2.IDENT)
+				l.stateTrans(i, c)
+			}
 
 		default:
 			// 未定义状态的就是空字符
@@ -354,19 +378,15 @@ func (l *Lexer) symbolState(end_index int, ch rune) {
 	switch ch {
 	case ',':
 		// 将解析到的 Token 添加到集合中，并修改分析器状态
-		l.cur_state = dfa_state.Comma_State
 		l.addToken(end_index, token_v2.COMMA)
 
 	case '.':
-		l.cur_state = dfa_state.Dot_State
 		l.addToken(end_index, token_v2.DOT)
 
 	case ';':
-		l.cur_state = dfa_state.Semicolon_State
 		l.addToken(end_index, token_v2.SEMICOLON)
 
 	case ':':
-		l.cur_state = dfa_state.Colon_State
 		l.addToken(end_index, token_v2.COLON)
 
 	case '_':
@@ -374,39 +394,30 @@ func (l *Lexer) symbolState(end_index int, ch rune) {
 		l.addToken(end_index, token_v2.UNDERLINE)
 
 	case '+':
-		l.cur_state = dfa_state.Add_State
 		l.addToken(end_index, token_v2.ADD)
 
 	case '*':
-		l.cur_state = dfa_state.Asterisk_State
 		l.addToken(end_index, token_v2.ASTERISK)
 
 	case '/':
-		l.cur_state = dfa_state.Slash_State
 		l.addToken(end_index, token_v2.SLASH)
 
 	case '(':
-		l.cur_state = dfa_state.Lparen_State
 		l.addToken(end_index, token_v2.LPAREN)
 
 	case ')':
-		l.cur_state = dfa_state.Rparen_State
 		l.addToken(end_index, token_v2.RPAREN)
 
 	case '[':
-		l.cur_state = dfa_state.Lbracket_State
 		l.addToken(end_index, token_v2.LBRACKET)
 
 	case ']':
-		l.cur_state = dfa_state.Rbracket_State
 		l.addToken(end_index, token_v2.RBRACKET)
 
 	case '{':
-		l.cur_state = dfa_state.Lbrace_State
 		l.addToken(end_index, token_v2.LBRACE)
 
 	case '}':
-		l.cur_state = dfa_state.Rbrace_State
 		l.addToken(end_index, token_v2.RBRACE)
 
 	case '-':
@@ -436,42 +447,55 @@ func (l *Lexer) symbolState(end_index int, ch rune) {
 // param end_index: Token 字符结束位置
 // param tokenType: Token 类型
 func (l *Lexer) addToken(end_index int, tokenType token_v2.TokenType) {
-	// 消除 Token 中的空格，举个栗子：
-	// 有一个字符串 (= ==), 要从中解析出 (=)，按照当前的代码逻辑，end_index 指向第一个空格
-	// addToken 需要将 (= ) 修正为 (=)，这样就可以放心处理空格问题，无需在前面的逻辑中添加复杂代码
-	// 至于为什么不用 golang 提供的内置函数，是为了减少性能消耗，因为将 rune 数组转换为字符串会有一定的损耗
-	var realToken []rune
-	for i := l.base_index; i < end_index+1; i++ {
-		if !isBlank(l.code[i]) {
-			realToken = append(realToken, l.code[i])
-		}
+	var tokLiteral string
+	// 针对单字符，例如: , . ; : + * / ( ) { } [ ]
+	if l.base_index == end_index {
+		tokLiteral = string(l.code[l.base_index])
+		l.base_index = end_index + 1
+	} else {
+		// 消除 Token 中的空格
+		tokLiteral = strings.TrimSpace(string(l.code[l.base_index:end_index]))
+		l.base_index = end_index
 	}
 
-	tokLiteral := string(realToken)
-	l.checkToken(tokenType, tokLiteral)
-	l.base_index = end_index + 1
+	ok := l.checkToken(end_index, tokenType, tokLiteral)
+	if ok {
+		tok := token_v2.Token{
+			Type:    tokenType,
+			Literal: tokLiteral,
+		}
+		l.tokens = append(l.tokens, tok)
+	}
 
 	// 当一个 Token 添加到集合后，就需要重置状态
 	l.cur_state = dfa_state.Initial
 }
 
 // checkToken 检查是否有定义此类型 Token
-func (l *Lexer) checkToken(tokenType token_v2.TokenType, tokLiteral string) bool {
+func (l *Lexer) checkToken(end_index int, tokenType token_v2.TokenType, tokLiteral string) bool {
 	ok := true
-	// 因为数值字面量不确定，所以当传递过来的是 Num 类型，就不需要检查
-	if tokenType != token_v2.NUM {
+	// 因为数值字面量和标识符字面量不确定，所以当传递过来的是 Num 和 IDENT 类型，就不需要检查
+	if tokenType != token_v2.NUM && tokenType != token_v2.IDENT {
 		// 判断关键字表中是否存在
 		_, ok = token_v2.TokenMap[tokLiteral]
 	}
 
-	if ok || tokenType == token_v2.NUM {
-		tok := token_v2.Token{
-			Type:    tokenType,
+	// 如果当前的 tokenType 是数值类型，且不可以为标识符时，表示当前 Token 错误
+	if !l.can_be_ident && tokenType == token_v2.IDENT {
+		msg := fmt.Sprintf("[%d] 开始到 [%d] 结束的标识符格式错误，不允许以数字开头: %s",
+			l.base_index+1, end_index, tokLiteral)
+		errTok := token_v2.ErrToken{
+			Type:    token_v2.ILLEGAL,
 			Literal: tokLiteral,
+			Msg:     msg,
 		}
-		l.tokens = append(l.tokens, tok)
-	} else {
-		msg := fmt.Sprintf("该符号/关键字未定义，请检查代码是否有误")
+		l.error_tokens = append(l.error_tokens, errTok)
+		return ok
+	}
+
+	if !ok {
+		msg := fmt.Sprintf("[%d] 开始到 [%d] 结束的符号/关键字未定义，请检查代码是否有误",
+			l.base_index+1, end_index)
 
 		errTok := token_v2.ErrToken{
 			Type:    token_v2.ILLEGAL,
@@ -481,6 +505,7 @@ func (l *Lexer) checkToken(tokenType token_v2.TokenType, tokLiteral string) bool
 
 		l.error_tokens = append(l.error_tokens, errTok)
 	}
+
 	return ok
 }
 

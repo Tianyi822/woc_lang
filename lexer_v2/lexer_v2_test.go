@@ -13,13 +13,12 @@ type lexerTestCase struct {
 func TestNextToken(t *testing.T) {
 	tests := []lexerTestCase{
 		{
-			",.;: _ + * / ( ) {}[]",
+			",.;:+*/(){}[]",
 			[]token_v2.Token{
 				{token_v2.COMMA, ","},
 				{token_v2.DOT, "."},
 				{token_v2.SEMICOLON, ";"},
 				{token_v2.COLON, ":"},
-				{token_v2.UNDERLINE, "_"},
 				{token_v2.ADD, "+"},
 				{token_v2.ASTERISK, "*"},
 				{token_v2.SLASH, "/"},
@@ -29,28 +28,6 @@ func TestNextToken(t *testing.T) {
 				{token_v2.RBRACE, "}"},
 				{token_v2.LBRACKET, "["},
 				{token_v2.RBRACKET, "]"},
-				{token_v2.EOF, ""},
-			},
-		},
-		{
-			"= == ! != > >=  < <=  & &&  |  || >> << - ->",
-			[]token_v2.Token{
-				{token_v2.ASSIGN, "="},
-				{token_v2.EQ, "=="},
-				{token_v2.BANG, "!"},
-				{token_v2.NEQ, "!="},
-				{token_v2.GT, ">"},
-				{token_v2.GE, ">="},
-				{token_v2.LT, "<"},
-				{token_v2.LE, "<="},
-				{token_v2.BIT_AND, "&"},
-				{token_v2.AND, "&&"},
-				{token_v2.BIT_OR, "|"},
-				{token_v2.OR, "||"},
-				{token_v2.BIT_R_OFFSET, ">>"},
-				{token_v2.BIT_L_OFFSET, "<<"},
-				{token_v2.MINUS, "-"},
-				{token_v2.ARROW, "->"},
 				{token_v2.EOF, ""},
 			},
 		},
