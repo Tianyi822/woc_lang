@@ -75,7 +75,9 @@ func TestIdentToken(t *testing.T) {
 			m me met
 			 r re ret retu retur x;
 			b bo; boo;
-			cty foo view bar test icu egg money rust test_1 test_tt;`,
+			cty foo view bar test icu egg money rust test_1 test_tt;
+			true_test false_test func_test var_test
+			if_test else_test meth_test return_test bool_3_test;`,
 			[]token_v2.Token{
 				{token_v2.IDENT, "t"},
 				{token_v2.SEMICOLON, ";"},
@@ -137,6 +139,16 @@ func TestIdentToken(t *testing.T) {
 				{token_v2.IDENT, "rust"},
 				{token_v2.IDENT, "test_1"},
 				{token_v2.IDENT, "test_tt"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "true_test"},
+				{token_v2.IDENT, "false_test"},
+				{token_v2.IDENT, "func_test"},
+				{token_v2.IDENT, "var_test"},
+				{token_v2.IDENT, "if_test"},
+				{token_v2.IDENT, "else_test"},
+				{token_v2.IDENT, "meth_test"},
+				{token_v2.IDENT, "return_test"},
+				{token_v2.IDENT, "bool_3_test"},
 				{token_v2.SEMICOLON, ";"},
 			},
 		},
