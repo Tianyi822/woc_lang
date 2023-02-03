@@ -67,8 +67,65 @@ func TestKeyWorkToken(t *testing.T) {
 func TestIdentToken(t *testing.T) {
 	tests := []lexerTestCase{
 		{
-			"cty foo view bar test icu egg money rust test_1 test_tt;",
+			`t; tr; tru; tt;
+			f; fa; fal; fals; ffa; fu; fun;
+			v; va;
+			i;
+			e; el; els;
+			m me met
+			 r re ret retu retur x;
+			b bo; boo;
+			cty foo view bar test icu egg money rust test_1 test_tt;`,
 			[]token_v2.Token{
+				{token_v2.IDENT, "t"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "tr"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "tru"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "tt"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "f"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "fa"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "fal"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "fals"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "ffa"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "fu"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "fun"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "v"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "va"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "i"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "e"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "el"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "els"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "m"},
+				{token_v2.IDENT, "me"},
+				{token_v2.IDENT, "met"},
+				{token_v2.IDENT, "r"},
+				{token_v2.IDENT, "re"},
+				{token_v2.IDENT, "ret"},
+				{token_v2.IDENT, "retu"},
+				{token_v2.IDENT, "retur"},
+				{token_v2.IDENT, "x"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "b"},
+				{token_v2.IDENT, "bo"},
+				{token_v2.SEMICOLON, ";"},
+				{token_v2.IDENT, "boo"},
+				{token_v2.SEMICOLON, ";"},
 				{token_v2.IDENT, "cty"},
 				{token_v2.IDENT, "foo"},
 				{token_v2.IDENT, "view"},
