@@ -68,34 +68,28 @@ func (l *Lexer) tokenize() {
 			if c == '=' {
 				l.cur_state = dfa_state.Eq_State
 			} else {
-				l.addToken(i, token_v2.ASSIGN)
-				l.stateTrans(i, c)
+				l.dealToken(i, c, token_v2.ASSIGN)
 			}
 		case dfa_state.Eq_State: // ==
-			l.addToken(i, token_v2.EQ)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.EQ)
 
 		case dfa_state.Minus_State: // -
 			if c == '>' {
 				l.cur_state = dfa_state.Arrow_State
 			} else {
-				l.addToken(i, token_v2.MINUS)
-				l.stateTrans(i, c)
+				l.dealToken(i, c, token_v2.MINUS)
 			}
 		case dfa_state.Arrow_State: // ->
-			l.addToken(i, token_v2.ARROW)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.ARROW)
 
 		case dfa_state.Bang_State: // !
 			if c == '=' {
 				l.cur_state = dfa_state.Neq_State
 			} else {
-				l.addToken(i, token_v2.BANG)
-				l.stateTrans(i, c)
+				l.dealToken(i, c, token_v2.BANG)
 			}
 		case dfa_state.Neq_State: // !=
-			l.addToken(i, token_v2.NEQ)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.NEQ)
 
 		case dfa_state.Gt_State:
 			if c == '=' {
@@ -103,15 +97,12 @@ func (l *Lexer) tokenize() {
 			} else if c == '>' {
 				l.cur_state = dfa_state.Bit_R_Offset_State
 			} else {
-				l.addToken(i, token_v2.GT)
-				l.stateTrans(i, c)
+				l.dealToken(i, c, token_v2.GT)
 			}
 		case dfa_state.Ge_State:
-			l.addToken(i, token_v2.GE)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.GE)
 		case dfa_state.Bit_R_Offset_State:
-			l.addToken(i, token_v2.BIT_R_OFFSET)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.BIT_R_OFFSET)
 
 		case dfa_state.Lt_State:
 			if c == '=' {
@@ -119,26 +110,21 @@ func (l *Lexer) tokenize() {
 			} else if c == '<' {
 				l.cur_state = dfa_state.Bit_L_Offset_State
 			} else {
-				l.addToken(i, token_v2.LT)
-				l.stateTrans(i, c)
+				l.dealToken(i, c, token_v2.LT)
 			}
 		case dfa_state.Le_State:
-			l.addToken(i, token_v2.LE)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.LE)
 		case dfa_state.Bit_L_Offset_State:
-			l.addToken(i, token_v2.BIT_L_OFFSET)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.BIT_L_OFFSET)
 
 		case dfa_state.Bit_And_State:
 			if c == '&' {
 				l.cur_state = dfa_state.And_State
 			} else {
-				l.addToken(i, token_v2.BIT_AND)
-				l.stateTrans(i, c)
+				l.dealToken(i, c, token_v2.BIT_AND)
 			}
 		case dfa_state.And_State:
-			l.addToken(i, token_v2.AND)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.AND)
 
 		case dfa_state.Bit_Or_State:
 			if c == '|' {
@@ -147,8 +133,7 @@ func (l *Lexer) tokenize() {
 				l.addToken(i, token_v2.BIT_OR)
 			}
 		case dfa_state.Or_State:
-			l.addToken(i, token_v2.OR)
-			l.stateTrans(i, c)
+			l.dealToken(i, c, token_v2.OR)
 
 		//  ==================== 关键字解析 ====================
 		//  ==================== func ====================
@@ -158,183 +143,205 @@ func (l *Lexer) tokenize() {
 			} else if c == 'a' {
 				l.cur_state = dfa_state.False_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Func_State_2:
 			if c == 'n' {
 				l.cur_state = dfa_state.Func_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Func_State_3:
 			if c == 'c' {
 				l.cur_state = dfa_state.Func_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Func_State:
-			l.addToken(i, token_v2.FUNC)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.FUNC)
 
 		//  ==================== meth ====================
 		case dfa_state.Meth_State_1: // meth
 			if c == 'e' {
 				l.cur_state = dfa_state.Meth_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Meth_State_2:
 			if c == 't' {
 				l.cur_state = dfa_state.Meth_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Meth_State_3:
 			if c == 'h' {
 				l.cur_state = dfa_state.Meth_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Meth_State:
-			l.addToken(i, token_v2.METH)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.METH)
 
 		//  ==================== var ====================
 		case dfa_state.Var_State_1: // var
 			if c == 'a' {
 				l.cur_state = dfa_state.Var_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Var_State_2:
 			if c == 'r' {
 				l.cur_state = dfa_state.Var_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Var_State:
-			l.addToken(i, token_v2.VAR)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.VAR)
 
 		//  ==================== bool ====================
 		case dfa_state.Bool_State_1: // bool
 			if c == 'o' {
 				l.cur_state = dfa_state.Bool_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Bool_State_2:
 			if c == 'o' {
 				l.cur_state = dfa_state.Bool_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Bool_State_3:
 			if c == 'l' {
 				l.cur_state = dfa_state.Bool_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Bool_State:
-			l.addToken(i, token_v2.BOOL)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.BOOL)
 
 		//  ==================== true ====================
 		case dfa_state.True_State_1: // true
 			if c == 'r' {
 				l.cur_state = dfa_state.True_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.True_State_2:
 			if c == 'u' {
 				l.cur_state = dfa_state.True_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.True_State_3:
 			if c == 'e' {
 				l.cur_state = dfa_state.True_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.True_State:
-			l.addToken(i, token_v2.TRUE)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.TRUE)
 
 		//  ==================== false ====================
 		case dfa_state.False_State_2: // false
 			if c == 'l' {
 				l.cur_state = dfa_state.False_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.False_State_3:
 			if c == 's' {
 				l.cur_state = dfa_state.False_State_4
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.False_State_4:
 			if c == 'e' {
 				l.cur_state = dfa_state.False_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.False_State:
-			l.addToken(i, token_v2.FALSE)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.FALSE)
 
 		//  ==================== if ====================
 		case dfa_state.If_State_1: // if
 			if c == 'f' {
 				l.cur_state = dfa_state.If_State
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.If_State:
-			l.addToken(i, token_v2.IF)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.IF)
 
 		//  ==================== else ====================
 		case dfa_state.Else_State_1: // else
 			if c == 'l' {
 				l.cur_state = dfa_state.Else_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Else_State_2:
 			if c == 's' {
 				l.cur_state = dfa_state.Else_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Else_State_3:
 			if c == 'e' {
 				l.cur_state = dfa_state.Else_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Else_State:
-			l.addToken(i, token_v2.ELSE)
-			l.stateTrans(i, c)
-
-		case dfa_state.Num_State: // 822
-			if isDigit(c) {
-				l.cur_state = dfa_state.Num_State
-			} else {
-				// 当前状态结束时，需要识别新的状态
-				l.addToken(i, token_v2.NUM)
-				l.stateTrans(i, c)
-			}
+			l.createTokenOrTransState(i, c, token_v2.ELSE)
 
 		//  ==================== return ====================
 		case dfa_state.Return_State_1: // return
 			if c == 'e' {
 				l.cur_state = dfa_state.Return_State_2
 			} else {
-				l.cur_state = dfa_state.Ident_State
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Return_State_2:
 			if c == 't' {
 				l.cur_state = dfa_state.Return_State_3
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Return_State_3:
 			if c == 'u' {
 				l.cur_state = dfa_state.Return_State_4
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Return_State_4:
 			if c == 'r' {
 				l.cur_state = dfa_state.Return_State_5
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Return_State_5:
 			if c == 'n' {
 				l.cur_state = dfa_state.Return_State
+			} else {
+				l.createTokenOrTransState(i, c, token_v2.IDENT)
 			}
 		case dfa_state.Return_State:
-			l.addToken(i, token_v2.RETURN)
-			l.stateTrans(i, c)
+			l.createTokenOrTransState(i, c, token_v2.RETURN)
 
 		//  ==================== 标识符定义 ====================
 		//  ==================== ident ====================
 		case dfa_state.Ident_State:
-			if isIdentLetter(c) {
-				l.cur_state = dfa_state.Ident_State
+			l.createTokenOrTransState(i, c, token_v2.IDENT)
+
+		//  ==================== 数值字面量定义 ====================
+		case dfa_state.Num_State: // 822
+			if isDigit(c) {
+				l.cur_state = dfa_state.Num_State
 			} else {
-				l.addToken(i, token_v2.IDENT)
-				l.stateTrans(i, c)
+				// 当前状态结束时，需要识别新的状态
+				l.dealToken(i, c, token_v2.NUM)
 			}
 
 		default:
@@ -344,6 +351,21 @@ func (l *Lexer) tokenize() {
 	}
 	// 扫描结束后，在 Token 集合中添加 EOF Token 表示结束
 	l.stateTrans(len(l.code), 0)
+}
+
+// createTokenOrTransState 根据传入的参数判断是生成一个新的 Token，还是转移状态
+func (l *Lexer) createTokenOrTransState(index int, ch rune, tokenType token_v2.TokenType) {
+	if isIdentLetter(ch) {
+		l.cur_state = dfa_state.Ident_State
+	} else {
+		l.dealToken(index, ch, tokenType)
+	}
+}
+
+// dealToken Token 添加完成后，根据当前读到的新字符，转移到对应状态
+func (l *Lexer) dealToken(index int, c rune, tokenType token_v2.TokenType) {
+	l.addToken(index, tokenType)
+	l.stateTrans(index, c)
 }
 
 // stateTrans 状态转移处理
@@ -510,8 +532,8 @@ func (l *Lexer) checkToken(end_index int, tokenType token_v2.TokenType, tokLiter
 
 	// 如果当前的 tokenType 是数值类型，且不可以为标识符时，表示当前 Token 错误
 	if !l.can_be_ident && tokenType == token_v2.IDENT {
-		msg := fmt.Sprintf("[%d] 开始到 [%d] 结束的标识符格式错误，不允许以数字开头: %s",
-			l.base_index+1, end_index, tokLiteral)
+		msg := fmt.Sprintf("[%d]-(%s) 到 [%d]-(%s) 的标识符格式错误，不允许以数字开头: %s",
+			l.base_index+1, string(l.code[l.base_index]), end_index+1, string(l.code[end_index]), tokLiteral)
 		errTok := token_v2.ErrToken{
 			Type:    token_v2.ILLEGAL,
 			Literal: tokLiteral,
@@ -522,8 +544,8 @@ func (l *Lexer) checkToken(end_index int, tokenType token_v2.TokenType, tokLiter
 	}
 
 	if !ok {
-		msg := fmt.Sprintf("[%d] 开始到 [%d] 结束的符号/关键字未定义，请检查代码是否有误",
-			l.base_index+1, end_index)
+		msg := fmt.Sprintf("[%d]-(%s) 到 [%d]-(%s) 的符号/关键字未定义，请检查代码是否有误",
+			l.base_index+1, string(l.code[l.base_index]), end_index+1, string(l.code[end_index]))
 
 		errTok := token_v2.ErrToken{
 			Type:    token_v2.ILLEGAL,
