@@ -30,8 +30,8 @@ func (p *Program) String() string {
 
 // VarStatement 声明变量表达式
 type VarStatement struct {
-	Token *token_v2.Token
-	Name  *IdentExpression
+	Token token_v2.Token
+	Name  IdentExpression
 	Value Expression
 }
 
