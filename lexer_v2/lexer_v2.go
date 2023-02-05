@@ -53,6 +53,14 @@ func (l *Lexer) NextToken() token_v2.Token {
 	}
 }
 
+func (l *Lexer) PeekToken() token_v2.Token {
+	if l.reader_index+1 >= len(l.tokens) {
+		return token_v2.Token{Type: token_v2.EOF}
+	} else {
+		return l.tokens[l.reader_index+1]
+	}
+}
+
 // tokenize 识别代码中的 token
 func (l *Lexer) tokenize() {
 	for i, c := range l.code {
