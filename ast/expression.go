@@ -22,3 +22,19 @@ func (ie *IdentExpression) TokenLiteral() string {
 func (ie *IdentExpression) String() string {
 	return ie.Value
 }
+
+// IntegerLiteral 整型字面量
+type IntegerLiteral struct {
+	Token token_v2.Token
+	Value int
+}
+
+func (il *IntegerLiteral) eNode() {}
+
+func (il *IntegerLiteral) TokenLiteral() string {
+	return il.Token.Literal
+}
+
+func (il *IntegerLiteral) String() string {
+	return il.Token.Literal
+}
