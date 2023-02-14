@@ -313,7 +313,7 @@ func runLexerTest(t *testing.T, tests []lexerTestCase) {
 	t.Helper()
 	for _, tt := range tests {
 		l := New(tt.input)
-		checkParserErrors(t, l)
+		checkLexerErrors(t, l)
 
 		for i, expTok := range tt.expectedTokens {
 			tok := l.NextToken()
@@ -325,7 +325,7 @@ func runLexerTest(t *testing.T, tests []lexerTestCase) {
 	}
 }
 
-func checkParserErrors(t *testing.T, l *Lexer) {
+func checkLexerErrors(t *testing.T, l *Lexer) {
 	errTokens := l.Errors()
 	if len(errTokens) == 0 {
 		return
