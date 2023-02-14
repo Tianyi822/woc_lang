@@ -45,7 +45,7 @@ func (l *Lexer) Errors() []token_v2.ErrToken {
 }
 
 func (l *Lexer) NextToken() token_v2.Token {
-	if l.reader_index >= len(l.tokens) {
+	if l.reader_index+1 >= len(l.tokens) {
 		return token_v2.Token{Type: token_v2.EOF}
 	} else {
 		l.reader_index += 1
