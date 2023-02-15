@@ -7,19 +7,19 @@ import (
 
 func TestVarStatement(t *testing.T) {
 	stat := &VarStatement{
-		Token: &token_v2.Token{
+		Token: token_v2.Token{
 			Type:    token_v2.VAR,
 			Literal: "var",
 		},
-		Name: &IdentExpression{
-			Token: &token_v2.Token{
+		Name: IdentExpression{
+			Token: token_v2.Token{
 				Type:    token_v2.IDENT,
 				Literal: "age",
 			},
 			Value: "age",
 		},
 		Value: &IdentExpression{
-			Token: &token_v2.Token{
+			Token: token_v2.Token{
 				Type:    token_v2.IDENT,
 				Literal: "age_value",
 			},
