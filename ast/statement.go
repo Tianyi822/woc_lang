@@ -54,3 +54,27 @@ func (vs *VarStatement) String() string {
 
 	return out.String()
 }
+
+// ReturnStatement 声明返回语句
+type ReturnStatement struct {
+	Token       token_v2.Token
+	ReturnValue Expression
+}
+
+func (rs *ReturnStatement) sNode() {}
+
+func (rs *ReturnStatement) TokenLiteral() string {
+	return rs.Token.Literal
+}
+
+func (rs *ReturnStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(rs.TokenLiteral() + " ")
+	if rs.ReturnValue != nil {
+		out.WriteString(rs.ReturnValue.String())
+	}
+	out.WriteString(";")
+
+	return out.String()
+}
