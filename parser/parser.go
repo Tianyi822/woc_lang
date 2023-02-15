@@ -55,10 +55,13 @@ func (p *Parser) parseProgram() {
 	p.program = program
 }
 
+// parseStatement 解析语句
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.cur_token.Type {
 	case token_v2.VAR:
 		return p.parseVarStatement()
+	case token_v2.RETURN:
+		return p.parseReturnStatement()
 	default:
 		// TODO: 保留选择
 		return nil
@@ -92,6 +95,19 @@ func (p *Parser) parseVarStatement() ast.Statement {
 				p.cur_token.Literal, p.peek_token.Literal),
 		)
 		return nil
+	}
+
+	// TODO: 等号右边的表达式暂时不处理，后续添加
+	for !p.curTokenIs(token_v2.SEMICOLON) {
+		p.nextToken()
+	}
+
+	return stmt
+}
+
+func (p *Parser) parseReturnStatement() ast.Statement {
+	stmt := &ast.ReturnStatement{
+		Token: p.cur_token,
 	}
 
 	// TODO: 等号右边的表达式暂时不处理，后续添加

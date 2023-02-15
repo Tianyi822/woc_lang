@@ -88,6 +88,32 @@ func TestLetStatement(t *testing.T) {
 	runParserTest(t, tests)
 }
 
+func TestReturnStatement(t *testing.T) {
+	tests := []parserTestCase{
+		{
+			input: "return 666;",
+			num:   1,
+			node: []ast.Node{
+				&ast.ReturnStatement{
+					Token: token_v2.Token{
+						Type:    token_v2.RETURN,
+						Literal: "return",
+					},
+					ReturnValue: &ast.IntegerLiteral{
+						Token: token_v2.Token{
+							Type:    token_v2.NUM,
+							Literal: "666",
+						},
+						Value: 666,
+					},
+				},
+			},
+		},
+	}
+
+	runParserTest(t, tests)
+}
+
 func runParserTest(t *testing.T, tests []parserTestCase) {
 	t.Helper()
 
@@ -106,6 +132,8 @@ func runParserTest(t *testing.T, tests []parserTestCase) {
 			t.Fatalf("测试用例 %d 语法结构与预期不符:\n预期: %d\n实际: %d",
 				i+1, tt.num, len(parser.program.Statements))
 		}
+
+		// TODO: 现在还没有对表达式进行解析，所以无法编写后续的测试逻辑，后续添加
 	}
 
 	t.Helper()
