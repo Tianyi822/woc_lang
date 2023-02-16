@@ -1,4 +1,4 @@
-package token_v2
+package token
 
 type TokenType uint8
 

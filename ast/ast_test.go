@@ -2,25 +2,25 @@ package ast
 
 import (
 	"testing"
-	"woc_lang/token_v2"
+	"woc_lang/token"
 )
 
 func TestVarStatement(t *testing.T) {
 	stat := &VarStatement{
-		Token: &token_v2.Token{
-			Type:    token_v2.VAR,
+		Token: token.Token{
+			Type:    token.VAR,
 			Literal: "var",
 		},
-		Name: &IdentExpression{
-			Token: &token_v2.Token{
-				Type:    token_v2.IDENT,
+		Name: IdentExpression{
+			Token: token.Token{
+				Type:    token.IDENT,
 				Literal: "age",
 			},
 			Value: "age",
 		},
 		Value: &IdentExpression{
-			Token: &token_v2.Token{
-				Type:    token_v2.IDENT,
+			Token: token.Token{
+				Type:    token.IDENT,
 				Literal: "age_value",
 			},
 			Value: "age_value",
