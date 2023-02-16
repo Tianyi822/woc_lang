@@ -3,20 +3,20 @@ package parser
 import (
 	"fmt"
 	"woc_lang/ast"
-	"woc_lang/lexer_v2"
-	"woc_lang/token_v2"
+	"woc_lang/lexer"
+	"woc_lang/token"
 )
 
 // Parser 语法分析器
 type Parser struct {
-	l          *lexer_v2.Lexer // 词法分析器
-	cur_token  token_v2.Token  // 从词法分析器中读取到的当前 Token
-	peek_token token_v2.Token  // 从词法分析器中读取到的下一个 Token
-	program    *ast.Program    // AST 的根节点
-	errors     []string        // 收集语法分析过程中出现的错误
+	l          *lexer.Lexer // 词法分析器
+	cur_token  token.Token  // 从词法分析器中读取到的当前 Token
+	peek_token token.Token  // 从词法分析器中读取到的下一个 Token
+	program    *ast.Program // AST 的根节点
+	errors     []string     // 收集语法分析过程中出现的错误
 }
 
-func New(l *lexer_v2.Lexer) *Parser {
+func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:          l,
 		cur_token:  l.NextToken(),
@@ -41,7 +41,7 @@ func (p *Parser) parseProgram() {
 	}
 
 	// 开始遍历词法单元
-	for p.cur_token.Type != token_v2.EOF {
+	for p.cur_token.Type != token.EOF {
 		// 解析一条语句
 		stmt := p.parseStatement()
 		if stmt != nil {
@@ -58,9 +58,9 @@ func (p *Parser) parseProgram() {
 // parseStatement 解析语句
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.cur_token.Type {
-	case token_v2.VAR:
+	case token.VAR:
 		return p.parseVarStatement()
-	case token_v2.RETURN:
+	case token.RETURN:
 		return p.parseReturnStatement()
 	default:
 		// TODO: 保留选择
@@ -74,7 +74,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 	}
 
 	// 判断语法错误
-	if !p.expectPeek(token_v2.IDENT) {
+	if !p.expectPeek(token.IDENT) {
 		p.errors = append(
 			p.errors,
 			fmt.Sprintf("解析声明变量语法错误，当前 Token 为 %s，下一个 Token 为 %s",
@@ -88,7 +88,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 		Value: p.cur_token.Literal,
 	}
 
-	if !p.expectPeek(token_v2.ASSIGN) {
+	if !p.expectPeek(token.ASSIGN) {
 		p.errors = append(
 			p.errors,
 			fmt.Sprintf("解析声明变量语法错误，当前 Token 为 %s，下一个 Token 为 %s",
@@ -98,7 +98,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 	}
 
 	// TODO: 等号右边的表达式暂时不处理，后续添加
-	for !p.curTokenIs(token_v2.SEMICOLON) {
+	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -111,7 +111,7 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 	}
 
 	// TODO: 等号右边的表达式暂时不处理，后续添加
-	for !p.curTokenIs(token_v2.SEMICOLON) {
+	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -124,19 +124,19 @@ func (p *Parser) nextToken() {
 }
 
 // curTokenIs 判断当前 Token 是否是指定的 TokenType
-func (p *Parser) curTokenIs(t token_v2.TokenType) bool {
+func (p *Parser) curTokenIs(t token.TokenType) bool {
 	return p.cur_token.Type == t
 }
 
 // peekTokenIs 判断下一个 Token 是否是指定的 TokenType
-func (p *Parser) peekTokenIs(t token_v2.TokenType) bool {
+func (p *Parser) peekTokenIs(t token.TokenType) bool {
 	return p.peek_token.Type == t
 }
 
 // expectPeek 判断下一个 Token 是否为预期的 TokenType
 // true - 移动当前 curToken 到下一位
 // false - 将错误保存起来
-func (p *Parser) expectPeek(t token_v2.TokenType) bool {
+func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekTokenIs(t) {
 		p.nextToken()
 		return true

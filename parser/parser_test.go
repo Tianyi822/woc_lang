@@ -3,8 +3,8 @@ package parser
 import (
 	"testing"
 	"woc_lang/ast"
-	"woc_lang/lexer_v2"
-	"woc_lang/token_v2"
+	"woc_lang/lexer"
+	"woc_lang/token"
 )
 
 type parserTestCase struct {
@@ -22,60 +22,60 @@ func TestLetStatement(t *testing.T) {
 			num: 3,
 			node: []ast.Node{
 				&ast.VarStatement{
-					Token: token_v2.Token{
-						Type:    token_v2.VAR,
+					Token: token.Token{
+						Type:    token.VAR,
 						Literal: "var",
 					},
 					Name: ast.IdentExpression{
-						Token: token_v2.Token{
-							Type:    token_v2.IDENT,
+						Token: token.Token{
+							Type:    token.IDENT,
 							Literal: "x",
 						},
 						Value: "x",
 					},
 					Value: &ast.IntegerLiteral{
-						Token: token_v2.Token{
-							Type:    token_v2.NUM,
+						Token: token.Token{
+							Type:    token.NUM,
 							Literal: "822",
 						},
 						Value: 822,
 					},
 				},
 				&ast.VarStatement{
-					Token: token_v2.Token{
-						Type:    token_v2.VAR,
+					Token: token.Token{
+						Type:    token.VAR,
 						Literal: "var",
 					},
 					Name: ast.IdentExpression{
-						Token: token_v2.Token{
-							Type:    token_v2.IDENT,
+						Token: token.Token{
+							Type:    token.IDENT,
 							Literal: "y",
 						},
 						Value: "y",
 					},
 					Value: &ast.IntegerLiteral{
-						Token: token_v2.Token{
-							Type:    token_v2.NUM,
+						Token: token.Token{
+							Type:    token.NUM,
 							Literal: "701",
 						},
 						Value: 701,
 					},
 				},
 				&ast.VarStatement{
-					Token: token_v2.Token{
-						Type:    token_v2.VAR,
+					Token: token.Token{
+						Type:    token.VAR,
 						Literal: "var",
 					},
 					Name: ast.IdentExpression{
-						Token: token_v2.Token{
-							Type:    token_v2.IDENT,
+						Token: token.Token{
+							Type:    token.IDENT,
 							Literal: "foo",
 						},
 						Value: "foo",
 					},
 					Value: &ast.IntegerLiteral{
-						Token: token_v2.Token{
-							Type:    token_v2.NUM,
+						Token: token.Token{
+							Type:    token.NUM,
 							Literal: "666",
 						},
 						Value: 666,
@@ -95,13 +95,13 @@ func TestReturnStatement(t *testing.T) {
 			num:   1,
 			node: []ast.Node{
 				&ast.ReturnStatement{
-					Token: token_v2.Token{
-						Type:    token_v2.RETURN,
+					Token: token.Token{
+						Type:    token.RETURN,
 						Literal: "return",
 					},
 					ReturnValue: &ast.IntegerLiteral{
-						Token: token_v2.Token{
-							Type:    token_v2.NUM,
+						Token: token.Token{
+							Type:    token.NUM,
 							Literal: "666",
 						},
 						Value: 666,
@@ -118,10 +118,10 @@ func runParserTest(t *testing.T, tests []parserTestCase) {
 	t.Helper()
 
 	for i, tt := range tests {
-		lexer := lexer_v2.New(tt.input)
-		checkLexerErrors(t, lexer)
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
 
-		parser := New(lexer)
+		parser := New(l)
 		checkParserErrors(t, parser)
 
 		if parser.program == nil {
@@ -152,7 +152,7 @@ func checkParserErrors(t *testing.T, p *Parser) {
 	t.FailNow()
 }
 
-func checkLexerErrors(t *testing.T, l *lexer_v2.Lexer) {
+func checkLexerErrors(t *testing.T, l *lexer.Lexer) {
 	errTokens := l.Errors()
 	if len(errTokens) == 0 {
 		return

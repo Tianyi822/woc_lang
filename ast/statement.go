@@ -2,7 +2,7 @@ package ast
 
 import (
 	"bytes"
-	"woc_lang/token_v2"
+	"woc_lang/token"
 )
 
 // Program 是每个 AST 的根节点，每个有效的程序都是一系列位于 Statements 中的语句
@@ -30,7 +30,7 @@ func (p *Program) String() string {
 
 // VarStatement 声明变量表达式
 type VarStatement struct {
-	Token token_v2.Token
+	Token token.Token
 	Name  IdentExpression
 	Value Expression
 }
@@ -57,7 +57,7 @@ func (vs *VarStatement) String() string {
 
 // ReturnStatement 声明返回语句
 type ReturnStatement struct {
-	Token       token_v2.Token
+	Token       token.Token
 	ReturnValue Expression
 }
 
@@ -83,7 +83,7 @@ func (rs *ReturnStatement) String() string {
 // 实现了 Statement 接口，意味着表达式语句可以添加到 Program 的 Statement 中
 // 这也就是为什么已经有了 Expression 接口还要在封装一层
 type ExpressionStatement struct {
-	Token      token_v2.Token // 该表达式中的第一个词法单元
+	Token      token.Token // 该表达式中的第一个词法单元
 	Expression Expression
 }
 

@@ -1,7 +1,7 @@
 package ast
 
 import (
-	"woc_lang/token_v2"
+	"woc_lang/token"
 )
 
 // IdentExpression 标识符节点，例如 `var x = 5;` 中的 x
@@ -9,7 +9,7 @@ import (
 // x 就指向了这个值，举个栗子：var other_ident = x; 这个语句中，x 就作为表达式
 // 将 x 指向的 5 赋值给了 other_ident
 type IdentExpression struct {
-	Token token_v2.Token
+	Token token.Token
 	Value string
 }
 
@@ -25,7 +25,7 @@ func (ie *IdentExpression) String() string {
 
 // IntegerLiteral 整型字面量
 type IntegerLiteral struct {
-	Token token_v2.Token
+	Token token.Token
 	Value int
 }
 
