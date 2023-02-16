@@ -78,3 +78,25 @@ func (rs *ReturnStatement) String() string {
 
 	return out.String()
 }
+
+// ExpressionStatement 表达式声明语句
+// 实现了 Statement 接口，意味着表达式语句可以添加到 Program 的 Statement 中
+// 这也就是为什么已经有了 Expression 接口还要在封装一层
+type ExpressionStatement struct {
+	Token      token_v2.Token // 该表达式中的第一个词法单元
+	Expression Expression
+}
+
+func (es *ExpressionStatement) sNode() {}
+
+func (es *ExpressionStatement) TokenLiteral() string {
+	return es.Token.Literal
+}
+
+func (es *ExpressionStatement) String() string {
+	if es.Expression != nil {
+		return es.Expression.String()
+	}
+
+	return ""
+}
