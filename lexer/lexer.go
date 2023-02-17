@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"woc_lang/lexer/dfa_state"
@@ -51,6 +52,20 @@ func (l *Lexer) NextToken() token.Token {
 		l.reader_index += 1
 		return l.tokens[l.reader_index]
 	}
+}
+
+// GetTokensLiteral 获取一组 token 的字面量
+func (l *Lexer) GetTokensLiteral(baseIndex, endIndex int) ([]string, error) {
+	if endIndex >= len(l.tokens) {
+		return nil, errors.New("token 取值范围越界")
+	}
+
+	var literals []string
+	for _, tok := range l.tokens[baseIndex:endIndex] {
+		literals = append(literals, tok.Literal)
+	}
+
+	return literals, nil
 }
 
 // tokenize 识别代码中的 token
