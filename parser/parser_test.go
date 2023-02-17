@@ -8,19 +8,19 @@ import (
 )
 
 type parserTestCase struct {
-	input string
-	num   int
-	node  []ast.Node
+	input         string
+	num           int
+	expectedNodes []ast.Node
 }
 
-func TestLetStatement(t *testing.T) {
+func TestVarStatement(t *testing.T) {
 	tests := []parserTestCase{
 		{
-			input: `var x = 822;
-			var y = 701;
-			var foo = 666;`,
+			input: `var x = foo;
+			var y = test;
+			var foo = num;`,
 			num: 3,
-			node: []ast.Node{
+			expectedNodes: []ast.Node{
 				&ast.VarStatement{
 					Token: token.Token{
 						Type:    token.VAR,
@@ -33,12 +33,12 @@ func TestLetStatement(t *testing.T) {
 						},
 						Value: "x",
 					},
-					Value: &ast.IntegerLiteral{
+					Value: &ast.IdentExpression{
 						Token: token.Token{
-							Type:    token.NUM,
-							Literal: "822",
+							Type:    token.IDENT,
+							Literal: "foo",
 						},
-						Value: 822,
+						Value: "foo",
 					},
 				},
 				&ast.VarStatement{
@@ -53,12 +53,12 @@ func TestLetStatement(t *testing.T) {
 						},
 						Value: "y",
 					},
-					Value: &ast.IntegerLiteral{
+					Value: &ast.IdentExpression{
 						Token: token.Token{
-							Type:    token.NUM,
-							Literal: "701",
+							Type:    token.IDENT,
+							Literal: "test",
 						},
-						Value: 701,
+						Value: "test",
 					},
 				},
 				&ast.VarStatement{
@@ -73,12 +73,12 @@ func TestLetStatement(t *testing.T) {
 						},
 						Value: "foo",
 					},
-					Value: &ast.IntegerLiteral{
+					Value: &ast.IdentExpression{
 						Token: token.Token{
-							Type:    token.NUM,
-							Literal: "666",
+							Type:    token.IDENT,
+							Literal: "num",
 						},
-						Value: 666,
+						Value: "num",
 					},
 				},
 			},
@@ -93,7 +93,7 @@ func TestReturnStatement(t *testing.T) {
 		{
 			input: "return 666;",
 			num:   1,
-			node: []ast.Node{
+			expectedNodes: []ast.Node{
 				&ast.ReturnStatement{
 					Token: token.Token{
 						Type:    token.RETURN,
@@ -133,10 +133,34 @@ func runParserTest(t *testing.T, tests []parserTestCase) {
 				i+1, tt.num, len(parser.program.Statements))
 		}
 
-		// TODO: 现在还没有对表达式进行解析，所以无法编写后续的测试逻辑，后续添加
+		for i, stmt := range parser.program.Statements {
+			expNode := tt.expectedNodes[i]
+			switch stmt.(type) {
+			case *ast.VarStatement:
+				testVarStmt(t, expNode.(*ast.VarStatement), stmt.(*ast.VarStatement))
+			}
+		}
 	}
 
 	t.Helper()
+}
+
+func testVarStmt(t *testing.T, expVarStmt *ast.VarStatement, parseVarStmt *ast.VarStatement) {
+	if expVarStmt.Token.Type != parseVarStmt.Token.Type {
+		t.Fatalf("var 关键字类型错误")
+	}
+
+	if expVarStmt.Token.Literal != parseVarStmt.Token.Literal {
+		t.Fatalf("var 关键字错误")
+	}
+
+	if expVarStmt.Name.String() != parseVarStmt.Name.String() {
+		t.Fatalf("声明的变量名不同:\n期望:%s\n实际:%s", expVarStmt.Name.String(), parseVarStmt.Name.String())
+	}
+
+	if expVarStmt.Value.String() != parseVarStmt.Value.String() {
+		t.Fatalf("声明的变量值不同:\n期望:%s\n实际:%s", expVarStmt.Value.String(), parseVarStmt.Value.String())
+	}
 }
 
 func checkParserErrors(t *testing.T, p *Parser) {
