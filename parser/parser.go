@@ -124,11 +124,8 @@ func (p *Parser) parseVarStatement() ast.Statement {
 	p.nextToken()
 	stmt.Value = p.parseExpression(LOW_EST)
 
-	// 按照 var 语句的规则，解析完等号右边之后就应该只剩分号(;)
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
-	} else {
-		p.endOfStatementError()
+	// 检查语句结尾是否符合规则
+	if !p.checkStmtEnd() {
 		return nil
 	}
 
@@ -159,8 +156,8 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
 	stmt.Expression = p.parseExpression(LOW_EST)
 
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	if !p.checkStmtEnd() {
+		return nil
 	}
 
 	return stmt
@@ -221,6 +218,18 @@ func (p *Parser) noParseFnError(token token.Token) {
 	msg := fmt.Sprintf("没有注册 (%s) 的解析方法，需要添加该类型 (TokenType: %d) 的解析方法",
 		token.Literal, token.Type)
 	p.errors = append(p.errors, msg)
+}
+
+// checkStmtEnd 检查语句末尾是否符合规则
+func (p *Parser) checkStmtEnd() bool {
+	// 按照语句的规则，解析完之后就应该只剩分号(;)
+	if p.peekTokenIs(token.SEMICOLON) {
+		p.nextToken()
+		return true
+	} else {
+		p.endOfStatementError()
+		return false
+	}
 }
 
 // endOfStatementError 收集语句结束错误

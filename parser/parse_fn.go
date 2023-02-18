@@ -3,6 +3,8 @@ package parser
 // 存放用于解析不同 Token 所需要的前缀解析函数和中缀解析函数
 
 import (
+	"fmt"
+	"strconv"
 	"woc_lang/ast"
 	"woc_lang/token"
 )
@@ -18,6 +20,8 @@ type (
 
 func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.IDENT, p.parseIdentExpression)
+	// TODO: 按道理说这里应该传入一个 parseNumExpression，但现在主要是先实现功能，就全部默认整型了
+	p.registerPrefix(token.NUM, p.parseIntegerLiteral)
 }
 
 // parseIdentifier 解析标识符表达式语法
@@ -26,6 +30,24 @@ func (p *Parser) parseIdentExpression() ast.Expression {
 		Token: p.cur_token,
 		Value: p.cur_token.Literal,
 	}
+}
+
+func (p *Parser) parseIntegerLiteral() ast.Expression {
+	integerLiteral := &ast.IntegerLiteral{
+		Token: p.cur_token,
+	}
+
+	intNum, err := strconv.Atoi(p.cur_token.Literal)
+	if err != nil {
+		msg := fmt.Sprintf("数值字符串字面量转整型错误，字面量为: %v\n错误信息: %s",
+			integerLiteral.TokenLiteral(), err)
+		p.errors = append(p.errors, msg)
+		return nil
+	}
+
+	integerLiteral.Value = intNum
+
+	return integerLiteral
 }
 
 // registerPrefix 注册前缀处理方法

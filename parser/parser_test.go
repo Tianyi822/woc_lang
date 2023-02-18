@@ -18,8 +18,9 @@ func TestVarStatement(t *testing.T) {
 		{
 			input: `var x = foo;
 			var y = test;
-			var foo = num;`,
-			num: 3,
+			var foo = 666;
+			822;`,
+			num: 4,
 			expectedNodes: []ast.Node{
 				&ast.VarStatement{
 					Token: token.Token{
@@ -73,12 +74,25 @@ func TestVarStatement(t *testing.T) {
 						},
 						Value: "foo",
 					},
-					Value: &ast.IdentExpression{
+					Value: &ast.IntegerLiteral{
 						Token: token.Token{
 							Type:    token.IDENT,
-							Literal: "num",
+							Literal: "666",
 						},
-						Value: "num",
+						Value: 666,
+					},
+				},
+				&ast.ExpressionStatement{
+					Token: token.Token{
+						Type:    token.NUM,
+						Literal: "822",
+					},
+					Expression: &ast.IntegerLiteral{
+						Token: token.Token{
+							Type:    token.NUM,
+							Literal: "822",
+						},
+						Value: 822,
 					},
 				},
 			},
@@ -138,11 +152,36 @@ func runParserTest(t *testing.T, tests []parserTestCase) {
 			switch stmt.(type) {
 			case *ast.VarStatement:
 				testVarStmt(t, expNode.(*ast.VarStatement), stmt.(*ast.VarStatement))
+			case *ast.ExpressionStatement:
+				testExpressionStatement(t, expNode.(*ast.ExpressionStatement), stmt.(*ast.ExpressionStatement))
 			}
 		}
 	}
 
 	t.Helper()
+}
+
+func testExpressionStatement(
+	t *testing.T,
+	expExpStmt *ast.ExpressionStatement,
+	realExpStmt *ast.ExpressionStatement) {
+	switch realExpStmt.Expression.(type) {
+	case *ast.IntegerLiteral:
+		testIntegerLiteral(t, expExpStmt.Expression.(*ast.IntegerLiteral), realExpStmt.Expression.(*ast.IntegerLiteral))
+	}
+}
+
+func testIntegerLiteral(
+	t *testing.T,
+	expIntegerLiteral *ast.IntegerLiteral,
+	realIntegerLiteral *ast.IntegerLiteral) {
+	if expIntegerLiteral.Token.Type != realIntegerLiteral.Token.Type {
+		t.Fatalf("整型数值解析类型错误")
+	}
+
+	if expIntegerLiteral.Value != realIntegerLiteral.Value {
+		t.Fatalf("整型数值错误:\n期望:%v\n实际:%v\n", expIntegerLiteral.Value, realIntegerLiteral.Value)
+	}
 }
 
 func testVarStmt(t *testing.T, expVarStmt *ast.VarStatement, parseVarStmt *ast.VarStatement) {
