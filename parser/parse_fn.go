@@ -22,6 +22,8 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.IDENT, p.parseIdentExpression)
 	// TODO: 按道理说这里应该传入一个 parseNumExpression，但现在主要是先实现功能，就全部默认整型了
 	p.registerPrefix(token.NUM, p.parseIntegerLiteral)
+	p.registerPrefix(token.BANG, p.parsePrefixExpression)
+	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 }
 
 // parseIdentifier 解析标识符表达式语法
@@ -32,12 +34,13 @@ func (p *Parser) parseIdentExpression() ast.Expression {
 	}
 }
 
+// parseIntegerLiteral 解析整型字面量
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteral := &ast.IntegerLiteral{
 		Token: p.cur_token,
 	}
 
-	intNum, err := strconv.Atoi(p.cur_token.Literal)
+	intNum, err := strconv.ParseInt(p.cur_token.Literal, 0, 64)
 	if err != nil {
 		msg := fmt.Sprintf("数值字符串字面量转整型错误，字面量为: %v\n错误信息: %s",
 			integerLiteral.TokenLiteral(), err)
@@ -48,6 +51,20 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteral.Value = intNum
 
 	return integerLiteral
+}
+
+// parsePrefixExpression 解析前缀表达式
+func (p *Parser) parsePrefixExpression() ast.Expression {
+	preExp := &ast.PrefixExpression{
+		Token:    p.cur_token,
+		Operator: p.cur_token.Literal,
+	}
+
+	p.nextToken()
+
+	preExp.Right = p.parseExpression(PREFIX_LEVEL)
+
+	return preExp
 }
 
 // registerPrefix 注册前缀处理方法

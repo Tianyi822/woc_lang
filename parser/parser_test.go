@@ -1,137 +1,56 @@
 package parser
 
 import (
+	"fmt"
 	"testing"
 	"woc_lang/ast"
 	"woc_lang/lexer"
-	"woc_lang/token"
 )
 
-type parserTestCase struct {
-	input         string
-	num           int
-	expectedNodes []ast.Node
-}
-
-func TestVarStatement(t *testing.T) {
-	tests := []parserTestCase{
-		{
-			input: `var x = foo;
-			var y = test;
-			var foo = 666;
-			822;`,
-			num: 4,
-			expectedNodes: []ast.Node{
-				&ast.VarStatement{
-					Token: token.Token{
-						Type:    token.VAR,
-						Literal: "var",
-					},
-					Name: ast.IdentExpression{
-						Token: token.Token{
-							Type:    token.IDENT,
-							Literal: "x",
-						},
-						Value: "x",
-					},
-					Value: &ast.IdentExpression{
-						Token: token.Token{
-							Type:    token.IDENT,
-							Literal: "foo",
-						},
-						Value: "foo",
-					},
-				},
-				&ast.VarStatement{
-					Token: token.Token{
-						Type:    token.VAR,
-						Literal: "var",
-					},
-					Name: ast.IdentExpression{
-						Token: token.Token{
-							Type:    token.IDENT,
-							Literal: "y",
-						},
-						Value: "y",
-					},
-					Value: &ast.IdentExpression{
-						Token: token.Token{
-							Type:    token.IDENT,
-							Literal: "test",
-						},
-						Value: "test",
-					},
-				},
-				&ast.VarStatement{
-					Token: token.Token{
-						Type:    token.VAR,
-						Literal: "var",
-					},
-					Name: ast.IdentExpression{
-						Token: token.Token{
-							Type:    token.IDENT,
-							Literal: "foo",
-						},
-						Value: "foo",
-					},
-					Value: &ast.IntegerLiteral{
-						Token: token.Token{
-							Type:    token.IDENT,
-							Literal: "666",
-						},
-						Value: 666,
-					},
-				},
-				&ast.ExpressionStatement{
-					Token: token.Token{
-						Type:    token.NUM,
-						Literal: "822",
-					},
-					Expression: &ast.IntegerLiteral{
-						Token: token.Token{
-							Type:    token.NUM,
-							Literal: "822",
-						},
-						Value: 822,
-					},
-				},
-			},
-		},
+func TestParsingVarStatement(t *testing.T) {
+	tests := []struct {
+		input              string
+		expectedIdentifier string
+		expectedValue      any
+	}{
+		{"var x = 5;", "x", 5},
+		{"var foobar = y;", "foobar", "y"},
 	}
 
-	runParserTest(t, tests)
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+
+		parser := New(l)
+		checkParserErrors(t, parser)
+
+		if len(parser.program.Statements) != 1 {
+			t.Fatalf("语句解析错误，解析语句数量为: %d", len(parser.program.Statements))
+		}
+
+		stmt := parser.program.Statements[0]
+		if !testVarStatement(t, stmt, tt.expectedIdentifier) {
+			return
+		}
+
+		val := stmt.(*ast.VarStatement).Value
+		if !testLiteralExpression(t, val, tt.expectedValue) {
+			return
+		}
+	}
 }
 
-func TestReturnStatement(t *testing.T) {
-	tests := []parserTestCase{
-		{
-			input: "return 666;",
-			num:   1,
-			expectedNodes: []ast.Node{
-				&ast.ReturnStatement{
-					Token: token.Token{
-						Type:    token.RETURN,
-						Literal: "return",
-					},
-					ReturnValue: &ast.IntegerLiteral{
-						Token: token.Token{
-							Type:    token.NUM,
-							Literal: "666",
-						},
-						Value: 666,
-					},
-				},
-			},
-		},
+func TestParsingPrefixExpressions(t *testing.T) {
+	prefixTests := []struct {
+		input    string
+		Operator string
+		value    any
+	}{
+		{"!foobar;", "!", "foobar"},
+		{"-5;", "-", 5},
 	}
 
-	runParserTest(t, tests)
-}
-
-func runParserTest(t *testing.T, tests []parserTestCase) {
-	t.Helper()
-
-	for i, tt := range tests {
+	for _, tt := range prefixTests {
 		l := lexer.New(tt.input)
 		checkLexerErrors(t, l)
 
@@ -139,67 +58,114 @@ func runParserTest(t *testing.T, tests []parserTestCase) {
 		checkParserErrors(t, parser)
 
 		if parser.program == nil {
-			t.Fatalf("测试用例 %d 未解析到代码", i+1)
+			t.Fatalf("测试用例未解析到代码")
 		}
 
-		if len(parser.program.Statements) != tt.num {
-			t.Fatalf("测试用例 %d 语法结构与预期不符:\n预期: %d\n实际: %d",
-				i+1, tt.num, len(parser.program.Statements))
+		if len(parser.program.Statements) != 1 {
+			t.Fatalf("测试用例语法结构与预期不符:\n预期: %d\n实际: %d",
+				1, len(parser.program.Statements))
 		}
 
-		for i, stmt := range parser.program.Statements {
-			expNode := tt.expectedNodes[i]
-			switch stmt.(type) {
-			case *ast.VarStatement:
-				testVarStmt(t, expNode.(*ast.VarStatement), stmt.(*ast.VarStatement))
-			case *ast.ExpressionStatement:
-				testExpressionStatement(t, expNode.(*ast.ExpressionStatement), stmt.(*ast.ExpressionStatement))
-			}
+		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("语句解析错误: %T", parser.program.Statements[0])
 		}
-	}
 
-	t.Helper()
-}
+		preExp, ok := stmt.Expression.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("该语句并非前缀表达式: %T", stmt.Expression)
+		}
 
-func testExpressionStatement(
-	t *testing.T,
-	expExpStmt *ast.ExpressionStatement,
-	realExpStmt *ast.ExpressionStatement) {
-	switch realExpStmt.Expression.(type) {
-	case *ast.IntegerLiteral:
-		testIntegerLiteral(t, expExpStmt.Expression.(*ast.IntegerLiteral), realExpStmt.Expression.(*ast.IntegerLiteral))
-	}
-}
+		if preExp.Operator != tt.Operator {
+			t.Fatalf("该语句操作符错误\n期望: '%s'\n, 实际得到: '%s'",
+				tt.Operator,
+				preExp.Operator)
+		}
 
-func testIntegerLiteral(
-	t *testing.T,
-	expIntegerLiteral *ast.IntegerLiteral,
-	realIntegerLiteral *ast.IntegerLiteral) {
-	if expIntegerLiteral.Token.Type != realIntegerLiteral.Token.Type {
-		t.Fatalf("整型数值解析类型错误")
-	}
-
-	if expIntegerLiteral.Value != realIntegerLiteral.Value {
-		t.Fatalf("整型数值错误:\n期望:%v\n实际:%v\n", expIntegerLiteral.Value, realIntegerLiteral.Value)
+		if !testLiteralExpression(t, preExp.Right, tt.value) {
+			return
+		}
 	}
 }
 
-func testVarStmt(t *testing.T, expVarStmt *ast.VarStatement, parseVarStmt *ast.VarStatement) {
-	if expVarStmt.Token.Type != parseVarStmt.Token.Type {
-		t.Fatalf("var 关键字类型错误")
+func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
+	if s.TokenLiteral() != "var" {
+		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
+		return false
 	}
 
-	if expVarStmt.Token.Literal != parseVarStmt.Token.Literal {
-		t.Fatalf("var 关键字错误")
+	varStmt, ok := s.(*ast.VarStatement)
+	if !ok {
+		t.Errorf("语句并非 *ast.LetStatement 类型，实际得到: %T", s)
+		return false
 	}
 
-	if expVarStmt.Name.String() != parseVarStmt.Name.String() {
-		t.Fatalf("声明的变量名不同:\n期望:%s\n实际:%s", expVarStmt.Name.String(), parseVarStmt.Name.String())
+	if varStmt.Name.Value != name {
+		t.Errorf("varStmt.Name.Value 期望得到: '%s'，实际得到: %s", name, varStmt.Name.Value)
+		return false
 	}
 
-	if expVarStmt.Value.String() != parseVarStmt.Value.String() {
-		t.Fatalf("声明的变量值不同:\n期望:%s\n实际:%s", expVarStmt.Value.String(), parseVarStmt.Value.String())
+	if varStmt.Name.TokenLiteral() != name {
+		t.Errorf("varStmt.Name.TokenLiteral() 期望得到: '%s'，got=%s",
+			name, varStmt.Name.TokenLiteral())
+		return false
 	}
+
+	return true
+}
+
+func testLiteralExpression(t *testing.T, exp ast.Expression, expected any) bool {
+	switch v := expected.(type) {
+	case int:
+		return testIntegerLiteral(t, exp, int64(v))
+	case int64:
+		return testIntegerLiteral(t, exp, v)
+	case string:
+		return testIdentifier(t, exp, v)
+	}
+	t.Errorf("无法处理该类型: %T", exp)
+	return false
+}
+
+func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
+	integ, ok := il.(*ast.IntegerLiteral)
+	if !ok {
+		t.Errorf("传入字面量类型不是 *ast.IntegerLiteral: %T", il)
+		return false
+	}
+
+	if integ.Value != value {
+		t.Errorf("integ.Value 期望是 %d. 实际=%d", value, integ.Value)
+		return false
+	}
+
+	if integ.TokenLiteral() != fmt.Sprintf("%d", value) {
+		t.Errorf("integ.TokenLiteral 期望是 %d. 实际=%s", value,
+			integ.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
+	ident, ok := exp.(*ast.IdentExpression)
+	if !ok {
+		t.Errorf("exp 实际得到结果类型并不是 *ast.Identifier，实际得到=%T", exp)
+		return false
+	}
+
+	if ident.Value != value {
+		t.Errorf("ident.Value 期望得到 %s. 实际得到: %s", value, ident.Value)
+		return false
+	}
+
+	if ident.TokenLiteral() != value {
+		t.Errorf("ident.TokenLiteral 期望得到 %s. 实际得到: %s", value, ident.TokenLiteral())
+		return false
+	}
+
+	return true
 }
 
 func checkParserErrors(t *testing.T, p *Parser) {
