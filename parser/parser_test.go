@@ -40,6 +40,54 @@ func TestParsingVarStatement(t *testing.T) {
 	}
 }
 
+func TestParsingPrefixExpressions(t *testing.T) {
+	prefixTests := []struct {
+		input    string
+		Operator string
+		value    any
+	}{
+		{"!foobar;", "!", "foobar"},
+		{"-5;", "-", 5},
+	}
+
+	for _, tt := range prefixTests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+
+		parser := New(l)
+		checkParserErrors(t, parser)
+
+		if parser.program == nil {
+			t.Fatalf("测试用例未解析到代码")
+		}
+
+		if len(parser.program.Statements) != 1 {
+			t.Fatalf("测试用例语法结构与预期不符:\n预期: %d\n实际: %d",
+				1, len(parser.program.Statements))
+		}
+
+		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("语句解析错误: %T", parser.program.Statements[0])
+		}
+
+		preExp, ok := stmt.Expression.(*ast.PrefixExpression)
+		if !ok {
+			t.Fatalf("该语句并非前缀表达式: %T", stmt.Expression)
+		}
+
+		if preExp.Operator != tt.Operator {
+			t.Fatalf("该语句操作符错误\n期望: '%s'\n, 实际得到: '%s'",
+				tt.Operator,
+				preExp.Operator)
+		}
+
+		if !testLiteralExpression(t, preExp.Right, tt.value) {
+			return
+		}
+	}
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
