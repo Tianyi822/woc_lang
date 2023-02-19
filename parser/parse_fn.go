@@ -32,12 +32,13 @@ func (p *Parser) parseIdentExpression() ast.Expression {
 	}
 }
 
+// parseIntegerLiteral 解析整型字面量
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	integerLiteral := &ast.IntegerLiteral{
 		Token: p.cur_token,
 	}
 
-	intNum, err := strconv.Atoi(p.cur_token.Literal)
+	intNum, err := strconv.ParseInt(p.cur_token.Literal, 0, 64)
 	if err != nil {
 		msg := fmt.Sprintf("数值字符串字面量转整型错误，字面量为: %v\n错误信息: %s",
 			integerLiteral.TokenLiteral(), err)
