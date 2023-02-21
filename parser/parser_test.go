@@ -88,6 +88,49 @@ func TestParsingPrefixExpressions(t *testing.T) {
 	}
 }
 
+func TestParsingInfixExpressions(t *testing.T) {
+	infixTests := []struct {
+		input      string
+		leftValue  any
+		operator   string
+		rightValue any
+	}{
+		{"5 + 5;", 5, "+", 5},
+		{"5 - 5;", 5, "-", 5},
+		{"5 * 5;", 5, "*", 5},
+		{"5 / 5;", 5, "/", 5},
+		{"5 > 5;", 5, ">", 5},
+		{"5 < 5;", 5, "<", 5},
+		{"5 == 5;", 5, "==", 5},
+		{"5 != 5;", 5, "!=", 5},
+		{"5 <= 5;", 5, "<=", 5},
+		{"5 >= 5;", 5, ">=", 5},
+	}
+
+	for _, tt := range infixTests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+
+		parser := New(l)
+		checkParserErrors(t, parser)
+
+		if len(parser.program.Statements) != 1 {
+			t.Fatalf("program.Statements 期望语句数量: %d，实际获得=%d\n",
+				1, len(parser.program.Statements))
+		}
+
+		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("program.Statements[0] 不是表达式声明语句，实际获得=%T",
+				parser.program.Statements[0])
+		}
+
+		if !testInfixExpression(t, stmt.Expression, tt.leftValue, tt.operator, tt.rightValue) {
+			return
+		}
+	}
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
@@ -162,6 +205,29 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 
 	if ident.TokenLiteral() != value {
 		t.Errorf("ident.TokenLiteral 期望得到 %s. 实际得到: %s", value, ident.TokenLiteral())
+		return false
+	}
+
+	return true
+}
+
+func testInfixExpression(t *testing.T, exp ast.Expression, left any, operator string, right any) bool {
+	opExp, ok := exp.(*ast.InfixExpression)
+	if !ok {
+		t.Errorf("表达式不是 ast.InfixExpression 类型，实际获得: %T(%s)", exp, exp)
+		return false
+	}
+
+	if !testLiteralExpression(t, opExp.LeftExp, left) {
+		return false
+	}
+
+	if opExp.Operator != operator {
+		t.Errorf("exp.Operator 期望操作符为: '%s'，实际获得: '%q'", operator, opExp.Operator)
+		return false
+	}
+
+	if !testLiteralExpression(t, opExp.RightExp, right) {
 		return false
 	}
 
