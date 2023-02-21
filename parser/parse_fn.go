@@ -24,6 +24,17 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.NUM, p.parseIntegerLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+
+	p.registerInfix(token.ADD, p.parseInfixExpression)
+	p.registerInfix(token.MINUS, p.parseInfixExpression)
+	p.registerInfix(token.ASTERISK, p.parseInfixExpression)
+	p.registerInfix(token.SLASH, p.parseInfixExpression)
+	p.registerInfix(token.GT, p.parseInfixExpression)
+	p.registerInfix(token.LT, p.parseInfixExpression)
+	p.registerInfix(token.GE, p.parseInfixExpression)
+	p.registerInfix(token.LE, p.parseInfixExpression)
+	p.registerInfix(token.EQ, p.parseInfixExpression)
+	p.registerInfix(token.NEQ, p.parseInfixExpression)
 }
 
 // parseIdentifier 解析标识符表达式语法
@@ -65,6 +76,20 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	preExp.Right = p.parseExpression(PREFIX_LEVEL)
 
 	return preExp
+}
+
+func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
+	exp := &ast.InfixExpression{
+		Token:    p.cur_token,
+		Operator: p.cur_token.Literal,
+		LeftExp:  left,
+	}
+
+	priority := p.curPriority()
+	p.nextToken()
+	exp.RightExp = p.parseExpression(priority)
+
+	return exp
 }
 
 // registerPrefix 注册前缀处理方法
