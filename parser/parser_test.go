@@ -131,6 +131,43 @@ func TestParsingInfixExpressions(t *testing.T) {
 	}
 }
 
+func TestBooleanExpression(t *testing.T) {
+	tests := []struct {
+		input           string
+		expectedBoolean bool
+	}{
+		{"true;", true},
+		{"false;", false},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+
+		parser := New(l)
+		checkParserErrors(t, parser)
+
+		if len(parser.program.Statements) != 1 {
+			t.Fatalf("语句解析失败，实际解析语句数量: %d", len(parser.program.Statements))
+		}
+
+		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		if !ok {
+			t.Fatalf("parser.program.Statements[0] 并非表达式声明语句，解析结果: %T",
+				parser.program.Statements[0])
+		}
+
+		boolean, ok := stmt.Expression.(*ast.BooleanLiteral)
+		if !ok {
+			t.Fatalf("表达式解析结果不是 ast.BooleanLiteral，解析结果为: %T", stmt.Expression)
+		}
+		if boolean.Value != tt.expectedBoolean {
+			t.Errorf("布尔值期望结果: %t, 实际获取: %t", tt.expectedBoolean,
+				boolean.Value)
+		}
+	}
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())

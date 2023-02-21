@@ -22,6 +22,8 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.IDENT, p.parseIdentExpression)
 	// TODO: 按道理说这里应该传入一个 parseNumExpression，但现在主要是先实现功能，就全部默认整型了
 	p.registerPrefix(token.NUM, p.parseIntegerLiteral)
+	p.registerPrefix(token.TRUE, p.parseBooleanLiteral)
+	p.registerPrefix(token.FALSE, p.parseBooleanLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 
@@ -36,6 +38,8 @@ func RegisterParseFns(p *Parser) {
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NEQ, p.parseInfixExpression)
 }
+
+// ============================ parse literal start ============================
 
 // parseIdentifier 解析标识符表达式语法
 func (p *Parser) parseIdentExpression() ast.Expression {
@@ -63,6 +67,16 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 	return integerLiteral
 }
+
+// parseBooleanLiteral 解析布尔值字面量
+func (p *Parser) parseBooleanLiteral() ast.Expression {
+	return &ast.BooleanLiteral{
+		Token: p.cur_token,
+		Value: p.cur_token.Literal == "true",
+	}
+}
+
+// ============================ parse literal end ============================
 
 // parsePrefixExpression 解析前缀表达式
 func (p *Parser) parsePrefixExpression() ast.Expression {
