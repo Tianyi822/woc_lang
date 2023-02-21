@@ -63,3 +63,29 @@ func (pe *PrefixExpression) String() string {
 
 	return out.String()
 }
+
+// InfixExpression 中缀表达式
+type InfixExpression struct {
+	Token    token.Token
+	LeftExp  Expression
+	Operator string
+	RightExp Expression
+}
+
+func (ine *InfixExpression) eNode() {}
+
+func (ine *InfixExpression) TokenLiteral() string {
+	return ine.Token.Literal
+}
+
+func (ine *InfixExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("(")
+	out.WriteString(ine.LeftExp.String())
+	out.WriteString(" " + ine.Operator + " ")
+	out.WriteString(ine.RightExp.String())
+	out.WriteString(")")
+
+	return out.String()
+}

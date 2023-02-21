@@ -182,6 +182,21 @@ func (p *Parser) parseExpression(priority int) ast.Expression {
 	}
 	leftExp := prefix()
 
+	// 判断是否需要解析中缀表达式
+	// precedence < p.peekPrecedence 这一步很关键，举个例子: 5 + 5
+	// 第一个 '5' 进来的时候传得是 LOWEST 优先级，也就是最低优先级，
+	// 接着 peekToken 变成了 '+'，通过 peekPrecedence() 获得下个一 Token 的优先级，
+	// 并与传入的 precedence 相比较，进而判断是否需要进行右关联，
+	// '+' 的优先级明显大于 LOWEST 优先级，所以进入了这个 if 分支
+	for !p.peekTokenIs(token.SEMICOLON) && priority < p.peekPriority() {
+		infix, ok := p.infixParseFns[p.peek_token.Type]
+		if !ok {
+			return leftExp
+		}
+		p.nextToken()
+		leftExp = infix(leftExp)
+	}
+
 	return leftExp
 }
 
