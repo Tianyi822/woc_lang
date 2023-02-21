@@ -40,6 +40,22 @@ func (il *IntegerLiteral) String() string {
 	return il.Token.Literal
 }
 
+// BooleanLiteral 布尔类型字面量
+type BooleanLiteral struct {
+	Token token.Token
+	Value bool
+}
+
+func (bl *BooleanLiteral) eNode() {}
+
+func (bl *BooleanLiteral) TokenLiteral() string {
+	return bl.Token.Literal
+}
+
+func (bl *BooleanLiteral) String() string {
+	return bl.Token.Literal
+}
+
 // PrefixExpression 前缀表达式
 type PrefixExpression struct {
 	Token    token.Token
