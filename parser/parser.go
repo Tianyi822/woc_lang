@@ -134,6 +134,11 @@ func (p *Parser) parseVarStatement() ast.Statement {
 
 // parseReturnStatement 解析 return 返回声明语句
 func (p *Parser) parseReturnStatement() ast.Statement {
+	// 语句结束之前一定要更新索引
+	defer func() {
+		p.base_index = p.cur_index
+	}()
+
 	stmt := &ast.ReturnStatement{
 		Token: p.cur_token,
 	}
@@ -149,6 +154,11 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 // parseExpressionStatement 解析表达式声明语句
 // 表达式解析复杂的一批，实际的解析过程由 p.parseExpression 方法完成
 func (p *Parser) parseExpressionStatement() ast.Statement {
+	// 语句结束之前一定要更新索引
+	defer func() {
+		p.base_index = p.cur_index
+	}()
+
 	// 这就开始构建表达式节点
 	stmt := &ast.ExpressionStatement{
 		Token: p.cur_token,
