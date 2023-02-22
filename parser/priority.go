@@ -9,6 +9,7 @@ const (
 	LEVEL_3
 	LEVEL_4
 	PREFIX_LEVEL
+	LEVEL_5
 )
 
 var infixOpPriorityMap = map[token.TokenType]int{
@@ -22,6 +23,7 @@ var infixOpPriorityMap = map[token.TokenType]int{
 	token.MINUS:    LEVEL_3,
 	token.ASTERISK: LEVEL_4,
 	token.SLASH:    LEVEL_4,
+	token.LPAREN:   LEVEL_5,
 }
 
 // peekPriority 检查下一个 Token 的优先级
