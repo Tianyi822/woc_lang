@@ -3,7 +3,7 @@ package parser
 import "woc_lang/token"
 
 const (
-	LOW_EST_LEVEL = iota
+	LEVEL_0 = iota
 	LEVEL_1
 	LEVEL_2
 	LEVEL_3
@@ -30,7 +30,7 @@ func (p *Parser) peekPriority() int {
 		return p
 	}
 
-	return LOW_EST_LEVEL
+	return LEVEL_0
 }
 
 func (p *Parser) curPriority() int {
@@ -38,5 +38,5 @@ func (p *Parser) curPriority() int {
 		return p
 	}
 
-	return LOW_EST_LEVEL
+	return LEVEL_0
 }

@@ -122,7 +122,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 
 	// 移动到下一个 token 位置，并解析
 	p.nextToken()
-	stmt.Value = p.parseExpression(LOW_EST_LEVEL)
+	stmt.Value = p.parseExpression(LEVEL_0)
 
 	// 检查语句结尾是否符合规则
 	if !p.checkStmtEnd() {
@@ -154,7 +154,7 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 		Token: p.cur_token,
 	}
 	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
-	stmt.Expression = p.parseExpression(LOW_EST_LEVEL)
+	stmt.Expression = p.parseExpression(LEVEL_0)
 
 	if !p.checkStmtEnd() {
 		return nil
