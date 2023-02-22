@@ -168,6 +168,47 @@ func TestBooleanExpression(t *testing.T) {
 	}
 }
 
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"1 + (2 + 3) + 4;",
+			"((1 + (2 + 3)) + 4);",
+		},
+		{
+			"(5 + 5) * 2;",
+			"((5 + 5) * 2);",
+		},
+		{
+			"2 / (5 + 5);",
+			"(2 / (5 + 5));",
+		},
+		{
+			"(5 + 5) * 2 * (5 + 5);",
+			"(((5 + 5) * 2) * (5 + 5));",
+		},
+		{
+			"-(5 + 5);",
+			"(-(5 + 5));",
+		},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+
+		parser := New(l)
+		checkParserErrors(t, parser)
+
+		actual := parser.program.String()
+		if actual != tt.expected {
+			t.Errorf("期望结果: %q\n实际获得: %q", tt.expected, actual)
+		}
+	}
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
