@@ -122,7 +122,14 @@ func (p *Parser) parseVarStatement() ast.Statement {
 
 	// 移动到下一个 token 位置，并解析
 	p.nextToken()
-	stmt.Value = p.parseExpression(LEVEL_0)
+	val := p.parseExpression(LEVEL_0)
+
+	if val == nil {
+		p.statementError("解析声明变量语法错误，变量 '%s' 没有进行赋值", stmt.Name.String())
+		return nil
+	} else {
+		stmt.Value = val
+	}
 
 	// 检查语句结尾是否符合规则
 	if !p.checkStmtEnd() {
@@ -184,6 +191,11 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 // 举个栗子: x - y - z 使用右推导变成 (x - (y + z))，而使用左推导就是 ((x - y) - z)，
 // 这就可以避免在代码解析完成后，语法没问题，但是语义出现了问题
 func (p *Parser) parseExpression(priority int) ast.Expression {
+	// 分号不做解析
+	if p.cur_token.Type == token.SEMICOLON {
+		return nil
+	}
+
 	// 获取当前 token 的解析方法
 	prefix, ok := p.prefixParseFns[p.cur_token.Type]
 	if !ok {
@@ -252,13 +264,13 @@ func (p *Parser) checkStmtEnd() bool {
 		p.nextToken()
 		return true
 	} else {
-		p.endOfStatementError()
+		p.statementError("语句结束错误，没有分号 ';'")
 		return false
 	}
 }
 
 // endOfStatementError 收集语句结束错误
-func (p *Parser) endOfStatementError() {
+func (p *Parser) statementError(msgFormat string, args ...any) {
 	// 获取一组 token 的字面量
 	literals, err := p.l.GetTokensLiteral(p.base_index, p.cur_index)
 	if err != nil {
@@ -270,7 +282,10 @@ func (p *Parser) endOfStatementError() {
 	// 将字面量组合成语句
 	stmt := strings.Join(literals, " ")
 
+	// 格式化错误信息
+	msg := fmt.Sprintf(msgFormat, args...)
+
 	// 收集错误
-	msg := fmt.Sprintf("(%s) 语句结束错误，没有分号(;)", stmt)
-	p.errors = append(p.errors, msg)
+	errMsg := fmt.Sprintf("错误语句: '%s'，错误信息: %s", stmt, msg)
+	p.errors = append(p.errors, errMsg)
 }
