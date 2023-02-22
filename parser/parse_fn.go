@@ -26,6 +26,7 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.FALSE, p.parseBooleanLiteral)
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
+	p.registerPrefix(token.LPAREN, p.parseGroupExpression)
 
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -92,6 +93,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return preExp
 }
 
+// parseInfixExpression 解析中缀表达式
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
 		Token:    p.cur_token,
@@ -102,6 +104,19 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	priority := p.curPriority()
 	p.nextToken()
 	exp.RightExp = p.parseExpression(priority)
+
+	return exp
+}
+
+// parseGroupExpression 解析分组表达式
+func (p *Parser) parseGroupExpression() ast.Expression {
+	p.nextToken()
+
+	exp := p.parseExpression(LEVEL_0)
+
+	if !p.expectPeek(token.RPAREN) {
+		return nil
+	}
 
 	return exp
 }

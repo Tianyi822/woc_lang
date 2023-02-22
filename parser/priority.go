@@ -3,12 +3,13 @@ package parser
 import "woc_lang/token"
 
 const (
-	LOW_EST_LEVEL = iota
+	LEVEL_0 = iota
 	LEVEL_1
 	LEVEL_2
 	LEVEL_3
 	LEVEL_4
 	PREFIX_LEVEL
+	LEVEL_5
 )
 
 var infixOpPriorityMap = map[token.TokenType]int{
@@ -22,6 +23,7 @@ var infixOpPriorityMap = map[token.TokenType]int{
 	token.MINUS:    LEVEL_3,
 	token.ASTERISK: LEVEL_4,
 	token.SLASH:    LEVEL_4,
+	token.LPAREN:   LEVEL_5,
 }
 
 // peekPriority 检查下一个 Token 的优先级
@@ -30,7 +32,7 @@ func (p *Parser) peekPriority() int {
 		return p
 	}
 
-	return LOW_EST_LEVEL
+	return LEVEL_0
 }
 
 func (p *Parser) curPriority() int {
@@ -38,5 +40,5 @@ func (p *Parser) curPriority() int {
 		return p
 	}
 
-	return LOW_EST_LEVEL
+	return LEVEL_0
 }
