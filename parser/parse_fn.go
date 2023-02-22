@@ -92,6 +92,7 @@ func (p *Parser) parsePrefixExpression() ast.Expression {
 	return preExp
 }
 
+// parseInfixExpression 解析中缀表达式
 func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	exp := &ast.InfixExpression{
 		Token:    p.cur_token,
