@@ -105,3 +105,32 @@ func (ine *InfixExpression) String() string {
 
 	return out.String()
 }
+
+type IfExpression struct {
+	Token       token.Token
+	Condition   Expression
+	Consequence *BlockStatement
+	Alternative *BlockStatement
+}
+
+func (ife *IfExpression) eNode() {}
+
+func (ife *IfExpression) TokenLiteral() string {
+	return ife.Token.Literal
+}
+
+func (ife *IfExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("if ")
+	out.WriteString(ife.Condition.String())
+	out.WriteString(" ")
+	out.WriteString(ife.Condition.String())
+
+	if ife.Alternative != nil {
+		out.WriteString(" else ")
+		out.WriteString(ife.Alternative.String())
+	}
+
+	return out.String()
+}
