@@ -27,6 +27,7 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupExpression)
+	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -117,6 +118,37 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 	if !p.expectPeek(token.RPAREN) {
 		return nil
 	}
+
+	return exp
+}
+
+func (p *Parser) parseIfExpression() ast.Expression {
+	exp := &ast.IfExpression{
+		Token: p.cur_token,
+	}
+
+	if !p.expectPeek(token.LPAREN) {
+		p.statementError("if 语句格式错误，条件语句左侧没有括号: '(")
+		return nil
+	}
+
+	p.nextToken()
+	exp.Condition = p.parseExpression(LEVEL_0)
+	if exp.Condition == nil {
+		p.statementError("if 语句格式错误，没有条件判断")
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		p.statementError("if 语句格式错误，条件语句右侧没有括号: ')")
+		return nil
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		p.statementError("if 语句格式错误，代码块缺少左花括号: '{")
+		return nil
+	}
+
+	exp.Consequence = p.parseBlockStatement()
 
 	return exp
 }
