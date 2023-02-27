@@ -274,7 +274,7 @@ func (p *Parser) statementError(msgFormat string, args ...any) {
 	// 获取一组 token 的字面量
 	literals, err := p.l.GetTokensLiteral(p.base_index, p.cur_index)
 	if err != nil {
-		msg := fmt.Sprintf("Parser 语法分析器获取一组 token 范围越界")
+		msg := fmt.Sprintf("Parser 语法分析器错误: %v", err)
 		p.errors = append(p.errors, msg)
 		return
 	}
