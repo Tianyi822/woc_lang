@@ -173,11 +173,13 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
 	stmt.Expression = p.parseExpression(LEVEL_0)
 
-	if !p.checkStmtEnd() {
+	if stmt.Token.Type == token.IF {
+		return stmt
+	} else if !p.checkStmtEnd() {
 		return nil
+	} else {
+		return stmt
 	}
-
-	return stmt
 }
 
 // parseExpression 表达式解析
@@ -274,7 +276,7 @@ func (p *Parser) statementError(msgFormat string, args ...any) {
 	// 获取一组 token 的字面量
 	literals, err := p.l.GetTokensLiteral(p.base_index, p.cur_index)
 	if err != nil {
-		msg := fmt.Sprintf("Parser 语法分析器获取一组 token 范围越界")
+		msg := fmt.Sprintf("Parser 语法分析器错误: %v", err)
 		p.errors = append(p.errors, msg)
 		return
 	}

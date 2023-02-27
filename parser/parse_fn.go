@@ -27,6 +27,7 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.BANG, p.parsePrefixExpression)
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupExpression)
+	p.registerPrefix(token.IF, p.parseIfExpression)
 
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -119,6 +120,69 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 	}
 
 	return exp
+}
+
+// parseIfExpression 解析 if 表达式
+func (p *Parser) parseIfExpression() ast.Expression {
+	exp := &ast.IfExpression{
+		Token: p.cur_token,
+	}
+
+	if !p.expectPeek(token.LPAREN) {
+		p.statementError("if 语句格式错误，条件语句左侧没有括号: '(")
+		return nil
+	}
+
+	p.nextToken()
+	exp.Condition = p.parseExpression(LEVEL_0)
+	if exp.Condition == nil {
+		p.statementError("if 语句格式错误，没有条件判断")
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		p.statementError("if 语句格式错误，条件语句右侧没有括号: ')")
+		return nil
+	}
+
+	if !p.expectPeek(token.LBRACE) {
+		p.statementError("if 语句格式错误，代码块缺少左花括号: '{")
+		return nil
+	}
+
+	exp.Consequence = p.parseBlockStatement()
+
+	return exp
+}
+
+// parseBlockStatement 解析代码块
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	bs := &ast.BlockStatement{
+		Token:      p.cur_token,
+		Statements: []ast.Statement{},
+	}
+
+	// 保存当前代码块的起始索引，当代码块发生错误，恢复该索引位置，并取出代码块代码，
+	// 之所以需要提前保存，是因为在下面遍历过程中，会修改掉 p.base_index，
+	// 所以需要提前保留一份指向代码块起始位置的副本
+	baseIndex := p.base_index
+
+	p.nextToken()
+
+	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			bs.Statements = append(bs.Statements, stmt)
+		}
+		p.nextToken()
+	}
+
+	if !p.curTokenIs(token.RBRACE) {
+		// 出现错误则恢复代码块的起始位置
+		p.base_index = baseIndex
+		p.statementError("代码块缺失右花括号 '}'")
+	}
+
+	return bs
 }
 
 // registerPrefix 注册前缀处理方法

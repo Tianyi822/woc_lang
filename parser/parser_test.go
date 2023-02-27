@@ -209,6 +209,58 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 	}
 }
 
+func TestIfExpression(t *testing.T) {
+	input := `
+	if (x < y) {
+		x
+	}
+	`
+
+	l := lexer.New(input)
+	checkLexerErrors(t, l)
+	p := New(l)
+	checkParserErrors(t, p)
+
+	if len(p.program.Statements) != 1 {
+		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.program.Statements))
+	}
+
+	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] 不是 ast.ExpressionStatement，实际取值: %T",
+			p.program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression 不是 ast.IfExpression，实际取值: %T",
+			stmt.Expression)
+	}
+
+	if !testInfixExpression(t, exp.Condition, "x", "<", "y") {
+		return
+	}
+
+	if len(exp.Consequence.Statements) != 1 {
+		t.Errorf("IfExpression 的 consequence 并不是 1 个 statements，实际取值: %d\n",
+			len(exp.Consequence.Statements))
+	}
+
+	consequence, ok := exp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("exp.Consequence.Statements[0] 不是 ast.ExpressionStatement 类型，实际取值: %T",
+			exp.Consequence.Statements[0])
+	}
+
+	if !testIdentifier(t, consequence.Expression, "x") {
+		return
+	}
+
+	if exp.Alternative != nil {
+		t.Errorf("exp.Alternative 不为空，实际取值: %+v", exp.Alternative)
+	}
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())

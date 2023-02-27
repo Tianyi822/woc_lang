@@ -56,8 +56,8 @@ func (l *Lexer) NextToken() token.Token {
 
 // GetTokensLiteral 获取一组 token 的字面量
 func (l *Lexer) GetTokensLiteral(baseIndex, endIndex int) ([]string, error) {
-	if endIndex >= len(l.tokens) {
-		return nil, errors.New("token 取值范围越界")
+	if endIndex > len(l.tokens) {
+		return nil, errors.New("获取 Tokens 数组越界")
 	}
 
 	var literals []string
