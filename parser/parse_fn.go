@@ -122,6 +122,7 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 	return exp
 }
 
+// parseIfExpression 解析 if 表达式
 func (p *Parser) parseIfExpression() ast.Expression {
 	exp := &ast.IfExpression{
 		Token: p.cur_token,
