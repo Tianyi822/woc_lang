@@ -154,6 +154,37 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	return exp
 }
 
+// parseBlockStatement 解析代码块
+func (p *Parser) parseBlockStatement() *ast.BlockStatement {
+	bs := &ast.BlockStatement{
+		Token:      p.cur_token,
+		Statements: []ast.Statement{},
+	}
+
+	// 保存当前代码块的起始索引，当代码块发生错误，恢复该索引位置，并取出代码块代码，
+	// 之所以需要提前保存，是因为在下面遍历过程中，会修改掉 p.base_index，
+	// 所以需要提前保留一份指向代码块起始位置的副本
+	baseIndex := p.base_index
+
+	p.nextToken()
+
+	for !p.curTokenIs(token.RBRACE) && !p.curTokenIs(token.EOF) {
+		stmt := p.parseStatement()
+		if stmt != nil {
+			bs.Statements = append(bs.Statements, stmt)
+		}
+		p.nextToken()
+	}
+
+	if !p.curTokenIs(token.RBRACE) {
+		// 出现错误则恢复代码块的起始位置
+		p.base_index = baseIndex
+		p.statementError("代码块缺失右花括号 '}'")
+	}
+
+	return bs
+}
+
 // registerPrefix 注册前缀处理方法
 func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParseFn) {
 	p.prefixParseFns[tokenType] = fn
