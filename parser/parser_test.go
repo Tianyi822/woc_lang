@@ -212,7 +212,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 func TestIfExpression(t *testing.T) {
 	input := `
 	if (x < y) {
-		x
+		x;
 	}
 	`
 
