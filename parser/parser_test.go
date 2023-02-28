@@ -256,8 +256,8 @@ func TestIfExpression(t *testing.T) {
 		return
 	}
 
-	if exp.Alternative != nil {
-		t.Errorf("exp.Alternative 不为空，实际取值: %+v", exp.Alternative)
+	if exp.ElseExpression != nil {
+		t.Errorf("exp.Alternative 不为空，实际取值: %+v", exp.ElseExpression)
 	}
 }
 
