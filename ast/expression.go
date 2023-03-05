@@ -110,7 +110,7 @@ type IfExpression struct {
 	Token          token.Token
 	Condition      Expression
 	Consequence    *BlockStatement
-	ElseExpression Expression
+	ElseExpression *ElseExpression
 }
 
 func (ife *IfExpression) eNode() {}
@@ -137,7 +137,6 @@ func (ife *IfExpression) String() string {
 
 type ElseExpression struct {
 	Token       token.Token
-	PreIfExp    *IfExpression
 	Consequence *BlockStatement
 	NextIfExp   *IfExpression
 }
