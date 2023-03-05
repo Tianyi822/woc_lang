@@ -261,6 +261,63 @@ func TestIfExpression(t *testing.T) {
 	}
 }
 
+func TestIfElseExpression(t *testing.T) {
+	input := `
+	if (x < y) {
+		x;
+	} else {
+		y;
+	}
+	`
+
+	l := lexer.New(input)
+	checkLexerErrors(t, l)
+	p := New(l)
+	checkParserErrors(t, p)
+
+	if len(p.program.Statements) != 1 {
+		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.program.Statements))
+	}
+
+	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("program.Statements[0] 不是 ast.ExpressionStatement，实际取值: %T",
+			p.program.Statements[0])
+	}
+
+	ifExp, ok := stmt.Expression.(*ast.IfExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression 不是 ast.IfExpression，实际取值: %T",
+			stmt.Expression)
+	}
+
+	if !testInfixExpression(t, ifExp.Condition, "x", "<", "y") {
+		return
+	}
+
+	ifConsequence, ok := ifExp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("exp.Consequence.Statements[0] 不是 ast.ExpressionStatement 类型，实际取值: %T",
+			ifExp.Consequence.Statements[0])
+	}
+
+	if !testIdentifier(t, ifConsequence.Expression, "x") {
+		return
+	}
+
+	elseExp := ifExp.ElseExpression
+
+	elseConsequence, ok := elseExp.Consequence.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("exp.Consequence.Statements[0] 不是 ast.ExpressionStatement 类型，实际取值: %T",
+			ifExp.Consequence.Statements[0])
+	}
+
+	if !testIdentifier(t, elseConsequence.Expression, "y") {
+		return
+	}
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
