@@ -107,10 +107,10 @@ func (ine *InfixExpression) String() string {
 }
 
 type IfExpression struct {
-	Token       token.Token
-	Condition   Expression
-	Consequence *BlockStatement
-	Alternative *BlockStatement
+	Token          token.Token
+	Condition      Expression
+	Consequence    *BlockStatement
+	ElseExpression *ElseExpression
 }
 
 func (ife *IfExpression) eNode() {}
@@ -125,11 +125,37 @@ func (ife *IfExpression) String() string {
 	out.WriteString("if ")
 	out.WriteString(ife.Condition.String())
 	out.WriteString(" ")
-	out.WriteString(ife.Condition.String())
+	out.WriteString(ife.Consequence.String())
 
-	if ife.Alternative != nil {
-		out.WriteString(" else ")
-		out.WriteString(ife.Alternative.String())
+	if ife.ElseExpression != nil {
+		out.WriteString(" ")
+		out.WriteString(ife.ElseExpression.String())
+	}
+
+	return out.String()
+}
+
+type ElseExpression struct {
+	Token       token.Token
+	Consequence *BlockStatement
+	NextIfExp   *IfExpression
+}
+
+func (ee *ElseExpression) eNode() {}
+
+func (ee *ElseExpression) TokenLiteral() string {
+	return ee.Token.Literal
+}
+
+func (ee *ElseExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString("else ")
+	if ee.NextIfExp != nil {
+		out.WriteString(ee.NextIfExp.String())
+	} else {
+		out.WriteString(" ")
+		out.WriteString(ee.Consequence.String())
 	}
 
 	return out.String()

@@ -124,7 +124,7 @@ func (p *Parser) parseGroupExpression() ast.Expression {
 
 // parseIfExpression 解析 if 表达式
 func (p *Parser) parseIfExpression() ast.Expression {
-	exp := &ast.IfExpression{
+	ifExp := &ast.IfExpression{
 		Token: p.cur_token,
 	}
 
@@ -134,8 +134,8 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	p.nextToken()
-	exp.Condition = p.parseExpression(LEVEL_0)
-	if exp.Condition == nil {
+	ifExp.Condition = p.parseExpression(LEVEL_0)
+	if ifExp.Condition == nil {
 		p.statementError("if 语句格式错误，没有条件判断")
 	}
 
@@ -149,9 +149,36 @@ func (p *Parser) parseIfExpression() ast.Expression {
 		return nil
 	}
 
-	exp.Consequence = p.parseBlockStatement()
+	ifExp.Consequence = p.parseBlockStatement()
 
-	return exp
+	if p.expectPeek(token.ELSE) {
+		ifExp.ElseExpression = p.parseElseExpression()
+
+	}
+
+	return ifExp
+}
+
+func (p *Parser) parseElseExpression() *ast.ElseExpression {
+	elseExp := &ast.ElseExpression{
+		Token:       p.cur_token,
+		Consequence: nil,
+		NextIfExp:   nil,
+	}
+
+	if p.expectPeek(token.IF) {
+		ifExp, ok := p.parseIfExpression().(*ast.IfExpression)
+		if !ok {
+			p.statementError("else if 语句语法错误")
+		}
+		elseExp.NextIfExp = ifExp
+	} else if p.expectPeek(token.LBRACE) {
+		elseExp.Consequence = p.parseBlockStatement()
+	} else {
+		p.statementError("else 语句语法错误")
+	}
+
+	return elseExp
 }
 
 // parseBlockStatement 解析代码块
