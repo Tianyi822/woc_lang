@@ -19,7 +19,7 @@ type (
 )
 
 func RegisterParseFns(p *Parser) {
-	p.registerPrefix(token.IDENT, p.parseIdentExpression)
+	p.registerPrefix(token.IDENT, p.parseIdentLiteral)
 	// TODO: 按道理说这里应该传入一个 parseNumExpression，但现在主要是先实现功能，就全部默认整型了
 	p.registerPrefix(token.NUM, p.parseIntegerLiteral)
 	p.registerPrefix(token.TRUE, p.parseBooleanLiteral)
@@ -44,8 +44,8 @@ func RegisterParseFns(p *Parser) {
 // ============================ parse literal start ============================
 
 // parseIdentifier 解析标识符表达式语法
-func (p *Parser) parseIdentExpression() ast.Expression {
-	return &ast.IdentExpression{
+func (p *Parser) parseIdentLiteral() ast.Expression {
+	return &ast.IdentLiteral{
 		Token: p.cur_token,
 		Value: p.cur_token.Literal,
 	}

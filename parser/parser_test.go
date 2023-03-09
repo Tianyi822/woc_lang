@@ -454,7 +454,7 @@ func testIntegerLiteral(t *testing.T, il ast.Expression, value int64) bool {
 }
 
 func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
-	ident, ok := exp.(*ast.IdentExpression)
+	ident, ok := exp.(*ast.IdentLiteral)
 	if !ok {
 		t.Errorf("exp 实际得到结果类型并不是 *ast.Identifier，实际得到=%T", exp)
 		return false

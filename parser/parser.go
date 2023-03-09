@@ -106,7 +106,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 		return nil
 	}
 
-	stmt.Name = ast.IdentExpression{
+	stmt.Name = ast.IdentLiteral{
 		Token: p.cur_token,
 		Value: p.cur_token.Literal,
 	}
