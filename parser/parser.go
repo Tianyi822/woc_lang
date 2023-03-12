@@ -173,7 +173,7 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
 	stmt.Expression = p.parseExpression(LEVEL_0)
 
-	if stmt.Token.Type == token.IF {
+	if stmt.Token.Type == token.IF || stmt.Token.Type == token.FUNC {
 		return stmt
 	} else if !p.checkStmtEnd() {
 		return nil

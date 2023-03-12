@@ -28,6 +28,7 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.FUNC, p.parseFunctionLiteral)
 
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -179,6 +180,76 @@ func (p *Parser) parseElseExpression() *ast.ElseExpression {
 	}
 
 	return elseExp
+}
+
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	funcExp := &ast.FunctionLiteral{
+		Token:      p.cur_token,
+		Parameters: []*ast.IdentLiteral{},
+	}
+
+	if p.expectPeek(token.IDENT) {
+		funcExp.Name = &ast.IdentLiteral{
+			Token: p.cur_token,
+			Value: p.cur_token.Literal,
+		}
+	} else {
+		p.statementErrorf("函数表达式语法错误，缺少函数名")
+		return nil
+	}
+
+	if p.expectPeek(token.LPAREN) {
+		funcExp.Parameters = p.parseFunctionParameters()
+	} else {
+		p.statementErrorf("函数表达式语法错误，形参列表缺少左括号 '('")
+		return nil
+	}
+
+	if p.expectPeek(token.LBRACE) {
+		funcExp.Body = p.parseBlockStatement()
+	} else {
+		p.statementErrorf("函数表达式语法错误，缺少函数体")
+		return nil
+	}
+
+	return funcExp
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.IdentLiteral {
+	var identifiers []*ast.IdentLiteral
+
+	if p.expectPeek(token.RPAREN) {
+		return identifiers
+	}
+
+	// 语法解析器 cur_tok 向后移动一个位置
+	if p.expectPeek(token.IDENT) {
+		ident := &ast.IdentLiteral{
+			Token: p.cur_token,
+			Value: p.cur_token.Literal,
+		}
+		identifiers = append(identifiers, ident)
+	} else {
+		p.statementErrorf("函数表达式语法错误，形参 Token 类型错误")
+		return nil
+	}
+
+	for p.expectPeek(token.COMMA) {
+		// 这个是为了指向 ',' 后面的 Token
+		p.nextToken()
+		ident := &ast.IdentLiteral{
+			Token: p.cur_token,
+			Value: p.cur_token.Literal,
+		}
+		identifiers = append(identifiers, ident)
+	}
+
+	if p.expectPeek(token.RPAREN) {
+		return identifiers
+	} else {
+		p.statementErrorf("函数表达式语法错误，形参列表缺失右括号 ')'")
+		return nil
+	}
 }
 
 // parseBlockStatement 解析代码块
