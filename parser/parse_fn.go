@@ -129,23 +129,23 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	if !p.expectPeek(token.LPAREN) {
-		p.statementError("if 语句格式错误，条件语句左侧没有括号: '(")
+		p.statementErrorf("if 语句格式错误，条件语句左侧没有括号: '(")
 		return nil
 	}
 
 	p.nextToken()
 	ifExp.Condition = p.parseExpression(LEVEL_0)
 	if ifExp.Condition == nil {
-		p.statementError("if 语句格式错误，没有条件判断")
+		p.statementErrorf("if 语句格式错误，没有条件判断")
 	}
 
 	if !p.expectPeek(token.RPAREN) {
-		p.statementError("if 语句格式错误，条件语句右侧没有括号: ')")
+		p.statementErrorf("if 语句格式错误，条件语句右侧没有括号: ')")
 		return nil
 	}
 
 	if !p.expectPeek(token.LBRACE) {
-		p.statementError("if 语句格式错误，代码块缺少左花括号: '{")
+		p.statementErrorf("if 语句格式错误，代码块缺少左花括号: '{")
 		return nil
 	}
 
@@ -169,13 +169,13 @@ func (p *Parser) parseElseExpression() *ast.ElseExpression {
 	if p.expectPeek(token.IF) {
 		ifExp, ok := p.parseIfExpression().(*ast.IfExpression)
 		if !ok {
-			p.statementError("else if 语句语法错误")
+			p.statementErrorf("else if 语句语法错误")
 		}
 		elseExp.NextIfExp = ifExp
 	} else if p.expectPeek(token.LBRACE) {
 		elseExp.Consequence = p.parseBlockStatement()
 	} else {
-		p.statementError("else 语句语法错误")
+		p.statementErrorf("else 语句语法错误")
 	}
 
 	return elseExp
@@ -206,7 +206,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	if !p.curTokenIs(token.RBRACE) {
 		// 出现错误则恢复代码块的起始位置
 		p.base_index = baseIndex
-		p.statementError("代码块缺失右花括号 '}'")
+		p.statementErrorf("代码块缺失右花括号 '}'")
 	}
 
 	return bs
