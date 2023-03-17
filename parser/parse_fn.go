@@ -19,7 +19,7 @@ type (
 )
 
 func RegisterParseFns(p *Parser) {
-	p.registerPrefix(token.IDENT, p.parseIdentExpression)
+	p.registerPrefix(token.IDENT, p.parseIdentLiteral)
 	// TODO: 按道理说这里应该传入一个 parseNumExpression，但现在主要是先实现功能，就全部默认整型了
 	p.registerPrefix(token.NUM, p.parseIntegerLiteral)
 	p.registerPrefix(token.TRUE, p.parseBooleanLiteral)
@@ -28,6 +28,7 @@ func RegisterParseFns(p *Parser) {
 	p.registerPrefix(token.MINUS, p.parsePrefixExpression)
 	p.registerPrefix(token.LPAREN, p.parseGroupExpression)
 	p.registerPrefix(token.IF, p.parseIfExpression)
+	p.registerPrefix(token.FUNC, p.parseFunctionLiteral)
 
 	p.registerInfix(token.ADD, p.parseInfixExpression)
 	p.registerInfix(token.MINUS, p.parseInfixExpression)
@@ -44,8 +45,8 @@ func RegisterParseFns(p *Parser) {
 // ============================ parse literal start ============================
 
 // parseIdentifier 解析标识符表达式语法
-func (p *Parser) parseIdentExpression() ast.Expression {
-	return &ast.IdentExpression{
+func (p *Parser) parseIdentLiteral() ast.Expression {
+	return &ast.IdentLiteral{
 		Token: p.cur_token,
 		Value: p.cur_token.Literal,
 	}
@@ -129,23 +130,23 @@ func (p *Parser) parseIfExpression() ast.Expression {
 	}
 
 	if !p.expectPeek(token.LPAREN) {
-		p.statementError("if 语句格式错误，条件语句左侧没有括号: '(")
+		p.statementErrorf("if 语句格式错误，条件语句左侧没有括号: '(")
 		return nil
 	}
 
 	p.nextToken()
 	ifExp.Condition = p.parseExpression(LEVEL_0)
 	if ifExp.Condition == nil {
-		p.statementError("if 语句格式错误，没有条件判断")
+		p.statementErrorf("if 语句格式错误，没有条件判断")
 	}
 
 	if !p.expectPeek(token.RPAREN) {
-		p.statementError("if 语句格式错误，条件语句右侧没有括号: ')")
+		p.statementErrorf("if 语句格式错误，条件语句右侧没有括号: ')")
 		return nil
 	}
 
 	if !p.expectPeek(token.LBRACE) {
-		p.statementError("if 语句格式错误，代码块缺少左花括号: '{")
+		p.statementErrorf("if 语句格式错误，代码块缺少左花括号: '{")
 		return nil
 	}
 
@@ -169,16 +170,86 @@ func (p *Parser) parseElseExpression() *ast.ElseExpression {
 	if p.expectPeek(token.IF) {
 		ifExp, ok := p.parseIfExpression().(*ast.IfExpression)
 		if !ok {
-			p.statementError("else if 语句语法错误")
+			p.statementErrorf("else if 语句语法错误")
 		}
 		elseExp.NextIfExp = ifExp
 	} else if p.expectPeek(token.LBRACE) {
 		elseExp.Consequence = p.parseBlockStatement()
 	} else {
-		p.statementError("else 语句语法错误")
+		p.statementErrorf("else 语句语法错误")
 	}
 
 	return elseExp
+}
+
+func (p *Parser) parseFunctionLiteral() ast.Expression {
+	funcExp := &ast.FunctionLiteral{
+		Token:      p.cur_token,
+		Parameters: []*ast.IdentLiteral{},
+	}
+
+	if p.expectPeek(token.IDENT) {
+		funcExp.Name = &ast.IdentLiteral{
+			Token: p.cur_token,
+			Value: p.cur_token.Literal,
+		}
+	} else {
+		p.statementErrorf("函数表达式语法错误，缺少函数名")
+		return nil
+	}
+
+	if p.expectPeek(token.LPAREN) {
+		funcExp.Parameters = p.parseFunctionParameters()
+	} else {
+		p.statementErrorf("函数表达式语法错误，形参列表缺少左括号 '('")
+		return nil
+	}
+
+	if p.expectPeek(token.LBRACE) {
+		funcExp.Body = p.parseBlockStatement()
+	} else {
+		p.statementErrorf("函数表达式语法错误，缺少函数体")
+		return nil
+	}
+
+	return funcExp
+}
+
+func (p *Parser) parseFunctionParameters() []*ast.IdentLiteral {
+	var identifiers []*ast.IdentLiteral
+
+	if p.expectPeek(token.RPAREN) {
+		return identifiers
+	}
+
+	// 语法解析器 cur_tok 向后移动一个位置
+	if p.expectPeek(token.IDENT) {
+		ident := &ast.IdentLiteral{
+			Token: p.cur_token,
+			Value: p.cur_token.Literal,
+		}
+		identifiers = append(identifiers, ident)
+	} else {
+		p.statementErrorf("函数表达式语法错误，形参 Token 类型错误")
+		return nil
+	}
+
+	for p.expectPeek(token.COMMA) {
+		// 这个是为了指向 ',' 后面的 Token
+		p.nextToken()
+		ident := &ast.IdentLiteral{
+			Token: p.cur_token,
+			Value: p.cur_token.Literal,
+		}
+		identifiers = append(identifiers, ident)
+	}
+
+	if p.expectPeek(token.RPAREN) {
+		return identifiers
+	} else {
+		p.statementErrorf("函数表达式语法错误，形参列表缺失右括号 ')'")
+		return nil
+	}
 }
 
 // parseBlockStatement 解析代码块
@@ -206,7 +277,7 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	if !p.curTokenIs(token.RBRACE) {
 		// 出现错误则恢复代码块的起始位置
 		p.base_index = baseIndex
-		p.statementError("代码块缺失右花括号 '}'")
+		p.statementErrorf("代码块缺失右花括号 '}'")
 	}
 
 	return bs

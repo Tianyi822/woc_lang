@@ -2,25 +2,26 @@ package ast
 
 import (
 	"bytes"
+	"strings"
 	"woc_lang/token"
 )
 
-// IdentExpression 标识符节点，例如 `var x = 5;` 中的 x
+// IdentLiteral 标识符节点，例如 `var x = 5;` 中的 x
 // 标识符之所以定义为表达式，是因为当一个值绑定到 `x` 上后，
 // x 就指向了这个值，举个栗子：var other_ident = x; 这个语句中，x 就作为表达式
 // 将 x 指向的 5 赋值给了 other_ident
-type IdentExpression struct {
+type IdentLiteral struct {
 	Token token.Token
 	Value string
 }
 
-func (ie *IdentExpression) eNode() {}
+func (ie *IdentLiteral) eNode() {}
 
-func (ie *IdentExpression) TokenLiteral() string {
+func (ie *IdentLiteral) TokenLiteral() string {
 	return ie.Token.Literal
 }
 
-func (ie *IdentExpression) String() string {
+func (ie *IdentLiteral) String() string {
 	return ie.Value
 }
 
@@ -54,6 +55,39 @@ func (bl *BooleanLiteral) TokenLiteral() string {
 
 func (bl *BooleanLiteral) String() string {
 	return bl.Token.Literal
+}
+
+// FunctionLiteral 函数字面量
+type FunctionLiteral struct {
+	Token      token.Token
+	Name       *IdentLiteral
+	Parameters []*IdentLiteral
+	Body       *BlockStatement
+}
+
+func (fl *FunctionLiteral) eNode() {}
+
+func (fl *FunctionLiteral) TokenLiteral() string {
+	return fl.Token.Literal
+}
+
+func (fl *FunctionLiteral) String() string {
+	var out bytes.Buffer
+
+	var params []string
+	for _, p := range fl.Parameters {
+		params = append(params, p.String())
+	}
+
+	out.WriteString(fl.TokenLiteral())
+	out.WriteString(" ")
+	out.WriteString(fl.Name.String())
+	out.WriteString("(")
+	out.WriteString(strings.Join(params, ", "))
+	out.WriteString(") ")
+	out.WriteString(fl.Body.String())
+
+	return out.String()
 }
 
 // PrefixExpression 前缀表达式

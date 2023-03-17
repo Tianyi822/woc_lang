@@ -11,14 +11,14 @@ func TestVarStatement(t *testing.T) {
 			Type:    token.VAR,
 			Literal: "var",
 		},
-		Name: IdentExpression{
+		Name: IdentLiteral{
 			Token: token.Token{
 				Type:    token.IDENT,
 				Literal: "age",
 			},
 			Value: "age",
 		},
-		Value: &IdentExpression{
+		Value: &IdentLiteral{
 			Token: token.Token{
 				Type:    token.IDENT,
 				Literal: "age_value",

@@ -106,7 +106,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 		return nil
 	}
 
-	stmt.Name = ast.IdentExpression{
+	stmt.Name = ast.IdentLiteral{
 		Token: p.cur_token,
 		Value: p.cur_token.Literal,
 	}
@@ -125,7 +125,7 @@ func (p *Parser) parseVarStatement() ast.Statement {
 	val := p.parseExpression(LEVEL_0)
 
 	if val == nil {
-		p.statementError("解析声明变量语法错误，变量 '%s' 没有进行赋值", stmt.Name.String())
+		p.statementErrorf("解析声明变量语法错误，变量 '%s' 没有进行赋值", stmt.Name.String())
 		return nil
 	} else {
 		stmt.Value = val
@@ -173,7 +173,7 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
 	stmt.Expression = p.parseExpression(LEVEL_0)
 
-	if stmt.Token.Type == token.IF {
+	if stmt.Token.Type == token.IF || stmt.Token.Type == token.FUNC {
 		return stmt
 	} else if !p.checkStmtEnd() {
 		return nil
@@ -266,13 +266,13 @@ func (p *Parser) checkStmtEnd() bool {
 		p.nextToken()
 		return true
 	} else {
-		p.statementError("语句结束错误，没有分号 ';'")
+		p.statementErrorf("语句结束错误，没有分号 ';'")
 		return false
 	}
 }
 
 // endOfStatementError 收集语句结束错误
-func (p *Parser) statementError(msgFormat string, args ...any) {
+func (p *Parser) statementErrorf(msgFormat string, args ...any) {
 	// 获取一组 token 的字面量
 	literals, err := p.l.GetTokensLiteral(p.base_index, p.cur_index)
 	if err != nil {

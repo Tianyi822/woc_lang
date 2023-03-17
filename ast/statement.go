@@ -32,7 +32,7 @@ func (p *Program) String() string {
 // VarStatement 声明变量表达式
 type VarStatement struct {
 	Token token.Token
-	Name  IdentExpression
+	Name  IdentLiteral
 	Value Expression
 }
 
