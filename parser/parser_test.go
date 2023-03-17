@@ -393,6 +393,58 @@ func TestElseIfExpression(t *testing.T) {
 	}
 }
 
+func TestFunctionLiteralParsing(t *testing.T) {
+	input := "func test(x, y) { x * y; }"
+
+	l := lexer.New(input)
+	checkLexerErrors(t, l)
+	p := New(l)
+	checkParserErrors(t, p)
+
+	if len(p.program.Statements) != 1 {
+		t.Fatalf("p.program.Statements 包含语句数量错误:\n期望: %d\n实际:%d\n",
+			1, len(p.program.Statements))
+	}
+
+	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("p.program.Statements[0] 并不是 ast.ExpressionStatement 类型，实际类型为: %T",
+			p.program.Statements[0])
+	}
+
+	function, ok := stmt.Expression.(*ast.FunctionLiteral)
+	if !ok {
+		t.Fatalf("stmt.Expression 并不是 ast.FunctionLiteral 类型，实际类型为: %T",
+			stmt.Expression)
+	}
+
+	if function.Name.Value != "test" {
+		t.Fatalf("函数名称错误:\n期望: %s\n实际: %s\n",
+			"test", function.Name.Value)
+	}
+
+	if len(function.Parameters) != 2 {
+		t.Fatalf("函数字面量的形参数量错误:\n期望: %d\n实际: %d\n",
+			2, len(function.Parameters))
+	}
+
+	testLiteralExpression(t, function.Parameters[0], "x")
+	testLiteralExpression(t, function.Parameters[1], "y")
+
+	if len(function.Body.Statements) != 1 {
+		t.Fatalf("function.Body.Statements 包含语句数量错误. 实际: %d\n",
+			len(function.Body.Statements))
+	}
+
+	bodyStmt, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("函数体类型不是 ast.ExpressionStatement. 实际: %T",
+			function.Body.Statements[0])
+	}
+
+	testInfixExpression(t, bodyStmt.Expression, "x", "*", "y")
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
