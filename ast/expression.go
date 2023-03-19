@@ -195,9 +195,10 @@ func (ee *ElseExpression) String() string {
 	return out.String()
 }
 
+// 函数调用表达式节点
 type CallExpression struct {
 	Token        token.Token
-	FunctionName Expression
+	FunctionName *IdentLiteral
 	Arguments    []Expression
 }
 
