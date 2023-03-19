@@ -40,6 +40,7 @@ func RegisterParseFns(p *Parser) {
 	p.registerInfix(token.LE, p.parseInfixExpression)
 	p.registerInfix(token.EQ, p.parseInfixExpression)
 	p.registerInfix(token.NEQ, p.parseInfixExpression)
+	p.registerInfix(token.LPAREN, p.parseCallExpression)
 }
 
 // ============================ parse literal start ============================
@@ -108,6 +109,47 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	exp.RightExp = p.parseExpression(priority)
 
 	return exp
+}
+
+// parseCallExpression 解析函数调用表达式
+func (p *Parser) parseCallExpression(left ast.Expression) ast.Expression {
+	funcName, ok := left.(*ast.IdentLiteral)
+	if !ok {
+		p.statementErrorf("函数调用语法错误，函数名 Token 类型错误，错误 Token 为: %T", left)
+		return nil
+	}
+
+	exp := &ast.CallExpression{
+		Token:        p.cur_token,
+		FunctionName: funcName,
+		Arguments:    p.parseCallArguments(),
+	}
+
+	return exp
+}
+
+// parseCallArguments 解析函数调用的实参列表
+func (p *Parser) parseCallArguments() []ast.Expression {
+	var args []ast.Expression
+
+	if p.expectPeek(token.RPAREN) {
+		return args
+	}
+
+	p.nextToken()
+	args = append(args, p.parseExpression(LEVEL_0))
+
+	for p.expectPeek(token.COMMA) {
+		p.nextToken()
+		args = append(args, p.parseExpression(LEVEL_0))
+	}
+
+	if !p.expectPeek(token.RPAREN) {
+		p.statementErrorf("函数调用语法错误，错误 Token 为: %s", p.cur_token.Literal)
+		return nil
+	}
+
+	return args
 }
 
 // parseGroupExpression 解析分组表达式
