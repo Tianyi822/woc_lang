@@ -262,8 +262,7 @@ func (p *Parser) noParseFnError(token token.Token) {
 // checkStmtEnd 检查语句末尾是否符合规则
 func (p *Parser) checkStmtEnd() bool {
 	// 按照语句的规则，解析完之后就应该只剩分号(;)
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	if p.expectPeek(token.SEMICOLON) {
 		return true
 	} else {
 		p.statementErrorf("语句结束错误，没有分号 ';'")
