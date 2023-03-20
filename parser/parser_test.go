@@ -445,6 +445,43 @@ func TestFunctionLiteralParsing(t *testing.T) {
 	testInfixExpression(t, bodyStmt.Expression, "x", "*", "y")
 }
 
+func TestCallExpressionParsing(t *testing.T) {
+	input := "add(1, 2 * 3, 4 + 5);"
+
+	l := lexer.New(input)
+	checkLexerErrors(t, l)
+	p := New(l)
+	checkParserErrors(t, p)
+
+	if len(p.program.Statements) != 1 {
+		t.Fatalf("语句数量错误，实际: %d", len(p.program.Statements))
+	}
+
+	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("p.program.Statements[0] 并不是 ast.ExpressionStatement 类型，实际类型为: %T",
+			p.program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression 并不是 ast.CallExpression 类型，实际类型为: %T",
+			stmt.Expression)
+	}
+
+	if !testIdentifier(t, exp.FunctionName, "add") {
+		return
+	}
+
+	if len(exp.Arguments) != 3 {
+		t.Fatalf("实参数量错误，实际: %d", len(exp.Arguments))
+	}
+
+	testLiteralExpression(t, exp.Arguments[0], 1)
+	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
+}
+
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {
 	if s.TokenLiteral() != "var" {
 		t.Errorf("s.TokenLiteral 不是 'var', 实际得到: %T", s.TokenLiteral())
