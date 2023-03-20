@@ -24,17 +24,52 @@ func TestParsingVarStatement(t *testing.T) {
 		parser := New(l)
 		checkParserErrors(t, parser)
 
-		if len(parser.program.Statements) != 1 {
-			t.Fatalf("语句解析错误，解析语句数量为: %d", len(parser.program.Statements))
+		if len(parser.Program.Statements) != 1 {
+			t.Fatalf("语句解析错误，解析语句数量为: %d", len(parser.Program.Statements))
 		}
 
-		stmt := parser.program.Statements[0]
+		stmt := parser.Program.Statements[0]
 		if !testVarStatement(t, stmt, tt.expectedIdentifier) {
 			return
 		}
 
 		val := stmt.(*ast.VarStatement).Value
 		if !testLiteralExpression(t, val, tt.expectedValue) {
+			return
+		}
+	}
+}
+
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input         string
+		expectedValue interface{}
+	}{
+		{"return 5;", 5},
+		{"return foobar;", "foobar"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+		p := New(l)
+		checkParserErrors(t, p)
+
+		if len(p.Program.Statements) != 1 {
+			t.Fatalf("语句数量错误，实际: %d",
+				len(p.Program.Statements))
+		}
+
+		stmt := p.Program.Statements[0]
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		if !ok {
+			t.Fatalf("stmt 不是 *ast.ReturnStatement 类型. 实际: %T", stmt)
+		}
+		if returnStmt.TokenLiteral() != "return" {
+			t.Fatalf("returnStmt.TokenLiteral 不是 'return' 关键字, 实际: %q",
+				returnStmt.TokenLiteral())
+		}
+		if !testLiteralExpression(t, returnStmt.ReturnValue, tt.expectedValue) {
 			return
 		}
 	}
@@ -57,18 +92,18 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		parser := New(l)
 		checkParserErrors(t, parser)
 
-		if parser.program == nil {
+		if parser.Program == nil {
 			t.Fatalf("测试用例未解析到代码")
 		}
 
-		if len(parser.program.Statements) != 1 {
+		if len(parser.Program.Statements) != 1 {
 			t.Fatalf("测试用例语法结构与预期不符:\n预期: %d\n实际: %d",
-				1, len(parser.program.Statements))
+				1, len(parser.Program.Statements))
 		}
 
-		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		stmt, ok := parser.Program.Statements[0].(*ast.ExpressionStatement)
 		if !ok {
-			t.Fatalf("语句解析错误: %T", parser.program.Statements[0])
+			t.Fatalf("语句解析错误: %T", parser.Program.Statements[0])
 		}
 
 		preExp, ok := stmt.Expression.(*ast.PrefixExpression)
@@ -114,15 +149,15 @@ func TestParsingInfixExpressions(t *testing.T) {
 		parser := New(l)
 		checkParserErrors(t, parser)
 
-		if len(parser.program.Statements) != 1 {
+		if len(parser.Program.Statements) != 1 {
 			t.Fatalf("program.Statements 期望语句数量: %d，实际获得=%d\n",
-				1, len(parser.program.Statements))
+				1, len(parser.Program.Statements))
 		}
 
-		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		stmt, ok := parser.Program.Statements[0].(*ast.ExpressionStatement)
 		if !ok {
 			t.Fatalf("program.Statements[0] 不是表达式声明语句，实际获得=%T",
-				parser.program.Statements[0])
+				parser.Program.Statements[0])
 		}
 
 		if !testInfixExpression(t, stmt.Expression, tt.leftValue, tt.operator, tt.rightValue) {
@@ -147,14 +182,14 @@ func TestBooleanExpression(t *testing.T) {
 		parser := New(l)
 		checkParserErrors(t, parser)
 
-		if len(parser.program.Statements) != 1 {
-			t.Fatalf("语句解析失败，实际解析语句数量: %d", len(parser.program.Statements))
+		if len(parser.Program.Statements) != 1 {
+			t.Fatalf("语句解析失败，实际解析语句数量: %d", len(parser.Program.Statements))
 		}
 
-		stmt, ok := parser.program.Statements[0].(*ast.ExpressionStatement)
+		stmt, ok := parser.Program.Statements[0].(*ast.ExpressionStatement)
 		if !ok {
 			t.Fatalf("parser.program.Statements[0] 并非表达式声明语句，解析结果: %T",
-				parser.program.Statements[0])
+				parser.Program.Statements[0])
 		}
 
 		boolean, ok := stmt.Expression.(*ast.BooleanLiteral)
@@ -193,6 +228,22 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"-(5 + 5);",
 			"(-(5 + 5));",
 		},
+		{
+			"!(true == true);",
+			"(!(true == true));",
+		},
+		{
+			"a + add(b * c) + d;",
+			"((a + add((b * c))) + d);",
+		},
+		{
+			"add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8));",
+			"add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)));",
+		},
+		{
+			"add(a + b + c * d / f + g);",
+			"add((((a + b) + ((c * d) / f)) + g));",
+		},
 	}
 
 	for _, tt := range tests {
@@ -202,7 +253,7 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 		parser := New(l)
 		checkParserErrors(t, parser)
 
-		actual := parser.program.String()
+		actual := parser.Program.String()
 		if actual != tt.expected {
 			t.Errorf("期望结果: %q\n实际获得: %q", tt.expected, actual)
 		}
@@ -221,14 +272,14 @@ func TestIfExpression(t *testing.T) {
 	p := New(l)
 	checkParserErrors(t, p)
 
-	if len(p.program.Statements) != 1 {
-		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.program.Statements))
+	if len(p.Program.Statements) != 1 {
+		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.Program.Statements))
 	}
 
-	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	stmt, ok := p.Program.Statements[0].(*ast.ExpressionStatement)
 	if !ok {
 		t.Fatalf("program.Statements[0] 不是 ast.ExpressionStatement，实际取值: %T",
-			p.program.Statements[0])
+			p.Program.Statements[0])
 	}
 
 	exp, ok := stmt.Expression.(*ast.IfExpression)
@@ -275,14 +326,14 @@ func TestIfElseExpression(t *testing.T) {
 	p := New(l)
 	checkParserErrors(t, p)
 
-	if len(p.program.Statements) != 1 {
-		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.program.Statements))
+	if len(p.Program.Statements) != 1 {
+		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.Program.Statements))
 	}
 
-	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	stmt, ok := p.Program.Statements[0].(*ast.ExpressionStatement)
 	if !ok {
 		t.Fatalf("program.Statements[0] 不是 ast.ExpressionStatement，实际取值: %T",
-			p.program.Statements[0])
+			p.Program.Statements[0])
 	}
 
 	ifExp, ok := stmt.Expression.(*ast.IfExpression)
@@ -334,14 +385,14 @@ func TestElseIfExpression(t *testing.T) {
 	p := New(l)
 	checkParserErrors(t, p)
 
-	if len(p.program.Statements) != 1 {
-		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.program.Statements))
+	if len(p.Program.Statements) != 1 {
+		t.Fatalf("语句解析失败，实际解析语句数量: %d", len(p.Program.Statements))
 	}
 
-	stmt, ok := p.program.Statements[0].(*ast.ExpressionStatement)
+	stmt, ok := p.Program.Statements[0].(*ast.ExpressionStatement)
 	if !ok {
 		t.Fatalf("program.Statements[0] 不是 ast.ExpressionStatement，实际取值: %T",
-			p.program.Statements[0])
+			p.Program.Statements[0])
 	}
 
 	ifExp, ok := stmt.Expression.(*ast.IfExpression)
@@ -391,6 +442,95 @@ func TestElseIfExpression(t *testing.T) {
 	if !testIdentifier(t, elseConsequence.Expression, "z") {
 		return
 	}
+}
+
+func TestFunctionLiteralParsing(t *testing.T) {
+	input := "func test(x, y) { x * y; }"
+
+	l := lexer.New(input)
+	checkLexerErrors(t, l)
+	p := New(l)
+	checkParserErrors(t, p)
+
+	if len(p.Program.Statements) != 1 {
+		t.Fatalf("p.program.Statements 包含语句数量错误:\n期望: %d\n实际:%d\n",
+			1, len(p.Program.Statements))
+	}
+
+	stmt, ok := p.Program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("p.program.Statements[0] 并不是 ast.ExpressionStatement 类型，实际类型为: %T",
+			p.Program.Statements[0])
+	}
+
+	function, ok := stmt.Expression.(*ast.FunctionLiteral)
+	if !ok {
+		t.Fatalf("stmt.Expression 并不是 ast.FunctionLiteral 类型，实际类型为: %T",
+			stmt.Expression)
+	}
+
+	if function.Name.Value != "test" {
+		t.Fatalf("函数名称错误:\n期望: %s\n实际: %s\n",
+			"test", function.Name.Value)
+	}
+
+	if len(function.Parameters) != 2 {
+		t.Fatalf("函数字面量的形参数量错误:\n期望: %d\n实际: %d\n",
+			2, len(function.Parameters))
+	}
+
+	testLiteralExpression(t, function.Parameters[0], "x")
+	testLiteralExpression(t, function.Parameters[1], "y")
+
+	if len(function.Body.Statements) != 1 {
+		t.Fatalf("function.Body.Statements 包含语句数量错误. 实际: %d\n",
+			len(function.Body.Statements))
+	}
+
+	bodyStmt, ok := function.Body.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("函数体类型不是 ast.ExpressionStatement. 实际: %T",
+			function.Body.Statements[0])
+	}
+
+	testInfixExpression(t, bodyStmt.Expression, "x", "*", "y")
+}
+
+func TestCallExpressionParsing(t *testing.T) {
+	input := "add(1, 2 * 3, 4 + 5);"
+
+	l := lexer.New(input)
+	checkLexerErrors(t, l)
+	p := New(l)
+	checkParserErrors(t, p)
+
+	if len(p.Program.Statements) != 1 {
+		t.Fatalf("语句数量错误，实际: %d", len(p.Program.Statements))
+	}
+
+	stmt, ok := p.Program.Statements[0].(*ast.ExpressionStatement)
+	if !ok {
+		t.Fatalf("p.program.Statements[0] 并不是 ast.ExpressionStatement 类型，实际类型为: %T",
+			p.Program.Statements[0])
+	}
+
+	exp, ok := stmt.Expression.(*ast.CallExpression)
+	if !ok {
+		t.Fatalf("stmt.Expression 并不是 ast.CallExpression 类型，实际类型为: %T",
+			stmt.Expression)
+	}
+
+	if !testIdentifier(t, exp.FunctionName, "add") {
+		return
+	}
+
+	if len(exp.Arguments) != 3 {
+		t.Fatalf("实参数量错误，实际: %d", len(exp.Arguments))
+	}
+
+	testLiteralExpression(t, exp.Arguments[0], 1)
+	testInfixExpression(t, exp.Arguments[1], 2, "*", 3)
+	testInfixExpression(t, exp.Arguments[2], 4, "+", 5)
 }
 
 func testVarStatement(t *testing.T, s ast.Statement, name string) bool {

@@ -17,7 +17,7 @@ type Parser struct {
 	peek_token token.Token  // 从词法分析器中读取到的下一个 Token
 	base_index int          // 语句起始索引
 	cur_index  int          // 语句结束索引
-	program    *ast.Program // AST 的根节点
+	Program    *ast.Program // AST 的根节点
 	errors     []string     // 收集语法分析过程中出现的错误
 
 	// 用于收集对应的前缀和中缀语法对应的解析函数
@@ -69,7 +69,7 @@ func (p *Parser) parseProgram() {
 	}
 
 	// 保存 AST
-	p.program = program
+	p.Program = program
 }
 
 // parseStatement 解析语句
@@ -150,9 +150,13 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 		Token: p.cur_token,
 	}
 
-	// TODO: 等号右边的表达式暂时不处理，后续添加
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	// 移动到下一个 token 位置，并解析
+	p.nextToken()
+	stmt.ReturnValue = p.parseExpression(LEVEL_0)
+
+	// 检查语句结尾是否符合规则
+	if !p.checkStmtEnd() {
+		return nil
 	}
 
 	return stmt
@@ -262,8 +266,7 @@ func (p *Parser) noParseFnError(token token.Token) {
 // checkStmtEnd 检查语句末尾是否符合规则
 func (p *Parser) checkStmtEnd() bool {
 	// 按照语句的规则，解析完之后就应该只剩分号(;)
-	if p.peekTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	if p.expectPeek(token.SEMICOLON) {
 		return true
 	} else {
 		p.statementErrorf("语句结束错误，没有分号 ';'")
