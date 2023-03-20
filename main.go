@@ -1,7 +1,16 @@
 package main
 
-import "fmt"
+import (
+	"os"
+	"os/user"
+	"woc_lang/repl"
+)
 
 func main() {
-	fmt.Println("Hello, world!")
+	u, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+
+	repl.StartREPL(u, os.Stdin, os.Stdout)
 }
