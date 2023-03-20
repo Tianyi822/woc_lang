@@ -17,7 +17,7 @@ type Parser struct {
 	peek_token token.Token  // 从词法分析器中读取到的下一个 Token
 	base_index int          // 语句起始索引
 	cur_index  int          // 语句结束索引
-	program    *ast.Program // AST 的根节点
+	Program    *ast.Program // AST 的根节点
 	errors     []string     // 收集语法分析过程中出现的错误
 
 	// 用于收集对应的前缀和中缀语法对应的解析函数
@@ -69,7 +69,7 @@ func (p *Parser) parseProgram() {
 	}
 
 	// 保存 AST
-	p.program = program
+	p.Program = program
 }
 
 // parseStatement 解析语句
