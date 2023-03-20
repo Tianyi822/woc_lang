@@ -150,9 +150,13 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 		Token: p.cur_token,
 	}
 
-	// TODO: 等号右边的表达式暂时不处理，后续添加
-	for !p.curTokenIs(token.SEMICOLON) {
-		p.nextToken()
+	// 移动到下一个 token 位置，并解析
+	p.nextToken()
+	stmt.ReturnValue = p.parseExpression(LEVEL_0)
+
+	// 检查语句结尾是否符合规则
+	if !p.checkStmtEnd() {
+		return nil
 	}
 
 	return stmt

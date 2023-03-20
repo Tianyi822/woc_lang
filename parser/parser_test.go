@@ -40,6 +40,41 @@ func TestParsingVarStatement(t *testing.T) {
 	}
 }
 
+func TestReturnStatements(t *testing.T) {
+	tests := []struct {
+		input         string
+		expectedValue interface{}
+	}{
+		{"return 5;", 5},
+		{"retur foobar;", "foobar"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+		p := New(l)
+		checkParserErrors(t, p)
+
+		if len(p.program.Statements) != 1 {
+			t.Fatalf("语句数量错误，实际: %d",
+				len(p.program.Statements))
+		}
+
+		stmt := p.program.Statements[0]
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		if !ok {
+			t.Fatalf("stmt 不是 *ast.ReturnStatement 类型. 实际: %T", stmt)
+		}
+		if returnStmt.TokenLiteral() != "return" {
+			t.Fatalf("returnStmt.TokenLiteral 不是 'return' 关键字, 实际: %q",
+				returnStmt.TokenLiteral())
+		}
+		if !testLiteralExpression(t, returnStmt.ReturnValue, tt.expectedValue) {
+			return
+		}
+	}
+}
+
 func TestParsingPrefixExpressions(t *testing.T) {
 	prefixTests := []struct {
 		input    string
