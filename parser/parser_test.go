@@ -46,7 +46,7 @@ func TestReturnStatements(t *testing.T) {
 		expectedValue interface{}
 	}{
 		{"return 5;", 5},
-		{"retur foobar;", "foobar"},
+		{"return foobar;", "foobar"},
 	}
 
 	for _, tt := range tests {
