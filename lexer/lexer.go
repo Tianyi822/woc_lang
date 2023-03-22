@@ -400,7 +400,7 @@ func (l *Lexer) stateTrans(end_index int, ch rune) {
 		}
 		l.letterState(ch)
 	} else if isDigit(ch) { // 数字解析
-		// 如果当前标识符是以数字开头，则允许作为标识符
+		// 如果当前标识符是以数字开头，则不允许作为标识符
 		if l.cur_state == dfa_state.Initial {
 			l.can_be_ident = false
 		}
