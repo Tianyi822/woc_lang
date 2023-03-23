@@ -121,3 +121,27 @@ func (bs *BlockStatement) String() string {
 
 	return out.String()
 }
+
+// AssignStatement 赋值语句
+type AssignStatement struct {
+	Token token.Token
+	Ident *IdentLiteral
+	Exp   Expression
+}
+
+func (as *AssignStatement) sNode() {}
+
+func (as *AssignStatement) TokenLiteral() string {
+	return as.Token.Literal
+}
+
+func (as *AssignStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(as.Ident.String())
+	out.WriteString(" = ")
+	out.WriteString(as.Exp.String())
+	out.WriteString(";")
+
+	return out.String()
+}
