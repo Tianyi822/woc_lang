@@ -81,6 +81,7 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseReturnStatement()
 	default:
 		// 如果当前字符不是关键字，那就默认为表达式
+		// 还有一种情况就是赋值语句，因为赋值语句没有单独的关键字，所以也进入这个函数中解析
 		return p.parseExpressionStatement()
 	}
 }
@@ -170,19 +171,57 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 		p.base_index = p.cur_index
 	}()
 
-	// 这就开始构建表达式节点
-	stmt := &ast.ExpressionStatement{
-		Token: p.cur_token,
-	}
-	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
-	stmt.Expression = p.parseExpression(LEVEL_0)
+	// 同时满足这两个条件说明这个语句是赋值语句，进入对应的方法进行解析
+	if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.ASSIGN) {
+		stmt := p.parseAssignStmt()
 
-	if stmt.Token.Type == token.IF || stmt.Token.Type == token.FUNC {
-		return stmt
-	} else if !p.checkStmtEnd() {
-		return nil
+		if !p.checkStmtEnd() {
+			return nil
+		} else {
+			return stmt
+		}
 	} else {
-		return stmt
+		// 这就开始构建表达式节点
+		stmt := &ast.ExpressionStatement{
+			Token: p.cur_token,
+		}
+		// 优先给初始表达式节点最低的优先级，以便后续添加表达式
+		stmt.Expression = p.parseExpression(LEVEL_0)
+
+		if stmt.Token.Type == token.IF || stmt.Token.Type == token.FUNC {
+			return stmt
+		} else if !p.checkStmtEnd() {
+			return nil
+		} else {
+			return stmt
+		}
+	}
+}
+
+// parseAssignStmt 解析赋值语句
+func (p *Parser) parseAssignStmt() ast.Statement {
+	// 因为 parseAssignStmt 经过了 parseExpressionStatement 方法的调用，
+	// 可以不在这里维护 base_index
+
+	// 构建当前的标识符语法树节点
+	ident := &ast.IdentLiteral{
+		Token: p.cur_token,
+		Value: p.cur_token.Literal,
+	}
+
+	// 能进入这个方法说明满足赋值语句最基础的要求，即标识符和赋值符号 (Ident =)
+	// 接着连续使用两个 nextToken() 是跳到赋值符号右边的 Token，开始解析右侧的表达式
+	p.nextToken()
+	// 这里保留一下赋值符号的 Token
+	tok := p.cur_token
+	p.nextToken()
+
+	exp := p.parseExpression(LEVEL_0)
+
+	return &ast.AssignStatement{
+		Token: tok,
+		Ident: ident,
+		Exp:   exp,
 	}
 }
 
