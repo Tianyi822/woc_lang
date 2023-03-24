@@ -40,6 +40,41 @@ func TestParsingVarStatement(t *testing.T) {
 	}
 }
 
+func TestAssignStmt(t *testing.T) {
+	tests := []struct {
+		input              string
+		expectedIdentifier string
+		expectedValue      any
+	}{
+		{"x = 7;", "x", 7},
+		{"foo = bar;", "foo", "bar"},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		checkLexerErrors(t, l)
+
+		p := New(l)
+		checkParserErrors(t, p)
+
+		if len(p.Program.Statements) != 1 {
+			t.Fatalf("语句解析错误，解析语句数量为: %d", len(p.Program.Statements))
+		}
+
+		stmt := p.Program.Statements[0].(*ast.AssignStatement)
+		ident := stmt.Ident
+		exp := stmt.Exp
+
+		if !testLiteralExpression(t, ident, tt.expectedIdentifier) {
+			return
+		}
+
+		if !testLiteralExpression(t, exp, tt.expectedValue) {
+			return
+		}
+	}
+}
+
 func TestReturnStatements(t *testing.T) {
 	tests := []struct {
 		input         string

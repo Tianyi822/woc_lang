@@ -173,22 +173,28 @@ func (p *Parser) parseExpressionStatement() ast.Statement {
 
 	// 同时满足这两个条件说明这个语句是赋值语句，进入对应的方法进行解析
 	if p.curTokenIs(token.IDENT) && p.peekTokenIs(token.ASSIGN) {
-		return p.parseAssignStmt()
-	}
+		stmt := p.parseAssignStmt()
 
-	// 这就开始构建表达式节点
-	stmt := &ast.ExpressionStatement{
-		Token: p.cur_token,
-	}
-	// 优先给初始表达式节点最低的优先级，以便后续添加表达式
-	stmt.Expression = p.parseExpression(LEVEL_0)
-
-	if stmt.Token.Type == token.IF || stmt.Token.Type == token.FUNC {
-		return stmt
-	} else if !p.checkStmtEnd() {
-		return nil
+		if !p.checkStmtEnd() {
+			return nil
+		} else {
+			return stmt
+		}
 	} else {
-		return stmt
+		// 这就开始构建表达式节点
+		stmt := &ast.ExpressionStatement{
+			Token: p.cur_token,
+		}
+		// 优先给初始表达式节点最低的优先级，以便后续添加表达式
+		stmt.Expression = p.parseExpression(LEVEL_0)
+
+		if stmt.Token.Type == token.IF || stmt.Token.Type == token.FUNC {
+			return stmt
+		} else if !p.checkStmtEnd() {
+			return nil
+		} else {
+			return stmt
+		}
 	}
 }
 
@@ -211,11 +217,11 @@ func (p *Parser) parseAssignStmt() ast.Statement {
 	p.nextToken()
 
 	exp := p.parseExpression(LEVEL_0)
-	
+
 	return &ast.AssignStatement{
 		Token: tok,
 		Ident: ident,
-		Exp: exp,
+		Exp:   exp,
 	}
 }
 
