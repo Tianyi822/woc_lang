@@ -141,7 +141,6 @@ func (as *AssignStatement) String() string {
 	out.WriteString(as.Ident.String())
 	out.WriteString(" = ")
 	out.WriteString(as.Exp.String())
-	out.WriteString(";")
 
 	return out.String()
 }
