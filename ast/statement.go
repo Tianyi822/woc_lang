@@ -23,6 +23,12 @@ func (p *Program) String() string {
 
 	for _, s := range p.Statements {
 		out.WriteString(s.String())
+
+		// 函数字面量不需要打印分号
+		if _, ok := s.(*ExpressionStatement).Expression.(*FunctionLiteral); ok {
+			continue
+		}
+
 		out.WriteString(";")
 	}
 
@@ -114,10 +120,12 @@ func (bs *BlockStatement) TokenLiteral() string {
 func (bs *BlockStatement) String() string {
 	var out bytes.Buffer
 
+	out.WriteString("{ ")
 	for _, s := range bs.Statements {
 		out.WriteString(s.String())
 		out.WriteString(";")
 	}
+	out.WriteString(" }")
 
 	return out.String()
 }
