@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os/user"
+	"woc_lang/evaluator"
 	"woc_lang/lexer"
 	"woc_lang/parser"
 )
@@ -57,8 +58,11 @@ func StartREPL(u *user.User, in io.Reader, out io.Writer) {
 			continue
 		}
 
-		_, _ = io.WriteString(out, p.Program.String())
-		_, _ = io.WriteString(out, "\n")
+		evaluate := evaluator.Eval(p.Program)
+		if evaluate != nil {
+			_, _ = io.WriteString(out, evaluate.String())
+			_, _ = io.WriteString(out, "\n")
+		}
 	}
 }
 
