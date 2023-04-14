@@ -22,6 +22,21 @@ func TestEvalIntegerExpression(t *testing.T) {
 	}
 }
 
+func TestEvalBooleanExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected bool
+	}{
+		{"true;", true},
+		{"false;", false},
+	}
+
+	for _, tt := range tests {
+		evaluated := testEval(t, tt.input)
+		testBooleanObject(t, evaluated, tt.expected)
+	}
+}
+
 func testEval(t *testing.T, input string) object.Object {
 	l := lexer.New(input)
 	checkLexerErrors(t, l)
@@ -40,7 +55,24 @@ func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
 	}
 
 	if result.Value != expected {
-		t.Errorf("Integer 对象值错误:\n实际获得: %d\n期望获得: %d", result.Value, expected)
+		t.Errorf("Integer 对象值错误:\n实际获得: %d\n期望获得: %d",
+			result.Value, expected)
+		return false
+	}
+
+	return true
+}
+
+func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
+	result, ok := obj.(*object.Boolean)
+	if !ok {
+		t.Errorf("对象不是 Boolean 类型，实际获得: %T (%+v)", obj, obj)
+		return false
+	}
+
+	if result.Value != expected {
+		t.Errorf("Boolean 对象值错误:\n实际获得: %t\n期望获得: %t",
+			result.Value, expected)
 		return false
 	}
 
