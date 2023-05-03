@@ -322,6 +322,11 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 		p.statementErrorf("代码块缺失右花括号 '}'")
 	}
 
+	if p.expectPeek(token.SEMICOLON) {
+		p.base_index = baseIndex
+		p.statementErrorf("代码块不需要以分号结尾")
+	}
+
 	return bs
 }
 
