@@ -88,6 +88,34 @@ func TestBangOperator(t *testing.T) {
 	}
 }
 
+func TestIfElseExpression(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected any
+	}{
+		{"if (true) { 10; }", 10},
+		{"if (false) { 10; }", nil},
+		{"if (1) { 10; }", 10},
+		{"if (1 < 2) { 10; }", 10},
+		{"if (1 > 2) { 10; }", nil},
+		{"if (1 > 2) { 10; } else { 20; }", 20},
+		{"if (1 < 2) { 10; } else { 20; }", 10},
+		{"if (1 < 2) { 10; } else if (3 < 4) { 20; } else { 30; }", 10},
+		{"if (1 > 2) { 10; } else if (3 < 4) { 20; } else { 30; }", 20},
+		{"if (1 > 2) { 10; } else if (3 > 4) { 20; } else { 30; }", 30},
+	}
+
+	for _, tt := range tests {
+		eval := testEval(t, tt.input)
+		integer, ok := tt.expected.(int)
+		if ok {
+			testIntegerObject(t, eval, int64(integer))
+		} else {
+			testNullObject(t, eval)
+		}
+	}
+}
+
 func testEval(t *testing.T, input string) object.Object {
 	l := lexer.New(input)
 	checkLexerErrors(t, l)
@@ -124,6 +152,15 @@ func testBooleanObject(t *testing.T, obj object.Object, expected bool) bool {
 	if result.Value != expected {
 		t.Errorf("Boolean 对象值错误:\n实际获得: %t\n期望获得: %t",
 			result.Value, expected)
+		return false
+	}
+
+	return true
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != NULL {
+		t.Errorf("对象不是 Null 类型，实际获得: %T (%+v)", obj, obj)
 		return false
 	}
 

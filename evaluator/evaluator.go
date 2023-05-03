@@ -20,6 +20,12 @@ func Eval(node ast.Node) object.Object {
 	case *ast.ExpressionStatement: // 解析表达式语句
 		return Eval(node.Expression)
 
+	case *ast.BlockStatement: // 解析代码块
+		return evalStatements(node.Statements)
+
+	case *ast.IfExpression: // 解析 if 表达式
+		return evalIfExpression(node)
+
 	case *ast.PrefixExpression:
 		right := Eval(node.Right) // 解析前缀表达式右侧表达式
 		return evalPrefixExpression(node.Operator, right)
@@ -54,6 +60,28 @@ func evalStatements(stmts []ast.Statement) object.Object {
 	}
 
 	return result
+}
+
+// evalIfExpression 对 if 表达式进行求值
+func evalIfExpression(ie *ast.IfExpression) object.Object {
+	condition := Eval(ie.Condition) // 解析 if 表达式条件
+
+	if isTruthy(condition) { // 如果条件为真
+		return Eval(ie.Consequence) // 解析 if 表达式的主体
+	} else if ie.ElseExpression != nil { // 如果条件为假且有 else 表达式
+		return evalElseExpression(ie.ElseExpression) // 解析 else 表达式
+	}
+
+	return NULL
+}
+
+// evalElseExpression 对 else 表达式进行求值
+func evalElseExpression(ee *ast.ElseExpression) object.Object {
+	if ee.NextIfExp == nil { // 如果没有下一个 if 表达式
+		return Eval(ee.Consequence) // 解析 else 表达式的主体
+	} else { // 如果有下一个 if 表达式
+		return evalIfExpression(ee.NextIfExp) // 解析下一个 if 表达式
+	}
 }
 
 // evalPrefixExpression 对前缀表达式进行求值
@@ -118,6 +146,20 @@ func evalBangOperatorExpression(right object.Object) object.Object {
 		return TRUE
 	default:
 		return FALSE
+	}
+}
+
+// isTruthy 判断一个对象是否为真
+func isTruthy(obj object.Object) bool {
+	switch obj {
+	case NULL:
+		return false
+	case TRUE:
+		return true
+	case FALSE:
+		return false
+	default:
+		return true
 	}
 }
 
