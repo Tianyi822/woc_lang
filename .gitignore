@@ -17,3 +17,8 @@
 bubble
 /resources/application*.ini
 /log/*.log
+
+
+# Added by cargo
+
+/target
