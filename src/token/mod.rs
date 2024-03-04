@@ -1,35 +1,50 @@
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum TokenType {
     // Single Symbols
-    Colon,        // :
-    Minus,        // -
-    Plus,         // +
-    Slash,        // /
-    Star,         // *
-    Assignment,   // =
+    Comma,        // ,
+    Dot,          // .
     Semicolon,    // ;
-    Background,   // &
-    GreaterThan,  // >
-    LessThan,     // <
-    Not,          // !
+    Colon,        // :
+    Assignment,   // =
     LeftParen,    // (
     RightParen,   // )
     LeftBrace,    // {
     RightBrace,   // }
     LeftBracket,  // [
     RightBracket, // ]
-    Tilde,        // ~
     Quote,        // "
     SingleQuote,  // '
 
-    // Combined Symbols
-    DoubleMinus,          // --
+    // Logical calculation
+    Not,                  // !
+    Greater,              // >
+    Less,                 // <
     GreaterThanOrEqualTo, // >=
     LessThanOrEqualTo,    // <=
     EqualTo,              // ==
     NotEqualTo,           // !=
     And,                  // &&
     Or,                   // ||
+
+    // Bit calculation
+    BitAnd, // &
+    BitOr,  // |
+    BitNot, // ~
+
+    // Data calculate symbols
+    Plus,        // +
+    Minus,       // -
+    Star,        // *
+    Slash,       // /
+    Percent,     // %
+    PlusEqual,   // +=
+    MinusEqual,  // -=
+    StarEqual,   // *=
+    SlashEqual,  // /=
+
+    // Data Types
+    Literal, // Literal
+    Num,     // integer number: 1, 2, -3, 1_000 etc. Or float number: 1.0, 2.0, 3.0, etc.
 
     // Syntax Keywords
     While,    // while
@@ -40,19 +55,10 @@ pub enum TokenType {
     Continue, // continue
     Let,      // let
     Func,     // function
-    Meth,     // method
     Return,   // return
     Struct,   // struct
     Enum,     // enum
-
-    // Data Types
-    Num,  // integer number: 1, 2, -3, 1_000 etc. Or float number: 1.0, 2.0, 3.0, etc.
-    Str,  // string: "Hello, World!" or 'Hello, World!'
-    Bool, // boolean: true or false
-    None, // null: None
-
-    // Literal
-    Literal,
+    None,     // null: None
 
     // Illegal
     Illegal,
@@ -94,12 +100,12 @@ impl Token {
             TokenType::Or => 1,
             TokenType::And => 2,
             TokenType::EqualTo | TokenType::NotEqualTo => 3,
-            TokenType::GreaterThan
-            | TokenType::LessThan
+            TokenType::Greater
+            | TokenType::Less
             | TokenType::GreaterThanOrEqualTo
             | TokenType::LessThanOrEqualTo => 4,
             TokenType::Plus | TokenType::Minus => 5,
-            TokenType::Star | TokenType::Slash => 6,
+            TokenType::Star | TokenType::Slash | TokenType::Percent => 6,
             _ => 0,
         }
     }
