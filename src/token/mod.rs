@@ -32,15 +32,15 @@ pub enum TokenType {
     BitNot, // ~
 
     // Data calculate symbols
-    Plus,        // +
-    Minus,       // -
-    Star,        // *
-    Slash,       // /
-    Percent,     // %
-    PlusEqual,   // +=
-    MinusEqual,  // -=
-    StarEqual,   // *=
-    SlashEqual,  // /=
+    Plus,       // +
+    Minus,      // -
+    Star,       // *
+    Slash,      // /
+    Percent,    // %
+    PlusAssign,  // +=
+    MinusAssign, // -=
+    StarAssign,  // *=
+    SlashAssign, // /=
 
     // Data Types
     Literal, // Literal
@@ -59,6 +59,8 @@ pub enum TokenType {
     Struct,   // struct
     Enum,     // enum
     None,     // null: None
+    True,     // true: True
+    False,    // false: False
 
     // Illegal
     Illegal,
