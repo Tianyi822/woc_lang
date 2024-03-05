@@ -1,7 +1,7 @@
 // Each state represents the stage to which the command has currently been parsed by the lexer.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum State {
-    // Lexer's state
+    // Lexers state
     StartState,
     EndState,
 
@@ -46,10 +46,10 @@ pub enum State {
     StarState,       // *
     SlashState,      // /
     PercentState,    // %
-    PlusEqualState,  // +=
-    MinusEqualState, // -=
-    StarEqualState,  // *=
-    SlashEqualState, // /=
+    PlusAssignState,  // +=
+    MinusAssignState, // -=
+    StarAssignState,  // *=
+    SlashAssignState, // /=
 
     // ========================= Keywords =========================
     // ============ while ============
@@ -128,7 +128,18 @@ pub enum State {
     NoneState3,
     NoneState,
 
+    // ============ True ============
+    TrueState1,
+    TrueState2,
+    TrueState3,
+    TrueState,
+
+    // ============ False ============
+    FalseState2,
+    FalseState3,
+    FalseState4,
+    FalseState,
+
     // ========================= Others =========================
-    WhiteSpaceState,
     UnderscoreState, // _
 }
