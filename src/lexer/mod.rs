@@ -702,77 +702,8 @@ impl Lexer {
             .collect();
         *self.start_index.borrow_mut() = *self.cur_index.borrow();
 
-        if !self.check_state_is_defined() {
-            *self.cur_state.borrow_mut() = State::LiteralState;
-        }
-
         // Match the state to get the token type.
-        let token_type = match *self.cur_state.borrow() {
-            // =============== single symbols ===============
-            State::CommaState => TokenType::Comma,
-            State::DotState => TokenType::Dot,
-            State::SemiColonState => TokenType::Semicolon,
-            State::ColonState => TokenType::Colon,
-            State::AssignmentState => TokenType::Assignment,
-            State::LeftParenState => TokenType::LeftParen,
-            State::RightParenState => TokenType::RightParen,
-            State::LeftBraceState => TokenType::LeftBrace,
-            State::RightBraceState => TokenType::RightBrace,
-            State::LeftBracketState => TokenType::LeftBracket,
-            State::RightBracketState => TokenType::RightBracket,
-            State::QuoteState => TokenType::Quote,
-            State::SingleQuoteState => TokenType::SingleQuote,
-
-            // =============== logical calculation ===============
-            State::NotState => TokenType::Not,
-            State::GreaterState => TokenType::Greater,
-            State::LessState => TokenType::Less,
-            State::GreaterThanOrEqualToState => TokenType::GreaterThanOrEqualTo,
-            State::LessThanOrEqualToState => TokenType::LessThanOrEqualTo,
-            State::EqualToState => TokenType::EqualTo,
-            State::NotEqualToState => TokenType::NotEqualTo,
-            State::AndState => TokenType::And,
-            State::OrState => TokenType::Or,
-
-            // =============== bit calculation ===============
-            State::BitAndState => TokenType::BitAnd,
-            State::BitOrState => TokenType::BitOr,
-            State::BitNotState => TokenType::BitNot,
-
-            // =============== data calculate symbols ===============
-            State::PlusState => TokenType::Plus,
-            State::MinusState => TokenType::Minus,
-            State::StarState => TokenType::Star,
-            State::SlashState => TokenType::Slash,
-            State::PercentState => TokenType::Percent,
-            State::PlusAssignState => TokenType::PlusAssign,
-            State::MinusAssignState => TokenType::MinusAssign,
-            State::StarAssignState => TokenType::StarAssign,
-            State::SlashAssignState => TokenType::SlashAssign,
-
-            // =============== data ===============
-            State::LiteralState => TokenType::Literal,
-            State::NumState => TokenType::Num,
-            State::FloatNumState => TokenType::Float,
-
-            // =============== keywords ===============
-            State::WhileState => TokenType::While,
-            State::ForState => TokenType::For,
-            State::IfState => TokenType::If,
-            State::ElseState => TokenType::Else,
-            State::BreakState => TokenType::Break,
-            State::ContinueState => TokenType::Continue,
-            State::LetState => TokenType::Let,
-            State::FuncState => TokenType::Func,
-            State::ReturnState => TokenType::Return,
-            State::StructState => TokenType::Struct,
-            State::EnumState => TokenType::Enum,
-            State::NoneState => TokenType::None,
-            State::TrueState => TokenType::True,
-            State::FalseState => TokenType::False,
-
-            _ => TokenType::Literal,
-        };
+        let token_type = self.trans_to_token_type();
 
         self.tokens
             .borrow_mut()
@@ -874,70 +805,72 @@ impl Lexer {
         }
     }
 
-    fn check_state_is_defined(&self) -> bool {
+    fn trans_to_token_type(&self) -> TokenType {
         match *self.cur_state.borrow() {
-            State::WhileState
-            | State::ForState
-            | State::IfState
-            | State::ElseState
-            | State::BreakState
-            | State::ContinueState
-            | State::LetState
-            | State::FuncState
-            | State::ReturnState
-            | State::StructState
-            | State::EnumState
-            | State::NoneState
-            | State::TrueState
-            | State::FalseState
+            // =============== single symbols ===============
+            State::CommaState => TokenType::Comma,
+            State::DotState => TokenType::Dot,
+            State::SemiColonState => TokenType::Semicolon,
+            State::ColonState => TokenType::Colon,
+            State::AssignmentState => TokenType::Assignment,
+            State::LeftParenState => TokenType::LeftParen,
+            State::RightParenState => TokenType::RightParen,
+            State::LeftBraceState => TokenType::LeftBrace,
+            State::RightBraceState => TokenType::RightBrace,
+            State::LeftBracketState => TokenType::LeftBracket,
+            State::RightBracketState => TokenType::RightBracket,
+            State::QuoteState => TokenType::Quote,
+            State::SingleQuoteState => TokenType::SingleQuote,
 
-            // ========================= Data Types =========================
-            | State::LiteralState
-            | State::NumState
-            | State::FloatNumState
+            // =============== logical calculation ===============
+            State::NotState => TokenType::Not,
+            State::GreaterState => TokenType::Greater,
+            State::LessState => TokenType::Less,
+            State::GreaterThanOrEqualToState => TokenType::GreaterThanOrEqualTo,
+            State::LessThanOrEqualToState => TokenType::LessThanOrEqualTo,
+            State::EqualToState => TokenType::EqualTo,
+            State::NotEqualToState => TokenType::NotEqualTo,
+            State::AndState => TokenType::And,
+            State::OrState => TokenType::Or,
 
-            // ========================= Single Symbols =========================
-            | State::CommaState
-            | State::DotState
-            | State::SemiColonState
-            | State::ColonState
-            | State::AssignmentState
-            | State::LeftParenState
-            | State::RightParenState
-            | State::LeftBraceState
-            | State::RightBraceState
-            | State::LeftBracketState
-            | State::RightBracketState
-            | State::QuoteState
-            | State::SingleQuoteState
+            // =============== bit calculation ===============
+            State::BitAndState => TokenType::BitAnd,
+            State::BitOrState => TokenType::BitOr,
+            State::BitNotState => TokenType::BitNot,
 
-            // ========================= Logical Symbols =========================
-            | State::NotState
-            | State::GreaterState
-            | State::LessState
-            | State::GreaterThanOrEqualToState
-            | State::LessThanOrEqualToState
-            | State::EqualToState
-            | State::NotEqualToState
-            | State::AndState
-            | State::OrState
+            // =============== data calculate symbols ===============
+            State::PlusState => TokenType::Plus,
+            State::MinusState => TokenType::Minus,
+            State::StarState => TokenType::Star,
+            State::SlashState => TokenType::Slash,
+            State::PercentState => TokenType::Percent,
+            State::PlusAssignState => TokenType::PlusAssign,
+            State::MinusAssignState => TokenType::MinusAssign,
+            State::StarAssignState => TokenType::StarAssign,
+            State::SlashAssignState => TokenType::SlashAssign,
 
-            // ========================= Bit Calculation =========================
-            | State::BitAndState
-            | State::BitOrState
-            | State::BitNotState
+            // =============== data ===============
+            State::LiteralState => TokenType::Literal,
+            State::NumState => TokenType::Num,
+            State::FloatNumState => TokenType::Float,
 
-            // ========================= Data calculate symbols =========================
-            | State::PlusState
-            | State::MinusState
-            | State::StarState
-            | State::SlashState
-            | State::PercentState
-            | State::PlusAssignState
-            | State::MinusAssignState
-            | State::StarAssignState
-            | State::SlashAssignState => true,
-            _ => false,
+            // =============== keywords ===============
+            State::WhileState => TokenType::While,
+            State::ForState => TokenType::For,
+            State::IfState => TokenType::If,
+            State::ElseState => TokenType::Else,
+            State::BreakState => TokenType::Break,
+            State::ContinueState => TokenType::Continue,
+            State::LetState => TokenType::Let,
+            State::FuncState => TokenType::Func,
+            State::ReturnState => TokenType::Return,
+            State::StructState => TokenType::Struct,
+            State::EnumState => TokenType::Enum,
+            State::NoneState => TokenType::None,
+            State::TrueState => TokenType::True,
+            State::FalseState => TokenType::False,
+
+            _ => TokenType::Literal,
         }
     }
 }

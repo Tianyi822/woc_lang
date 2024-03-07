@@ -47,6 +47,36 @@ mod lexer_test {
     }
 
     #[test]
+    fn test_if_token() {
+        let input = "
+            if (5 < 10) {
+                return true;
+            ";
+
+        let l = Lexer::new(input);
+
+        let tokens = vec![
+            Token::new(TokenType::If, "if"),
+            Token::new(TokenType::LeftParen, "("),
+            Token::new(TokenType::Num, "5"),
+            Token::new(TokenType::Less, "<"),
+            Token::new(TokenType::Num, "10"),
+            Token::new(TokenType::RightParen, ")"),
+            Token::new(TokenType::LeftBrace, "{"),
+            Token::new(TokenType::Return, "return"),
+            Token::new(TokenType::True, "true"),
+            Token::new(TokenType::Semicolon, ";"),
+            Token::new(TokenType::Eof, ""),
+        ];
+
+        for token in tokens.iter() {
+            let next_token = l.next_token().unwrap();
+            assert_eq!(*token.token_type(), *next_token.token_type());
+            assert_eq!(token.literal(), next_token.literal());
+        }
+    }
+
+    #[test]
     fn test_next_token() {
         let input = "
             let five = 5;
