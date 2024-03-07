@@ -43,12 +43,6 @@ impl Lexer {
 
         l.analyze_command();
 
-        *l.cur_state.borrow_mut() = State::EndState;
-        // Add a EOF token to the end for the parser to determine the end of the command.
-        l.tokens
-            .borrow_mut()
-            .push(Token::new(TokenType::Eof, ""));
-
         l
     }
 
@@ -526,6 +520,18 @@ impl Lexer {
                 State::NumState => {
                     if c.is_numeric() || (state == State::NumState && c.eq(&'_')) {
                         *self.cur_state.borrow_mut() = State::NumState;
+                    } else if c.eq(&'.') {
+                        *self.cur_state.borrow_mut() = State::FloatNumState;
+                    } else if c.is_alphabetic() {
+                        *self.cur_state.borrow_mut() = State::LiteralState;
+                    } else {
+                        self.store_token_and_trans_state();
+                    }
+                }
+
+                State::FloatNumState => {
+                    if c.is_numeric() {
+                        *self.cur_state.borrow_mut() = State::FloatNumState;
                     } else if c.is_alphabetic() {
                         *self.cur_state.borrow_mut() = State::LiteralState;
                     } else {
@@ -668,15 +674,22 @@ impl Lexer {
 
         // If the lexer's state is not end, we need to store the last token.
         if *self.cur_state.borrow() != State::EndState {
-            self.trans_state(&self.command[self.command.len() - 1]);
+            if *self.cur_state.borrow() == State::StartState {
+                self.trans_state(&self.command[self.command.len() - 1]);
+            }
             *self.cur_index.borrow_mut() = self.command.len();
             self.store_token_and_trans_state();
         }
+
+        // Add a EOF token to the end for the parser to determine the end of the command.
+        *self.cur_state.borrow_mut() = State::EndState;
+        self.tokens
+            .borrow_mut()
+            .push(Token::new(TokenType::Eof, ""));
     }
 
     // Store token and transform state.
     fn store_token_and_trans_state(&self) {
-
         // Move start index to end index for ready to read next token.
         self.move_start_index_to_next_non_blank_char();
         if *self.start_index.borrow() >= *self.cur_index.borrow() {
@@ -740,6 +753,7 @@ impl Lexer {
             // =============== data ===============
             State::LiteralState => TokenType::Literal,
             State::NumState => TokenType::Num,
+            State::FloatNumState => TokenType::Float,
 
             // =============== keywords ===============
             State::WhileState => TokenType::While,
@@ -880,6 +894,7 @@ impl Lexer {
             // ========================= Data Types =========================
             | State::LiteralState
             | State::NumState
+            | State::FloatNumState
 
             // ========================= Single Symbols =========================
             | State::CommaState

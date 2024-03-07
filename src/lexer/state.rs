@@ -8,6 +8,7 @@ pub enum State {
     // ========================= Data Types =========================
     LiteralState,
     NumState,
+    FloatNumState,
 
     // ========================= Single Symbols =========================
     CommaState,        // ,
