@@ -32,11 +32,11 @@ pub enum TokenType {
     BitNot, // ~
 
     // Data calculate symbols
-    Plus,       // +
-    Minus,      // -
-    Star,       // *
-    Slash,      // /
-    Percent,    // %
+    Plus,        // +
+    Minus,       // -
+    Star,        // *
+    Slash,       // /
+    Percent,     // %
     PlusAssign,  // +=
     MinusAssign, // -=
     StarAssign,  // *=
@@ -44,7 +44,8 @@ pub enum TokenType {
 
     // Data Types
     Literal, // Literal
-    Num,     // integer number: 1, 2, -3, 1_000 etc. Or float number: 1.0, 2.0, 3.0, etc.
+    Num,     // integer number: 1, 2, -3, 1_000 etc.
+    Float,   // float number: 1.0, 2.0, -3.0, 1_000.0 etc.
 
     // Syntax Keywords
     While,    // while

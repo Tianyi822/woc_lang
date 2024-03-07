@@ -21,4 +21,11 @@ mod token_test {
         let token = Token::new(TokenType::And, "and");
         assert_eq!(token.priority(), 2);
     }
+
+    #[test]
+    fn test_float() {
+        let token = Token::new(TokenType::Float, "1.0");
+        assert_eq!(token.token_type(), &TokenType::Float);
+        assert_eq!(token.literal(), "1.0");
+    }
 }
