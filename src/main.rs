@@ -1,3 +1,5 @@
+use woc_lang::repl;
+
 fn main() {
-    println!("Hello, world!");
+    repl::run();
 }
