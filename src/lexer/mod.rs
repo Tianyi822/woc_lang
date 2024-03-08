@@ -624,6 +624,8 @@ impl Lexer {
                 State::MinusState => {
                     if c.eq(&'=') {
                         *self.cur_state.borrow_mut() = State::MinusAssignState;
+                    } else if c.is_numeric() {
+                        *self.cur_state.borrow_mut() = State::NumState;
                     } else {
                         self.store_token_and_trans_state();
                     }

@@ -47,6 +47,28 @@ mod lexer_test {
     }
 
     #[test]
+    fn test_minus_number() {
+        let input: &str = "-10 -1_000 -1.0 -1_000.0 -99.99";
+
+        let l = Lexer::new(input);
+
+        let tokens = vec![
+            Token::new(TokenType::Num, "-10"),
+            Token::new(TokenType::Num, "-1_000"),
+            Token::new(TokenType::Float, "-1.0"),
+            Token::new(TokenType::Float, "-1_000.0"),
+            Token::new(TokenType::Float, "-99.99"),
+            Token::new(TokenType::Eof, ""),
+        ];
+
+        for token in tokens.iter() {
+            let next_token = l.next_token().unwrap();
+            assert_eq!(*token.token_type(), *next_token.token_type());
+            assert_eq!(token.literal(), next_token.literal());
+        }
+    }
+
+    #[test]
     fn test_if_token() {
         let input = "
             if (5 < 10) {
