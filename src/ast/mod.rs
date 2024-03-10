@@ -47,17 +47,17 @@ impl Program {
 
 impl Node for Program {
     fn token_literal(&self) -> String {
-        if self.statements.len() > 0 {
-            self.statements[0].token_literal()
+        if self.statements.borrow().len() > 0 {
+            self.statements.borrow()[0].token_literal()
         } else {
-            String::from("")
+            String::new()
         }
     }
 
     fn to_string(&self) -> String {
         let mut out = String::new();
 
-        for statement in self.statements.iter() {
+        for statement in self.statements.borrow().iter() {
             out.push_str(&statement.to_string());
         }
 
