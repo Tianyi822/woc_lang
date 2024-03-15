@@ -1,4 +1,4 @@
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 
 use crate::token::{Token, TokenType};
 
@@ -26,7 +26,7 @@ pub struct Lexer {
 
     // Current index of token vector.
     // This field is used to iterate the tokens.
-    position: RefCell<usize>,
+    position: Cell<usize>,
 }
 
 impl Lexer {
@@ -38,7 +38,7 @@ impl Lexer {
             cur_index: RefCell::new(0),
             tokens: RefCell::new(Vec::new()),
             cur_state: RefCell::new(State::StartState),
-            position: RefCell::new(0),
+            position: Cell::new(0),
         };
 
         l.analyze_command();
@@ -70,27 +70,14 @@ impl Lexer {
     // Iterate the tokens.
     pub fn next_token(&self) -> Option<Token> {
         let tokens = self.tokens.borrow();
-        let mut position = self.position.borrow_mut();
+        let position = self.position.get();
 
-        if *position >= tokens.len() {
+        if position >= tokens.len() {
             return None;
         }
 
-        let token = tokens[*position].clone();
-        *position += 1;
-
-        Some(token)
-    }
-
-    // Peek the next token.
-    pub fn peek_token(&self) -> Option<Token> {
-        let tokens = self.tokens.borrow();
-        let position = self.position.borrow();
-        if *position >= tokens.len() {
-            return None;
-        }
-
-        let token = tokens[*position].clone();
+        let token = tokens[position].clone();
+        self.position.set(position + 1);
 
         Some(token)
     }
