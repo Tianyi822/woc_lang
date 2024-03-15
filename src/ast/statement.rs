@@ -7,11 +7,11 @@ use super::Statement;
 pub struct LetState {
     pub token: Token,
     pub name: IdentifierExp,
-    pub value: Box<dyn Expression>,
+    pub value: Option<Box<dyn Expression>>,
 }
 
 impl LetState {
-    pub fn new(token: Token, name: IdentifierExp, value: Box<dyn Expression>) -> LetState {
+    pub fn new(token: Token, name: IdentifierExp, value: Option<Box<dyn Expression>>) -> LetState {
         LetState { token, name, value }
     }
 }
@@ -27,8 +27,12 @@ impl Node for LetState {
         out.push_str(&self.token.literal());
         out.push_str(" ");
         out.push_str(&self.name.to_string());
-        out.push_str(" = ");
-        out.push_str(&self.value.to_string());
+
+        if self.value.is_some() {
+            out.push_str(" = ");
+            out.push_str(&self.value.as_ref().map_or(String::new(), |v| v.to_string()));
+        }
+
         out.push_str(";");
 
         out

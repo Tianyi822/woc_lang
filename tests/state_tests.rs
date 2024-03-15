@@ -12,7 +12,7 @@ mod state_tests {
 
         let exp = IdentifierExp::new(Token::new(TokenType::Num, "5"), "5".to_string());
 
-        let let_state = LetState::new(Token::new(TokenType::Let, "let"), ident, Box::new(exp));
+        let let_state = LetState::new(Token::new(TokenType::Let, "let"), ident, Some(Box::new(exp)));
 
         assert_eq!(let_state.to_string(), input);
     }
