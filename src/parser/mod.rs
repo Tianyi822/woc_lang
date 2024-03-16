@@ -1,8 +1,8 @@
 use std::cell::{Cell, RefCell};
 
-use crate::ast::{Program, Statement};
 use crate::ast::expression::IdentifierExp;
 use crate::ast::statement::LetState;
+use crate::ast::{Program, Statement};
 use crate::lexer::Lexer;
 use crate::token::{Token, TokenType};
 
@@ -20,14 +20,14 @@ pub struct Parser {
     peek_token: RefCell<Token>,
 
     // Use to get command and its parameter from lexer.
-    cmd_start_index: Cell<u32>,
-    cmd_cur_index: Cell<u32>,
+    cmd_start_index: Cell<i32>,
+    cmd_cur_index: Cell<i32>,
 
     // The root node of the AST.
     pub program: Program,
 
     // Collect errors that occur during parsing.
-    errors: RefCell<Vec<String>>,
+    pub errors: RefCell<Vec<String>>,
 }
 
 impl Parser {
@@ -37,7 +37,7 @@ impl Parser {
             cur_token: RefCell::new(Token::new(TokenType::Eof, "")),
             peek_token: RefCell::new(Token::new(TokenType::Eof, "")),
             cmd_start_index: Cell::new(0),
-            cmd_cur_index: Cell::new(0),
+            cmd_cur_index: Cell::new(-1),
             program: Program::new(),
             errors: RefCell::new(Vec::new()),
         };
@@ -69,7 +69,13 @@ impl Parser {
         let cur_tok = self.cur_token.borrow().clone();
         match cur_tok.token_type() {
             TokenType::Let => self.parse_let_statement(),
-            TokenType::Eof | _ => None,
+            TokenType::Eof | _ => {
+                self.store_error(
+                    &cur_tok.literal().to_string(),
+                    "There is no such statement that starts with this token.",
+                );
+                None
+            }
         }
     }
 
@@ -81,39 +87,63 @@ impl Parser {
             return None;
         }
 
-        while self.cur_tok_is(TokenType::Semicolon) {
-            self.next_token();
-        }
-
         let ident = IdentifierExp::new(
             self.cur_token.borrow().clone(),
             self.cur_token.borrow().literal().to_string(),
         );
 
-        let let_stmt = LetState::new(let_tok, ident, None);
+        // Check the next token is an assignment operator,
+        if !self.expect_peek(TokenType::Assignment) {
+            return None;
+        }
 
-        Some(Box::new(let_stmt))
+        while self.cur_tok_is(TokenType::Semicolon) {
+            self.next_token();
+        }
+
+        Some(Box::new(LetState::new(let_tok, ident, None)))
     }
 
     fn cur_tok_is(&self, token_type: TokenType) -> bool {
         self.cur_token.borrow().token_type() == &token_type
     }
 
+    // This method is used to check if the next token is of the expected type.
+    // It's mainly used to ensure the sequence of the tokens is correct.
     fn expect_peek(&self, token_type: TokenType) -> bool {
         if self.peek_token.borrow().token_type() == &token_type {
             self.next_token();
             true
         } else {
+            self.peek_error(token_type);
             false
         }
     }
 
+    fn store_error(&self, code: &str, msg: &str) {
+        let error = format!("`{}` get error: {}", code, msg);
+        self.errors.borrow_mut().push(error);
+    }
+
+    fn peek_error(&self, token_type: TokenType) {
+        // Get the error code;
+        let code = self
+            .lexer
+            .joint_tokens_to_str_by_range(self.cmd_start_index.get(), self.cmd_cur_index.get());
+        // Update the start index of the next command.
+        self.cmd_start_index.set(self.cmd_cur_index.get());
+        let msg = format!(
+            "`{}` get error: expected next token to be {:?}, got {:?} instead",
+            code,
+            token_type,
+            self.peek_token.borrow().token_type()
+        );
+        self.store_error(&code, &msg);
+    }
+
     fn next_token(&self) {
         *self.cur_token.borrow_mut() = self.peek_token.borrow().clone();
-        *self.peek_token.borrow_mut() = self
-            .lexer
-            .next_token()
-            .unwrap_or_else(|| Token::new(TokenType::Eof, ""));
+        *self.peek_token.borrow_mut() = self.lexer.next_token();
         self.cmd_cur_index.set(self.cmd_cur_index.get() + 1);
     }
 }

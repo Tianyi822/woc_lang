@@ -18,4 +18,20 @@ mod parser_test {
             );
         }
     }
+
+    #[test]
+    fn test_let_stmt_without_semi() {
+        let input = "
+            let x 666
+            let = 666
+            let 666 777
+        ";
+
+        let parser = Parser::new(input);
+
+        // assert_eq!(parser.errors.borrow().len(), 8);
+        for error in parser.errors.borrow().iter() {
+            println!("{}", error);
+        }
+    }
 }
