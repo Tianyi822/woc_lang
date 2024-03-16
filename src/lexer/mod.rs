@@ -47,14 +47,19 @@ impl Lexer {
     }
 
     // Get the tokens by range.
-    pub fn joint_tokens_to_str_by_range(&self, start: u32, end: u32) -> String {
+    pub fn joint_tokens_to_str_by_range(&self, start: i32, end: i32) -> String {
         let tokens = self.tokens.borrow();
         let mut result = String::new();
 
         // Iterate the tokens and get the literal of token.
         for i in start..end {
+            // If the token is EOF, we need to break the loop, it means the end of the code.
+            if tokens[i as usize].token_type() == &TokenType::Eof {
+                break;
+            }
+
             result.push_str(tokens[i as usize].literal());
-            if i < end - 1 {
+            if i < end - 1 && tokens[(i + 1) as usize].token_type() != &TokenType::Eof {
                 result.push(' ');
             }
         }

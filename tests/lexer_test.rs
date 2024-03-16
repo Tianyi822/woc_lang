@@ -5,6 +5,17 @@ mod lexer_test {
     };
 
     #[test]
+    fn test_joint_token() {
+        let l = Lexer::new(
+            "
+            let x
+        ",
+        );
+
+        assert_eq!("let x", l.joint_tokens_to_str_by_range(0, 3))
+    }
+
+    #[test]
     fn test_ten_token() {
         let input = " ten  &&& ";
 
