@@ -1,6 +1,6 @@
 use std::io::{self, Write as _};
 
-use crate::lexer::Lexer;
+use crate::{lexer::Lexer, token::TokenType};
 
 pub fn run() {
     loop {
@@ -17,7 +17,11 @@ pub fn run() {
 
         let lexer = Lexer::new(&input);
 
-        while let token = lexer.next_token() {
+        loop {
+            let token = lexer.next_token();
+            if token.token_type() == &TokenType::Eof {
+                break;
+            }
             println!("{:?}", token);
         }
     }
