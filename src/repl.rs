@@ -17,7 +17,7 @@ pub fn run() {
 
         let lexer = Lexer::new(&input);
 
-        while let Some(token) = lexer.next_token() {
+        while let token = lexer.next_token() {
             println!("{:?}", token);
         }
     }

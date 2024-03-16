@@ -18,7 +18,7 @@ mod lexer_test {
         ];
 
         for token in tokens.iter() {
-            let next_token = l.next_token().unwrap();
+            let next_token = l.next_token();
             assert_eq!(*token.token_type(), *next_token.token_type());
             assert_eq!(token.literal(), next_token.literal());
         }
@@ -40,7 +40,7 @@ mod lexer_test {
         ];
 
         for token in tokens.iter() {
-            let next_token = l.next_token().unwrap();
+            let next_token = l.next_token();
             assert_eq!(*token.token_type(), *next_token.token_type());
             assert_eq!(token.literal(), next_token.literal());
         }
@@ -62,7 +62,7 @@ mod lexer_test {
         ];
 
         for token in tokens.iter() {
-            let next_token = l.next_token().unwrap();
+            let next_token = l.next_token();
             assert_eq!(*token.token_type(), *next_token.token_type());
             assert_eq!(token.literal(), next_token.literal());
         }
@@ -92,7 +92,7 @@ mod lexer_test {
         ];
 
         for token in tokens.iter() {
-            let next_token = l.next_token().unwrap();
+            let next_token = l.next_token();
             assert_eq!(*token.token_type(), *next_token.token_type());
             assert_eq!(token.literal(), next_token.literal());
         }
@@ -216,7 +216,7 @@ mod lexer_test {
         ];
 
         for token in tokens.iter() {
-            let next_token = l.next_token().unwrap();
+            let next_token = l.next_token();
             assert_eq!(*token.token_type(), *next_token.token_type());
             assert_eq!(token.literal(), next_token.literal());
         }

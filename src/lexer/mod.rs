@@ -68,18 +68,18 @@ impl Lexer {
     }
 
     // Iterate the tokens.
-    pub fn next_token(&self) -> Option<Token> {
+    pub fn next_token(&self) -> Token {
         let tokens = self.tokens.borrow();
         let position = self.position.get();
 
         if position >= tokens.len() {
-            return None;
+            return tokens[position - 1].clone();
         }
 
         let token = tokens[position].clone();
         self.position.set(position + 1);
 
-        Some(token)
+        token
     }
 
     // Analyze the command and generate tokens.
