@@ -47,3 +47,49 @@ impl Node for LetStatement {
 impl Statement for LetStatement {
     fn statement_node(&self) {}
 }
+
+
+// Return statement just store a expression.
+pub struct ReturnStatement {
+    pub token: Token,
+    pub return_value: Option<Box<dyn Expression>>,
+}
+
+impl ReturnStatement {
+    pub fn new(token: Token, return_value: Option<Box<dyn Expression>>) -> ReturnStatement {
+        ReturnStatement {
+            token,
+            return_value,
+        }
+    }
+}
+
+impl Node for ReturnStatement {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        let mut out = String::new();
+
+        out.push_str(&self.token.literal());
+        out.push_str(" ");
+
+        if self.return_value.is_some() {
+            out.push_str(
+                &self
+                    .return_value
+                    .as_ref()
+                    .map_or(String::new(), |v| v.to_string()),
+            );
+        }
+
+        out.push_str(";");
+
+        out
+    }
+}
+
+impl Statement for ReturnStatement {
+    fn statement_node(&self) {}
+}

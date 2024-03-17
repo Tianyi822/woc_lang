@@ -1,8 +1,8 @@
 use std::cell::{Cell, RefCell};
 
-use crate::ast::expression::IdentifierExp;
-use crate::ast::statement::LetState;
 use crate::ast::{Program, Statement};
+use crate::ast::expression::IdentifierExp;
+use crate::ast::statement::{LetStatement, ReturnStatement};
 use crate::lexer::Lexer;
 use crate::token::{Token, TokenType};
 
@@ -69,6 +69,7 @@ impl Parser {
         let cur_tok = self.cur_token.borrow().clone();
         match cur_tok.token_type() {
             TokenType::Let => self.parse_let_statement(),
+            TokenType::Return => self.parse_return_statement(),
             TokenType::Eof | _ => {
                 self.store_error("There is no such statement that starts with this token.");
                 None
@@ -98,7 +99,20 @@ impl Parser {
             self.next_token();
         }
 
-        Some(Box::new(LetState::new(let_tok, ident, None)))
+        Some(Box::new(LetStatement::new(let_tok, ident, None)))
+    }
+
+    // This method is used to parse the return statement.
+    fn parse_return_statement(&self) -> Option<Box<dyn Statement>> {
+        let return_tok = self.cur_token.borrow().clone();
+
+        self.next_token();
+
+        while !self.cur_tok_is(TokenType::Semicolon) {
+            self.next_token();
+        }
+
+        Some(Box::new(ReturnStatement::new(return_tok, None)))
     }
 
     fn cur_tok_is(&self, token_type: TokenType) -> bool {
