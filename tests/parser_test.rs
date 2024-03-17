@@ -29,7 +29,7 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        // assert_eq!(parser.errors.borrow().len(), 8);
+        assert_eq!(parser.errors.borrow().len(), 8);
         for error in parser.errors.borrow().iter() {
             println!("{}", error);
         }
