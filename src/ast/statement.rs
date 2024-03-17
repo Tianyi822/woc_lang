@@ -4,19 +4,24 @@ use crate::token::Token;
 
 use super::Statement;
 
-pub struct LetState {
+pub struct LetStatement {
     pub token: Token,
     pub name: IdentifierExp,
     pub value: Option<Box<dyn Expression>>,
 }
 
-impl LetState {
-    pub fn new(token: Token, name: IdentifierExp, value: Option<Box<dyn Expression>>) -> LetState {
-        LetState { token, name, value }
+// Let statement has a name, and the value is optional.
+impl LetStatement {
+    pub fn new(
+        token: Token,
+        name: IdentifierExp,
+        value: Option<Box<dyn Expression>>,
+    ) -> LetStatement {
+        LetStatement { token, name, value }
     }
 }
 
-impl Node for LetState {
+impl Node for LetStatement {
     fn token_literal(&self) -> String {
         self.token.literal().to_string()
     }
@@ -39,6 +44,6 @@ impl Node for LetState {
     }
 }
 
-impl Statement for LetState {
+impl Statement for LetStatement {
     fn statement_node(&self) {}
 }
