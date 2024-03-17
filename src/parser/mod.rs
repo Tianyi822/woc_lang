@@ -70,10 +70,7 @@ impl Parser {
         match cur_tok.token_type() {
             TokenType::Let => self.parse_let_statement(),
             TokenType::Eof | _ => {
-                self.store_error(
-                    &cur_tok.literal().to_string(),
-                    "There is no such statement that starts with this token.",
-                );
+                self.store_error("There is no such statement that starts with this token.");
                 None
             }
         }
@@ -120,25 +117,25 @@ impl Parser {
         }
     }
 
-    fn store_error(&self, code: &str, msg: &str) {
-        let error = format!("`{}` get error: {}", code, msg);
-        self.errors.borrow_mut().push(error);
-    }
-
-    fn peek_error(&self, token_type: TokenType) {
+    fn store_error(&self, msg: &str) {
         // Get the error code;
         let code = self
             .lexer
             .joint_tokens_to_str_by_range(self.cmd_start_index.get(), self.cmd_cur_index.get());
         // Update the start index of the next command.
         self.cmd_start_index.set(self.cmd_cur_index.get());
+
+        let error = format!("`{}` get error: {}", code, msg);
+        self.errors.borrow_mut().push(error);
+    }
+
+    fn peek_error(&self, token_type: TokenType) {
         let msg = format!(
-            "`{}` get error: expected next token to be {:?}, got {:?} instead",
-            code,
+            "expected next token to be `{:?}`, got `{:?}` instead",
             token_type,
             self.peek_token.borrow().token_type()
         );
-        self.store_error(&code, &msg);
+        self.store_error(&msg);
     }
 
     fn next_token(&self) {
