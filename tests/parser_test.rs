@@ -2,6 +2,20 @@ mod parser_test {
     use woc_lang::parser::Parser;
 
     #[test]
+    fn test_identifier_expression() {
+        let input = "foobar;";
+    
+        let parser = Parser::new(input);
+    
+        if parser.program.statements.borrow().len() != 1 {
+            panic!(
+                "parser.program.statements does not contain 1 statements. got={}",
+                parser.program.statements.borrow().len()
+            );
+        }
+    }
+
+    #[test]
     fn test_return_stmt() {
         let input = "
             return 5;

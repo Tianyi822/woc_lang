@@ -23,7 +23,7 @@ impl Parser {
             return None;
         }
 
-        while self.cur_tok_is(TokenType::Semicolon) {
+        while self.cur_tok_is(&TokenType::Semicolon) {
             self.next_token();
         }
 
@@ -36,7 +36,7 @@ impl Parser {
 
         self.next_token();
 
-        while !self.cur_tok_is(TokenType::Semicolon) {
+        while !self.cur_tok_is(&TokenType::Semicolon) {
             self.next_token();
         }
 
