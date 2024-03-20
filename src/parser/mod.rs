@@ -1,4 +1,5 @@
 use std::cell::{Cell, RefCell};
+use std::collections::HashMap;
 
 use crate::ast::{Program, Statement};
 use crate::lexer::Lexer;
@@ -6,6 +7,9 @@ use crate::token::{Token, TokenType};
 
 pub mod parse_exp_functions;
 pub mod parse_stmt;
+
+type PrefixParseFn = fn(&Parser) -> Option<Box<dyn Statement>>;
+type InfixParseFn = fn(&Parser, Box<dyn Statement>) -> Option<Box<dyn Statement>>;
 
 pub struct Parser {
     // The lexer that will generate tokens.
@@ -26,6 +30,10 @@ pub struct Parser {
 
     // Collect errors that occur during parsing.
     pub errors: RefCell<Vec<String>>,
+
+    // The prefix and infix parsing functions.
+    prefix_parse_fns: RefCell<HashMap<TokenType, PrefixParseFn>>,
+    infix_parse_fns: RefCell<HashMap<TokenType, InfixParseFn>>,
 }
 
 impl Parser {
@@ -38,6 +46,8 @@ impl Parser {
             cmd_cur_index: Cell::new(-1),
             program: Program::new(),
             errors: RefCell::new(Vec::new()),
+            prefix_parse_fns: RefCell::new(HashMap::new()),
+            infix_parse_fns: RefCell::new(HashMap::new()),
         };
 
         // Initialize the current and peek tokens.
@@ -49,6 +59,18 @@ impl Parser {
         parser.lexer.clear();
 
         parser
+    }
+
+    // This method is used to register the prefix parsing functions.
+    // For example: !true; -5; etc.
+    fn register_prefix(&self, token_type: TokenType, func: PrefixParseFn) {
+        self.prefix_parse_fns.borrow_mut().insert(token_type, func);
+    }
+
+    // This method is used to register the prefix parsing functions.
+    // For example: 5 + 5; 5 * 5; etc.
+    fn register_infix(&self, token_type: TokenType, func: InfixParseFn) {
+        self.infix_parse_fns.borrow_mut().insert(token_type, func);
     }
 
     // This method is used to build the AST.
