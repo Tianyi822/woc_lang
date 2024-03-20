@@ -43,9 +43,9 @@ pub enum TokenType {
     SlashAssign, // /=
 
     // Data Types
-    Literal, // Literal
-    Num,     // integer number: 1, 2, -3, 1_000 etc.
-    Float,   // float number: 1.0, 2.0, -3.0, 1_000.0 etc.
+    Ident, // Identifier
+    Num,   // integer number: 1, 2, -3, 1_000 etc.
+    Float, // float number: 1.0, 2.0, -3.0, 1_000.0 etc.
 
     // Syntax Keywords
     While,    // while

@@ -81,7 +81,7 @@ impl Parser {
     fn parse_let_statement(&self) -> Option<Box<dyn Statement>> {
         let let_tok = self.cur_token.borrow().clone();
 
-        if !self.expect_peek(TokenType::Literal) {
+        if !self.expect_peek(TokenType::Ident) {
             return None;
         }
 

@@ -8,7 +8,7 @@ mod state_tests {
     fn test_let_statement() {
         let input = "let x = 5;";
 
-        let ident = IdentifierExp::new(Token::new(TokenType::Literal, "x"), "x".to_string());
+        let ident = IdentifierExp::new(Token::new(TokenType::Ident, "x"), "x".to_string());
 
         let exp = IdentifierExp::new(Token::new(TokenType::Num, "5"), "5".to_string());
 

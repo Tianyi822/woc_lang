@@ -844,7 +844,7 @@ impl Lexer {
             State::SlashAssignState => TokenType::SlashAssign,
 
             // =============== data ===============
-            State::LiteralState => TokenType::Literal,
+            State::LiteralState => TokenType::Ident,
             State::NumState => TokenType::Num,
             State::FloatNumState => TokenType::Float,
 
@@ -864,7 +864,7 @@ impl Lexer {
             State::TrueState => TokenType::True,
             State::FalseState => TokenType::False,
 
-            _ => TokenType::Literal,
+            _ => TokenType::Ident,
         }
     }
 }
