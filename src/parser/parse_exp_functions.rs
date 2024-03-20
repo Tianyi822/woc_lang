@@ -7,7 +7,7 @@ use super::Parser;
 
 impl Parser {
     pub(super) fn register_parse_functions(&self) {
-        self.register_prefix(TokenType::Ident, Parser::parse_Identifier);
+        self.register_prefix(TokenType::Ident, Parser::parse_identifier);
     }
 
     // This method is used to parse the identifier expression.
