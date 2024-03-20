@@ -1,3 +1,7 @@
+use crate::token::precedence::{LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6};
+
+pub mod precedence;
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub enum TokenType {
     // Single Symbols
@@ -98,17 +102,17 @@ impl Token {
         self.token_type == TokenType::Eof
     }
 
-    pub fn priority(&self) -> i32 {
+    pub fn precedence(&self) -> u32 {
         match self.token_type {
-            TokenType::Or => 1,
-            TokenType::And => 2,
-            TokenType::EqualTo | TokenType::NotEqualTo => 3,
+            TokenType::Or => LEVEL_1,
+            TokenType::And => LEVEL_2,
+            TokenType::EqualTo | TokenType::NotEqualTo => LEVEL_3,
             TokenType::Greater
             | TokenType::Less
             | TokenType::GreaterThanOrEqualTo
-            | TokenType::LessThanOrEqualTo => 4,
-            TokenType::Plus | TokenType::Minus => 5,
-            TokenType::Star | TokenType::Slash | TokenType::Percent => 6,
+            | TokenType::LessThanOrEqualTo => LEVEL_4,
+            TokenType::Plus | TokenType::Minus => LEVEL_5,
+            TokenType::Star | TokenType::Slash | TokenType::Percent => LEVEL_6,
             _ => 0,
         }
     }
