@@ -4,6 +4,33 @@ use crate::token::Token;
 
 use super::Statement;
 
+// Because we need to cope with expression as statement,
+// we need to create a new struct to represent it.
+pub struct ExpressionStatement {
+    pub token: Token,
+    pub expression: Option<Box<dyn Expression>>,
+}
+
+impl ExpressionStatement {
+    pub fn new(token: Token, expression: Option<Box<dyn Expression>>) -> ExpressionStatement {
+        ExpressionStatement { token, expression }
+    }
+}
+
+impl Node for ExpressionStatement {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        self.expression.as_ref().map_or(String::new(), |e| e.to_string())
+    }
+}
+
+impl Statement for ExpressionStatement {
+    fn statement_node(&self) {}
+}
+
 pub struct LetStatement {
     pub token: Token,
     pub name: IdentifierExp,
