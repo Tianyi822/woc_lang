@@ -101,8 +101,8 @@ impl Parser {
             TokenType::Let => self.parse_let_statement(),
             TokenType::Return => self.parse_return_statement(),
             TokenType::Ident
-            | TokenType::Num
-            | TokenType::Float
+            | TokenType::IntegerNum
+            | TokenType::FloatNum
             | TokenType::True
             | TokenType::False
             | TokenType::Func => self.parse_expression_statement(),
