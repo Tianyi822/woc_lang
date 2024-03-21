@@ -127,8 +127,8 @@ impl Parser {
         Some(Box::new(exp_stmt))
     }
 
-    fn parse_expression(&self, precedence: u32) -> Option<Box<dyn Expression>> {
-        // temporary value is freed at the end of this statement
+    fn parse_expression(&self, precedence: Precedence) -> Option<Box<dyn Expression>> {
+        // temporary value is freed at the end of this statement,
         // so we need to store a borrow of it in a variable
         let binding = self.prefix_parse_fns.borrow();
         let prefix_func = binding.get(self.cur_token.borrow().token_type());
