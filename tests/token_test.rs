@@ -17,9 +17,9 @@ mod token_test {
     #[test]
     fn test_priority() {
         let token = Token::new(TokenType::Or, "or");
-        assert_eq!(token.priority(), 1);
+        assert_eq!(token.precedence(), 1);
         let token = Token::new(TokenType::And, "and");
-        assert_eq!(token.priority(), 2);
+        assert_eq!(token.precedence(), 2);
     }
 
     #[test]
