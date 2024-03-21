@@ -1,6 +1,7 @@
 use crate::ast::{Expression, Node};
 use crate::token::Token;
 
+// This struct is used to represent the identifier expression.
 pub struct IdentifierExp {
     token: Token,
     value: String,
