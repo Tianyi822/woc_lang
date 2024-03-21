@@ -845,8 +845,8 @@ impl Lexer {
 
             // =============== data ===============
             State::LiteralState => TokenType::Ident,
-            State::NumState => TokenType::Num,
-            State::FloatNumState => TokenType::Float,
+            State::NumState => TokenType::IntegerNum,
+            State::FloatNumState => TokenType::FloatNum,
 
             // =============== keywords ===============
             State::WhileState => TokenType::While,

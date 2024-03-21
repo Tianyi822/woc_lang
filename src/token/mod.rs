@@ -1,4 +1,4 @@
-use crate::token::precedence::{LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4, LEVEL_5, LEVEL_6};
+use crate::token::precedence::*;
 
 pub mod precedence;
 
@@ -47,9 +47,9 @@ pub enum TokenType {
     SlashAssign, // /=
 
     // Data Types
-    Ident, // Identifier
-    Num,   // integer number: 1, 2, -3, 1_000 etc.
-    Float, // float number: 1.0, 2.0, -3.0, 1_000.0 etc.
+    Ident,      // Identifier
+    IntegerNum, // integer number: 1, 2, -3, 1_000 etc.
+    FloatNum,   // float number: 1.0, 2.0, -3.0, 1_000.0 etc.
 
     // Syntax Keywords
     While,    // while

@@ -24,8 +24,8 @@ mod token_test {
 
     #[test]
     fn test_float() {
-        let token = Token::new(TokenType::Float, "1.0");
-        assert_eq!(token.token_type(), &TokenType::Float);
+        let token = Token::new(TokenType::FloatNum, "1.0");
+        assert_eq!(token.token_type(), &TokenType::FloatNum);
         assert_eq!(token.literal(), "1.0");
     }
 }

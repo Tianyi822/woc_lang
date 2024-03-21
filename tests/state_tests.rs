@@ -10,7 +10,7 @@ mod state_tests {
 
         let ident = IdentifierExp::new(Token::new(TokenType::Ident, "x"), "x".to_string());
 
-        let exp = IdentifierExp::new(Token::new(TokenType::Num, "5"), "5".to_string());
+        let exp = IdentifierExp::new(Token::new(TokenType::IntegerNum, "5"), "5".to_string());
 
         let let_state = LetStatement::new(Token::new(TokenType::Let, "let"), ident, Some(Box::new(exp)));
 
