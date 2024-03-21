@@ -113,7 +113,8 @@ impl Token {
             | TokenType::LessThanOrEqualTo => LEVEL_4,
             TokenType::Plus | TokenType::Minus => LEVEL_5,
             TokenType::Star | TokenType::Slash | TokenType::Percent => LEVEL_6,
-            _ => 0,
+            TokenType::Func => LEVEL_7,
+            _ => LEVEL_0,
         }
     }
 }
