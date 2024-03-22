@@ -1,6 +1,37 @@
 use crate::ast::{Expression, Node};
 use crate::token::Token;
 
+// This struct is used to represent the prefix expression: !5, -15. etc.
+pub struct PrefixExp {
+    token: Token,
+    operator: String,
+    right: Box<dyn Expression>,
+}
+
+impl PrefixExp {
+    pub fn new(token: Token, operator: String, right: Box<dyn Expression>) -> PrefixExp {
+        PrefixExp {
+            token,
+            operator,
+            right,
+        }
+    }
+}
+
+impl Node for PrefixExp {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        format!("({}{})", self.operator, self.right.to_string())
+    }
+}
+
+impl Expression for PrefixExp {
+    fn expression_node(&self) {}
+}
+
 // This struct is used to represent the identifier expression.
 pub struct IdentifierExp {
     token: Token,
