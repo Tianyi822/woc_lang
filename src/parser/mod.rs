@@ -105,7 +105,9 @@ impl Parser {
             | TokenType::FloatNum
             | TokenType::True
             | TokenType::False
-            | TokenType::Func => self.parse_expression_statement(),
+            | TokenType::Func
+            | TokenType::Not
+            | TokenType::Minus => self.parse_expression_statement(),
             _ => {
                 self.store_error("There is no such statement that starts with this token.");
                 None

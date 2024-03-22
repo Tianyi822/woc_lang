@@ -2,6 +2,27 @@ mod parser_test {
     use woc_lang::parser::Parser;
 
     #[test]
+    fn test_prefix_expression() {
+        let input = "!5; -15; -x;";
+
+        let parser = Parser::new(input);
+
+        // "-15;" was parsed as a IntegerNum token, so it will not be parsed as a number expression.
+        let results = vec!["(!5)", "-15", "(-x)"];
+        let mut i = 0;
+        for stmt in parser.program.statements.borrow().iter() {
+            let exp = stmt.to_string();
+            if exp != results[i] {
+                panic!(
+                    "parser.program.statements[{}] does not contain {}. got={}",
+                    i, results[i], exp
+                );
+            }
+            i += 1;
+        }
+    }
+
+    #[test]
     fn test_identifier_expression() {
         let input = "foobar;";
 
@@ -33,7 +54,7 @@ mod parser_test {
             );
         }
 
-        let results = vec!["5", "10", "5.1", "10"];
+        let results = vec!["(5)", "(10)", "(5.1)", "(10)"];
 
         let mut i = 0;
         for stmt in parser.program.statements.borrow().iter() {

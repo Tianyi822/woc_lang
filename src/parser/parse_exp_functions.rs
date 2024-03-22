@@ -3,6 +3,8 @@ use crate::{
     ast::Expression,
     token::TokenType,
 };
+use crate::ast::expression::PrefixExp;
+use crate::token::precedence::PREFIX;
 
 use super::Parser;
 
@@ -11,6 +13,25 @@ impl Parser {
         self.register_prefix(TokenType::Ident, Parser::parse_identifier);
         self.register_prefix(TokenType::IntegerNum, Parser::parse_number);
         self.register_prefix(TokenType::FloatNum, Parser::parse_number);
+        self.register_prefix(TokenType::Not, Parser::parse_prefix_exp);
+        self.register_prefix(TokenType::Minus, Parser::parse_prefix_exp);
+    }
+
+    pub(super) fn parse_prefix_exp(&self) -> Option<Box<dyn Expression>> {
+        let cur_token = self.cur_token();
+        let operator = cur_token.literal().to_string();
+
+        self.next_token();
+
+        let right = match self.parse_expression(PREFIX) {
+            Some(exp) => exp,
+            None => {
+                self.store_error("There is no expression after the prefix operator.");
+                return None;
+            }
+        };
+
+        Some(Box::new(PrefixExp::new(cur_token, operator, right)))
     }
 
     // This method is used to parse the identifier expression.
