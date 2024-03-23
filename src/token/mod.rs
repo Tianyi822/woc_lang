@@ -104,16 +104,24 @@ impl Token {
 
     pub fn precedence(&self) -> u32 {
         match self.token_type {
+            // ||
             TokenType::Or => LEVEL_1,
+            // &&
             TokenType::And => LEVEL_2,
+            // ==, !=
             TokenType::EqualTo | TokenType::NotEqualTo => LEVEL_3,
+            // >, <, >=, <=
             TokenType::Greater
             | TokenType::Less
             | TokenType::GreaterThanOrEqualTo
             | TokenType::LessThanOrEqualTo => LEVEL_4,
+            // +, -
             TokenType::Plus | TokenType::Minus => LEVEL_5,
+            // *, /, %
             TokenType::Star | TokenType::Slash | TokenType::Percent => LEVEL_6,
+            // func_name()
             TokenType::Func => LEVEL_7,
+            // others
             _ => LEVEL_0,
         }
     }
