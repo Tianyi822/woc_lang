@@ -16,7 +16,7 @@ impl Parser {
         }
 
         // Build the identifier expression.
-        let cur_tok = self.cur_token();
+        let cur_tok = self.get_cur_token();
         let value = cur_tok.literal().to_string();
         let ident = IdentifierExp::new(
             cur_tok,
@@ -42,7 +42,7 @@ impl Parser {
 
     // This method is used to parse the return statement.
     pub(super) fn parse_return_statement(&self) -> Option<Box<dyn Statement>> {
-        let return_tok = self.cur_token();
+        let return_tok = self.get_cur_token();
 
         self.next_token();
 
