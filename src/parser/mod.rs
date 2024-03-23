@@ -1,17 +1,17 @@
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 
-use crate::ast::statement::ExpressionStatement;
 use crate::ast::{Expression, Program, Statement};
+use crate::ast::statement::ExpressionStatement;
 use crate::lexer::Lexer;
-use crate::token::precedence::*;
 use crate::token::{Token, TokenType};
+use crate::token::precedence::*;
 
 pub mod parse_exp_functions;
 pub mod parse_stmt;
 
 type PrefixParseFn = fn(&Parser) -> Option<Box<dyn Expression>>;
-type InfixParseFn = fn(&Parser, Box<dyn Statement>) -> Option<Box<dyn Expression>>;
+type InfixParseFn = fn(&Parser, Box<dyn Expression>) -> Option<Box<dyn Expression>>;
 
 pub struct Parser {
     // The lexer that will generate tokens.
@@ -67,7 +67,7 @@ impl Parser {
         parser
     }
 
-    fn cur_token(&self) -> Token {
+    fn get_cur_token(&self) -> Token {
         self.cur_token.borrow().clone()
     }
 
@@ -117,10 +117,8 @@ impl Parser {
 
     // Parse expressions like: 5 + 5; 5 * 5; etc.
     fn parse_expression_statement(&self) -> Option<Box<dyn Statement>> {
-        let exp_stmt = ExpressionStatement::new(
-            self.cur_token(),
-            self.parse_expression(LEVEL_0),
-        );
+        let exp_stmt =
+            ExpressionStatement::new(self.get_cur_token(), self.parse_expression(LEVEL_0));
 
         if self.peek_tok_is(&TokenType::Semicolon) {
             self.next_token();
@@ -144,7 +142,30 @@ impl Parser {
             return None;
         }
 
-        prefix_func.unwrap()(self)
+        let mut left = prefix_func.unwrap()(self);
+
+        while !self.peek_tok_is(&TokenType::Semicolon) && precedence < self.peek_precedence() {
+            let binding = self.infix_parse_fns.borrow();
+            let infix_func = binding.get(self.peek_token.borrow().token_type());
+
+            if infix_func.is_none() {
+                return left;
+            }
+
+            self.next_token();
+
+            left = infix_func.unwrap()(self, left.unwrap());
+        }
+
+        left
+    }
+
+    fn peek_precedence(&self) -> u32 {
+        self.peek_token.borrow().precedence()
+    }
+
+    fn cur_precedence(&self) -> u32 {
+        self.cur_token.borrow().precedence()
     }
 
     fn cur_tok_is(&self, token_type: &TokenType) -> bool {
