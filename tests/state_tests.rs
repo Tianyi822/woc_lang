@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod state_tests {
     use woc_lang::{
         ast::{expression::IdentifierExp, statement::LetStatement, Node},

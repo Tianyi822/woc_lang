@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod lexer_test {
     use woc_lang::{
         lexer::Lexer,

@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod parser_test {
     use woc_lang::parser::Parser;
 

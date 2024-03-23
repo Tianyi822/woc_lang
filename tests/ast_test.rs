@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod ast_test {
     use woc_lang::ast::expression::IdentifierExp;
     use woc_lang::ast::Node;

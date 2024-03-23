@@ -1,3 +1,4 @@
+#[cfg(test)]
 mod token_test {
     use woc_lang::token::{Token, TokenType};
 
