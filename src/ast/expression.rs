@@ -8,6 +8,7 @@ pub struct PrefixExp {
     right: Box<dyn Expression>,
 }
 
+// This struct is used to represent the prefix expression: !5, -55. etc.
 impl PrefixExp {
     pub fn new(token: Token, operator: String, right: Box<dyn Expression>) -> PrefixExp {
         PrefixExp {
@@ -29,6 +30,39 @@ impl Node for PrefixExp {
 }
 
 impl Expression for PrefixExp {
+    fn expression_node(&self) {}
+}
+
+pub struct InfixExp {
+    token: Token,
+    left: Box<dyn Expression>,
+    operator: String,
+    right: Box<dyn Expression>,
+}
+
+// This struct is used to represent the infix expression: 5 + 5, 5 - 5, etc.
+impl InfixExp {
+    pub fn new(token: Token, left: Box<dyn Expression>, operator: String, right: Box<dyn Expression>) -> Self {
+        Self {
+            token,
+            left,
+            operator,
+            right,
+        }
+    }
+}
+
+impl Node for InfixExp {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        format!("({} {} {})", self.left.to_string(), self.operator, self.right.to_string())
+    }
+}
+
+impl Expression for InfixExp {
     fn expression_node(&self) {}
 }
 
