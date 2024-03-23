@@ -4,7 +4,6 @@ use crate::{
     token::TokenType,
 };
 use crate::ast::expression::{InfixExp, PrefixExp};
-use crate::ast::Statement;
 use crate::token::precedence::PREFIX;
 
 use super::Parser;
@@ -21,7 +20,7 @@ impl Parser {
         // Register the infix parsing functions.
         self.register_infix(TokenType::Plus, Parser::parse_infix_exp);
         self.register_infix(TokenType::Minus, Parser::parse_infix_exp);
-        self.register_infix(TokenType::Star, Parser::parse_infix_exp);
+        self.register_infix(TokenType::Asterisk, Parser::parse_infix_exp);
         self.register_infix(TokenType::Slash, Parser::parse_infix_exp);
         self.register_infix(TokenType::EqualTo, Parser::parse_infix_exp);
         self.register_infix(TokenType::NotEqualTo, Parser::parse_infix_exp);
