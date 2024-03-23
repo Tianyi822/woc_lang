@@ -3,6 +3,45 @@ mod parser_test {
     use woc_lang::parser::Parser;
 
     #[test]
+    fn test_infix_expression() {
+        let input = "
+            5 + 5;
+            5 - 5;
+            5 * 5;
+            5 / 5;
+            5 > 5;
+            5 < 5;
+            5 == 5;
+            5 != 5;
+        ";
+
+        let parser = Parser::new(input);
+
+        let results = vec![
+            "(5 + 5)",
+            "(5 - 5)",
+            "(5 * 5)",
+            "(5 / 5)",
+            "(5 > 5)",
+            "(5 < 5)",
+            "(5 == 5)",
+            "(5 != 5)",
+        ];
+
+        let mut i = 0;
+        for stmt in parser.program.statements.borrow().iter() {
+            let exp = stmt.to_string();
+            if exp != results[i] {
+                panic!(
+                    "parser.program.statements[{}] does not contain {}. got = {}",
+                    i, results[i], exp
+                );
+            }
+            i += 1;
+        }
+    }
+
+    #[test]
     fn test_prefix_expression() {
         let input = "!5; -15; -x;";
 
