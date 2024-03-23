@@ -36,15 +36,15 @@ pub enum TokenType {
     BitNot, // ~
 
     // Data calculate symbols
-    Plus,        // +
-    Minus,       // -
-    Star,        // *
-    Slash,       // /
-    Percent,     // %
-    PlusAssign,  // +=
-    MinusAssign, // -=
-    StarAssign,  // *=
-    SlashAssign, // /=
+    Plus,           // +
+    Minus,          // -
+    Asterisk,       // *
+    Slash,          // /
+    Percent,        // %
+    PlusAssign,     // +=
+    MinusAssign,    // -=
+    AsteriskAssign, // *=
+    SlashAssign,    // /=
 
     // Data Types
     Ident,      // Identifier
@@ -118,7 +118,7 @@ impl Token {
             // +, -
             TokenType::Plus | TokenType::Minus => LEVEL_5,
             // *, /, %
-            TokenType::Star | TokenType::Slash | TokenType::Percent => LEVEL_6,
+            TokenType::Asterisk | TokenType::Slash | TokenType::Percent => LEVEL_6,
             // func_name()
             TokenType::Func => LEVEL_7,
             // others

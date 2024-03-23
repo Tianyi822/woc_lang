@@ -835,12 +835,12 @@ impl Lexer {
             // =============== data calculate symbols ===============
             State::PlusState => TokenType::Plus,
             State::MinusState => TokenType::Minus,
-            State::StarState => TokenType::Star,
+            State::StarState => TokenType::Asterisk,
             State::SlashState => TokenType::Slash,
             State::PercentState => TokenType::Percent,
             State::PlusAssignState => TokenType::PlusAssign,
             State::MinusAssignState => TokenType::MinusAssign,
-            State::StarAssignState => TokenType::StarAssign,
+            State::StarAssignState => TokenType::AsteriskAssign,
             State::SlashAssignState => TokenType::SlashAssign,
 
             // =============== data ===============

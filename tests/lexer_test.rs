@@ -171,7 +171,7 @@ mod lexer_test {
             Token::new(TokenType::Not, "!"),
             Token::new(TokenType::Minus, "-"),
             Token::new(TokenType::Slash, "/"),
-            Token::new(TokenType::Star, "*"),
+            Token::new(TokenType::Asterisk, "*"),
             Token::new(TokenType::IntegerNum, "5"),
             Token::new(TokenType::Semicolon, ";"),
             Token::new(TokenType::IntegerNum, "5"),
