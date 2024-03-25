@@ -1,10 +1,12 @@
-use crate::{
-    ast::expression::{IdentifierExp, NumExp},
-    ast::Expression,
-    token::TokenType,
-};
 use crate::ast::expression::{InfixExp, PrefixExp};
 use crate::token::precedence::PREFIX;
+use crate::{
+    ast::{
+        expression::{BooleanExp, IdentifierExp, NumExp},
+        Expression,
+    },
+    token::TokenType,
+};
 
 use super::Parser;
 
@@ -16,6 +18,8 @@ impl Parser {
         self.register_prefix(TokenType::FloatNum, Parser::parse_number);
         self.register_prefix(TokenType::Not, Parser::parse_prefix_exp);
         self.register_prefix(TokenType::Minus, Parser::parse_prefix_exp);
+        self.register_prefix(TokenType::True, Parser::parse_boolean);
+        self.register_prefix(TokenType::False, Parser::parse_boolean);
 
         // Register the infix parsing functions.
         self.register_infix(TokenType::Plus, Parser::parse_infix_exp);
@@ -75,6 +79,18 @@ impl Parser {
         };
 
         Some(Box::new(num_exp))
+    }
+
+    // This method is used to parse the boolean expression.
+    pub(super) fn parse_boolean(&self) -> Option<Box<dyn Expression>> {
+        let cur_token = self.get_cur_token();
+        let value = match cur_token.token_type() {
+            TokenType::True => true,
+            TokenType::False => false,
+            _ => panic!("This is not a boolean token."),
+        };
+
+        Some(Box::new(BooleanExp::new(cur_token, value)))
     }
 
     // ==================== Infix Parsing Functions ====================

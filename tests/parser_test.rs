@@ -13,6 +13,9 @@ mod parser_test {
             5 < 5;
             5 == 5;
             5 != 5;
+            true == true;
+            true != false;
+            false == false;
         ";
 
         let parser = Parser::new(input);
@@ -26,6 +29,9 @@ mod parser_test {
             "(5 < 5)",
             "(5 == 5)",
             "(5 != 5)",
+            "(true == true)",
+            "(true != false)",
+            "(false == false)",
         ];
 
         let mut i = 0;
