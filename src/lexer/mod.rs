@@ -110,7 +110,7 @@ impl Lexer {
                     if c.eq(&'h') {
                         self.set_state(State::WhileState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -118,7 +118,7 @@ impl Lexer {
                     if c.eq(&'i') {
                         self.set_state(State::WhileState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -126,7 +126,7 @@ impl Lexer {
                     if c.eq(&'l') {
                         self.set_state(State::WhileState4);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -134,7 +134,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::WhileState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -147,7 +147,7 @@ impl Lexer {
                     } else if c.eq(&'a') {
                         self.set_state(State::FalseState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -155,7 +155,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         self.set_state(State::ForState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -164,7 +164,7 @@ impl Lexer {
                     if c.eq(&'f') {
                         self.set_state(State::IfState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -175,7 +175,7 @@ impl Lexer {
                     } else if c.eq(&'n') {
                         self.set_state(State::EnumState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -183,7 +183,7 @@ impl Lexer {
                     if c.eq(&'s') {
                         self.set_state(State::ElseState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -191,7 +191,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::ElseState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -200,7 +200,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         self.set_state(State::BreakState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -208,7 +208,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::BreakState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -216,7 +216,7 @@ impl Lexer {
                     if c.eq(&'a') {
                         self.set_state(State::BreakState4);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -224,7 +224,7 @@ impl Lexer {
                     if c.eq(&'k') {
                         self.set_state(State::BreakState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -233,7 +233,7 @@ impl Lexer {
                     if c.eq(&'o') {
                         self.set_state(State::ContinueState2)
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -241,7 +241,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         self.set_state(State::ContinueState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -249,7 +249,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         self.set_state(State::ContinueState4);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -257,7 +257,7 @@ impl Lexer {
                     if c.eq(&'i') {
                         self.set_state(State::ContinueState5);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -265,7 +265,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         self.set_state(State::ContinueState6);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -273,7 +273,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         self.set_state(State::ContinueState7);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -281,7 +281,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::ContinueState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -290,7 +290,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::LetState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -298,7 +298,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         self.set_state(State::LetState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -307,7 +307,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         self.set_state(State::FuncState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -315,7 +315,7 @@ impl Lexer {
                     if c.eq(&'c') {
                         self.set_state(State::FuncState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -324,7 +324,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::ReturnState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -332,7 +332,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         self.set_state(State::ReturnState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -340,7 +340,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         self.set_state(State::ReturnState4);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -348,7 +348,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         self.set_state(State::ReturnState5);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -356,7 +356,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         self.set_state(State::ReturnState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -365,7 +365,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         self.set_state(State::StructState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -373,7 +373,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         self.set_state(State::StructState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -381,7 +381,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         self.set_state(State::StructState4);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -389,7 +389,7 @@ impl Lexer {
                     if c.eq(&'c') {
                         self.set_state(State::StructState5);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -397,7 +397,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         self.set_state(State::StructState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -406,7 +406,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         self.set_state(State::EnumState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -414,7 +414,7 @@ impl Lexer {
                     if c.eq(&'m') {
                         self.set_state(State::EnumState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -423,7 +423,7 @@ impl Lexer {
                     if c.eq(&'o') {
                         self.set_state(State::NoneState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -431,7 +431,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         self.set_state(State::NoneState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -439,7 +439,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::NoneState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -448,7 +448,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         self.set_state(State::TrueState2);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -456,7 +456,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         self.set_state(State::TrueState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -464,7 +464,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::TrueState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -473,7 +473,7 @@ impl Lexer {
                     if c.eq(&'l') {
                         self.set_state(State::FalseState3);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -481,7 +481,7 @@ impl Lexer {
                     if c.eq(&'s') {
                         self.set_state(State::FalseState4);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -489,7 +489,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         self.set_state(State::FalseState);
                     } else {
-                        self.set_state(State::IdentState);
+                        self.trans_2_ident_or_store_token(c);
                     }
                 }
 
@@ -509,9 +509,9 @@ impl Lexer {
                 | State::FalseState => self.store_token_and_trans_state(),
 
                 // =============== number ===============
-                State::NumState => {
-                    if c.is_numeric() || (state == State::NumState && c.eq(&'_')) {
-                        self.set_state(State::NumState)
+                State::IntegerNumState => {
+                    if c.is_numeric() || (state == State::IntegerNumState && c.eq(&'_')) {
+                        self.set_state(State::IntegerNumState)
                     } else if c.eq(&'.') {
                         self.set_state(State::FloatNumState)
                     } else if c.is_alphabetic() {
@@ -617,7 +617,7 @@ impl Lexer {
                     if c.eq(&'=') {
                         self.set_state(State::MinusAssignState);
                     } else if c.is_numeric() {
-                        self.set_state(State::NumState);
+                        self.set_state(State::IntegerNumState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -666,12 +666,22 @@ impl Lexer {
             }
         }
 
-        // If the lexer's state is not end, we need to store the last token.
-        if *self.cur_state.borrow() != State::EndState {
-            // When the last token was completed, we need to store the token and transform the state.
-            if *self.cur_state.borrow() == State::StartState {
-                self.trans_state(&self.command[self.command.len() - 1]);
+        // If the state of lexer is not end, we need to store the last token.
+        if !self.cur_state_is(State::EndState) {
+            // store the last state
+            let last_state = self.cur_state.borrow().clone();
+            // Transform the state by current char.
+            self.trans_state(&self.command[*self.cur_index.borrow()]);
+
+            // If the state is changed, we need to store the current state and recover the last state.
+            if !self.cur_state_is(last_state) {
+                let cur_state = self.cur_state.borrow().clone();
+                self.set_state(last_state);
+                self.store_token_and_trans_state();
+                self.set_state(cur_state);
             }
+
+            // Store the last token.
             *self.cur_index.borrow_mut() = self.command.len();
             self.store_token_and_trans_state();
         }
@@ -704,7 +714,10 @@ impl Lexer {
             .borrow_mut()
             .push(Token::new(token_type, &literal));
 
-        // Judge whether the state should be reset or be end.
+        // Reset the state of lexer.
+        self.set_state(State::StartState);
+
+        // Judge whether the state should be reset or be ended.
         if *self.start_index.borrow() < self.command.len() {
             // Reset lexer state
             self.trans_state(&self.command[*self.cur_index.borrow()]);
@@ -726,14 +739,6 @@ impl Lexer {
         }
 
         *self.start_index.borrow_mut() = index;
-    }
-
-    fn trans_to_literal_state_or_store_token(&self, c: &char) {
-        if c.is_alphanumeric() || c.eq(&'_') {
-            *self.cur_state.borrow_mut() = State::IdentState;
-        } else {
-            self.store_token_and_trans_state()
-        }
     }
 
     // Transform lexer state by the current char.
@@ -826,8 +831,12 @@ impl Lexer {
             '0'..='9' => {
                 if self.cur_state_is(State::IdentState) {
                     self.set_state(State::IdentState)
+                } else if self.cur_state_is(State::IntegerNumState) {
+                    self.set_state(State::IntegerNumState)
+                } else if self.cur_state_is(State::FloatNumState) {
+                    self.set_state(State::FloatNumState)
                 } else {
-                    self.set_state(State::NumState)
+                    self.set_state(State::IntegerNumState)
                 }
             }
 
@@ -877,6 +886,14 @@ impl Lexer {
         *self.cur_state.borrow_mut() = state;
     }
 
+    fn trans_2_ident_or_store_token(&self, c: &char) {
+        if c.is_alphanumeric() || c.eq(&'_') {
+            self.set_state(State::IdentState)
+        } else {
+            self.store_token_and_trans_state();
+        }
+    }
+
     fn trans_to_token_type(&self) -> TokenType {
         match *self.cur_state.borrow() {
             // =============== single symbols ===============
@@ -923,7 +940,7 @@ impl Lexer {
 
             // =============== data ===============
             State::IdentState => TokenType::Ident,
-            State::NumState => TokenType::IntegerNum,
+            State::IntegerNumState => TokenType::IntegerNum,
             State::FloatNumState => TokenType::FloatNum,
 
             // =============== keywords ===============
