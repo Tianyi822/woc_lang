@@ -108,388 +108,388 @@ impl Lexer {
                 // ============ while ============
                 State::WhileState1 => {
                     if c.eq(&'h') {
-                        *self.cur_state.borrow_mut() = State::WhileState2;
+                        self.set_state(State::WhileState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::WhileState2 => {
                     if c.eq(&'i') {
-                        *self.cur_state.borrow_mut() = State::WhileState3;
+                        self.set_state(State::WhileState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::WhileState3 => {
                     if c.eq(&'l') {
-                        *self.cur_state.borrow_mut() = State::WhileState4;
+                        self.set_state(State::WhileState4);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::WhileState4 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::WhileState;
+                        self.set_state(State::WhileState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ for ============
                 State::ForState1 => {
                     if c.eq(&'o') {
-                        *self.cur_state.borrow_mut() = State::ForState2;
+                        self.set_state(State::ForState2)
                     } else if c.eq(&'u') {
-                        *self.cur_state.borrow_mut() = State::FuncState2;
+                        self.set_state(State::FuncState2);
                     } else if c.eq(&'a') {
-                        *self.cur_state.borrow_mut() = State::FalseState2;
+                        self.set_state(State::FalseState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ForState2 => {
                     if c.eq(&'r') {
-                        *self.cur_state.borrow_mut() = State::ForState;
+                        self.set_state(State::ForState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ if ============
                 State::IfState1 => {
                     if c.eq(&'f') {
-                        *self.cur_state.borrow_mut() = State::IfState;
+                        self.set_state(State::IfState);
                     } else {
-                        self.trans_to_literal_state_or_store_token(c);
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ else ============
                 State::ElseState1 => {
                     if c.eq(&'l') {
-                        *self.cur_state.borrow_mut() = State::ElseState2;
+                        self.set_state(State::ElseState2);
                     } else if c.eq(&'n') {
-                        *self.cur_state.borrow_mut() = State::EnumState2;
+                        self.set_state(State::EnumState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ElseState2 => {
                     if c.eq(&'s') {
-                        *self.cur_state.borrow_mut() = State::ElseState3;
+                        self.set_state(State::ElseState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ElseState3 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::ElseState;
+                        self.set_state(State::ElseState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ break ============
                 State::BreakState1 => {
                     if c.eq(&'r') {
-                        *self.cur_state.borrow_mut() = State::BreakState2;
+                        self.set_state(State::BreakState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::BreakState2 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::BreakState3;
+                        self.set_state(State::BreakState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::BreakState3 => {
                     if c.eq(&'a') {
-                        *self.cur_state.borrow_mut() = State::BreakState4;
+                        self.set_state(State::BreakState4);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::BreakState4 => {
                     if c.eq(&'k') {
-                        *self.cur_state.borrow_mut() = State::BreakState;
+                        self.set_state(State::BreakState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ continue ============
                 State::ContinueState1 => {
                     if c.eq(&'o') {
-                        *self.cur_state.borrow_mut() = State::ContinueState2;
+                        self.set_state(State::ContinueState2)
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ContinueState2 => {
                     if c.eq(&'n') {
-                        *self.cur_state.borrow_mut() = State::ContinueState3;
+                        self.set_state(State::ContinueState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ContinueState3 => {
                     if c.eq(&'t') {
-                        *self.cur_state.borrow_mut() = State::ContinueState4;
+                        self.set_state(State::ContinueState4);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ContinueState4 => {
                     if c.eq(&'i') {
-                        *self.cur_state.borrow_mut() = State::ContinueState5;
+                        self.set_state(State::ContinueState5);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ContinueState5 => {
                     if c.eq(&'n') {
-                        *self.cur_state.borrow_mut() = State::ContinueState6;
+                        self.set_state(State::ContinueState6);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ContinueState6 => {
                     if c.eq(&'u') {
-                        *self.cur_state.borrow_mut() = State::ContinueState7;
+                        self.set_state(State::ContinueState7);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ContinueState7 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::ContinueState;
+                        self.set_state(State::ContinueState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ let ============
                 State::LetState1 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::LetState2;
+                        self.set_state(State::LetState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::LetState2 => {
                     if c.eq(&'t') {
-                        *self.cur_state.borrow_mut() = State::LetState;
+                        self.set_state(State::LetState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ function ============
                 State::FuncState2 => {
                     if c.eq(&'n') {
-                        *self.cur_state.borrow_mut() = State::FuncState3;
+                        self.set_state(State::FuncState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::FuncState3 => {
                     if c.eq(&'c') {
-                        *self.cur_state.borrow_mut() = State::FuncState;
+                        self.set_state(State::FuncState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ return ============
                 State::ReturnState1 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::ReturnState2;
+                        self.set_state(State::ReturnState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ReturnState2 => {
                     if c.eq(&'t') {
-                        *self.cur_state.borrow_mut() = State::ReturnState3;
+                        self.set_state(State::ReturnState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ReturnState3 => {
                     if c.eq(&'u') {
-                        *self.cur_state.borrow_mut() = State::ReturnState4;
+                        self.set_state(State::ReturnState4);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ReturnState4 => {
                     if c.eq(&'r') {
-                        *self.cur_state.borrow_mut() = State::ReturnState5;
+                        self.set_state(State::ReturnState5);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::ReturnState5 => {
                     if c.eq(&'n') {
-                        *self.cur_state.borrow_mut() = State::ReturnState;
+                        self.set_state(State::ReturnState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ struct ============
                 State::StructState1 => {
                     if c.eq(&'t') {
-                        *self.cur_state.borrow_mut() = State::StructState2;
+                        self.set_state(State::StructState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::StructState2 => {
                     if c.eq(&'r') {
-                        *self.cur_state.borrow_mut() = State::StructState3;
+                        self.set_state(State::StructState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::StructState3 => {
                     if c.eq(&'u') {
-                        *self.cur_state.borrow_mut() = State::StructState4;
+                        self.set_state(State::StructState4);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::StructState4 => {
                     if c.eq(&'c') {
-                        *self.cur_state.borrow_mut() = State::StructState5;
+                        self.set_state(State::StructState5);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::StructState5 => {
                     if c.eq(&'t') {
-                        *self.cur_state.borrow_mut() = State::StructState;
+                        self.set_state(State::StructState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // ============ enum ============
                 State::EnumState2 => {
                     if c.eq(&'u') {
-                        *self.cur_state.borrow_mut() = State::EnumState3;
+                        self.set_state(State::EnumState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::EnumState3 => {
                     if c.eq(&'m') {
-                        *self.cur_state.borrow_mut() = State::EnumState;
+                        self.set_state(State::EnumState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // =============== none ===============
                 State::NoneState1 => {
                     if c.eq(&'o') {
-                        *self.cur_state.borrow_mut() = State::NoneState2;
+                        self.set_state(State::NoneState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::NoneState2 => {
                     if c.eq(&'n') {
-                        *self.cur_state.borrow_mut() = State::NoneState3;
+                        self.set_state(State::NoneState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::NoneState3 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::NoneState;
+                        self.set_state(State::NoneState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // =============== true ===============
                 State::TrueState1 => {
                     if c.eq(&'r') {
-                        *self.cur_state.borrow_mut() = State::TrueState2;
+                        self.set_state(State::TrueState2);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::TrueState2 => {
                     if c.eq(&'u') {
-                        *self.cur_state.borrow_mut() = State::TrueState3;
+                        self.set_state(State::TrueState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::TrueState3 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::TrueState;
+                        self.set_state(State::TrueState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 // =============== false ===============
                 State::FalseState2 => {
                     if c.eq(&'l') {
-                        *self.cur_state.borrow_mut() = State::FalseState3;
+                        self.set_state(State::FalseState3);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::FalseState3 => {
                     if c.eq(&'s') {
-                        *self.cur_state.borrow_mut() = State::FalseState4;
+                        self.set_state(State::FalseState4);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
                 State::FalseState4 => {
                     if c.eq(&'e') {
-                        *self.cur_state.borrow_mut() = State::FalseState;
+                        self.set_state(State::FalseState);
                     } else {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     }
                 }
 
@@ -511,11 +511,11 @@ impl Lexer {
                 // =============== number ===============
                 State::NumState => {
                     if c.is_numeric() || (state == State::NumState && c.eq(&'_')) {
-                        *self.cur_state.borrow_mut() = State::NumState;
+                        self.set_state(State::NumState)
                     } else if c.eq(&'.') {
-                        *self.cur_state.borrow_mut() = State::FloatNumState;
+                        self.set_state(State::FloatNumState)
                     } else if c.is_alphabetic() {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState)
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -523,9 +523,9 @@ impl Lexer {
 
                 State::FloatNumState => {
                     if c.is_numeric() {
-                        *self.cur_state.borrow_mut() = State::FloatNumState;
+                        self.set_state(State::FloatNumState)
                     } else if c.is_alphabetic() {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState)
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -559,7 +559,7 @@ impl Lexer {
                 // =============== combined symbols ===============
                 State::AssignmentState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::EqualToState;
+                        self.set_state(State::EqualToState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -567,7 +567,7 @@ impl Lexer {
 
                 State::GreaterState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::GreaterThanOrEqualToState;
+                        self.set_state(State::GreaterThanOrEqualToState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -575,7 +575,7 @@ impl Lexer {
 
                 State::LessState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::LessThanOrEqualToState;
+                        self.set_state(State::LessThanOrEqualToState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -583,7 +583,7 @@ impl Lexer {
 
                 State::NotState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::NotEqualToState;
+                        self.set_state(State::NotEqualToState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -591,7 +591,7 @@ impl Lexer {
 
                 State::BitAndState => {
                     if c.eq(&'&') {
-                        *self.cur_state.borrow_mut() = State::AndState;
+                        self.set_state(State::AndState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -599,7 +599,7 @@ impl Lexer {
 
                 State::BitOrState => {
                     if c.eq(&'|') {
-                        *self.cur_state.borrow_mut() = State::OrState;
+                        self.set_state(State::OrState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -607,7 +607,7 @@ impl Lexer {
 
                 State::PlusState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::PlusAssignState;
+                        self.set_state(State::PlusAssignState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -615,9 +615,9 @@ impl Lexer {
 
                 State::MinusState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::MinusAssignState;
+                        self.set_state(State::MinusAssignState);
                     } else if c.is_numeric() {
-                        *self.cur_state.borrow_mut() = State::NumState;
+                        self.set_state(State::NumState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -625,7 +625,7 @@ impl Lexer {
 
                 State::StarState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::StarAssignState;
+                        self.set_state(State::StarAssignState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -633,7 +633,7 @@ impl Lexer {
 
                 State::SlashState => {
                     if c.eq(&'=') {
-                        *self.cur_state.borrow_mut() = State::SlashAssignState;
+                        self.set_state(State::SlashAssignState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -655,7 +655,7 @@ impl Lexer {
                 // ============ Underline ============
                 State::UnderscoreState => {
                     if c.is_alphabetic() || c.is_numeric() {
-                        *self.cur_state.borrow_mut() = State::IdentState;
+                        self.set_state(State::IdentState);
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -668,6 +668,7 @@ impl Lexer {
 
         // If the lexer's state is not end, we need to store the last token.
         if *self.cur_state.borrow() != State::EndState {
+            // When the last token was completed, we need to store the token and transform the state.
             if *self.cur_state.borrow() == State::StartState {
                 self.trans_state(&self.command[self.command.len() - 1]);
             }
@@ -729,7 +730,7 @@ impl Lexer {
 
     fn trans_to_literal_state_or_store_token(&self, c: &char) {
         if c.is_alphanumeric() || c.eq(&'_') {
-            *self.cur_state.borrow_mut() = State::LiteralState;
+            *self.cur_state.borrow_mut() = State::IdentState;
         } else {
             self.store_token_and_trans_state()
         }
@@ -737,66 +738,143 @@ impl Lexer {
 
     // Transform lexer state by the current char.
     fn trans_state(&self, c: &char) {
-        // Get state and cur_index, and update them by the current char.
-        let mut state = self.cur_state.borrow_mut();
-
-        if *state == State::EndState {
+        if self.cur_state_is(State::EndState) {
             return;
         }
 
         match c {
             // =============== keywords ===============
-            'w' => *state = State::WhileState1,
-            'f' => *state = State::ForState1,
-            'i' => *state = State::IfState1,
-            'e' => *state = State::ElseState1,
-            'b' => *state = State::BreakState1,
-            'c' => *state = State::ContinueState1,
-            'l' => *state = State::LetState1,
-            'r' => *state = State::ReturnState1,
-            's' => *state = State::StructState1,
-            'n' => *state = State::NoneState1,
-            't' => *state = State::TrueState1,
+            'w' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::WhileState1)
+                }
+            }
+            'f' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::ForState1)
+                }
+            }
+            'i' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::IfState1)
+                }
+            }
+            'e' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::ElseState1)
+                }
+            }
+            'b' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::BreakState1)
+                }
+            }
+            'c' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::ContinueState1)
+                }
+            }
+            'l' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::LetState1)
+                }
+            }
+            'r' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::ReturnState1)
+                }
+            }
+            's' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::StructState1)
+                }
+            }
+            'n' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::NoneState1)
+                }
+            }
+            't' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::TrueState1)
+                }
+            }
 
             // =============== number ===============
-            '0'..='9' => *state = State::NumState,
+            '0'..='9' => {
+                if self.cur_state_is(State::IdentState) {
+                    self.set_state(State::IdentState)
+                } else {
+                    self.set_state(State::NumState)
+                }
+            }
 
             // =============== symbols ===============
-            ',' => *state = State::CommaState,
-            '.' => *state = State::DotState,
-            ';' => *state = State::SemiColonState,
-            ':' => *state = State::ColonState,
-            '+' => *state = State::PlusState,
-            '-' => *state = State::MinusState,
-            '*' => *state = State::StarState,
-            '/' => *state = State::SlashState,
-            '%' => *state = State::PercentState,
-            '=' => *state = State::AssignmentState,
+            ',' => self.set_state(State::CommaState),
+            '.' => self.set_state(State::DotState),
+            ';' => self.set_state(State::SemiColonState),
+            ':' => self.set_state(State::ColonState),
+            '+' => self.set_state(State::PlusState),
+            '-' => self.set_state(State::MinusState),
+            '*' => self.set_state(State::StarState),
+            '/' => self.set_state(State::SlashState),
+            '%' => self.set_state(State::PercentState),
+            '=' => self.set_state(State::AssignmentState),
 
             // =============== logical calculation ===============
-            '!' => *state = State::NotState,
-            '>' => *state = State::GreaterState,
-            '<' => *state = State::LessState,
+            '!' => self.set_state(State::NotState),
+            '>' => self.set_state(State::GreaterState),
+            '<' => self.set_state(State::LessState),
 
             // =============== bit calculation ===============
-            '&' => *state = State::BitAndState,
-            '|' => *state = State::BitOrState,
-            '~' => *state = State::BitNotState,
+            '&' => self.set_state(State::BitAndState),
+            '|' => self.set_state(State::BitOrState),
+            '~' => self.set_state(State::BitNotState),
 
             // =============== Others ===============
-            '"' => *state = State::QuoteState,
-            '\'' => *state = State::SingleQuoteState,
-            '(' => *state = State::LeftParenState,
-            ')' => *state = State::RightParenState,
-            '{' => *state = State::LeftBraceState,
-            '}' => *state = State::RightBraceState,
-            '[' => *state = State::LeftBracketState,
-            ']' => *state = State::RightBracketState,
-            '_' => *state = State::UnderscoreState,
-            ' ' | '\n' => *state = State::StartState,
+            '"' => self.set_state(State::QuoteState),
+            '\'' => self.set_state(State::SingleQuoteState),
+            '(' => self.set_state(State::LeftParenState),
+            ')' => self.set_state(State::RightParenState),
+            '{' => self.set_state(State::LeftBraceState),
+            '}' => self.set_state(State::RightBraceState),
+            '[' => self.set_state(State::LeftBracketState),
+            ']' => self.set_state(State::RightBracketState),
+            '_' => self.set_state(State::UnderscoreState),
+            ' ' | '\n' => self.set_state(State::StartState),
 
-            _ => *state = State::LiteralState,
+            _ => self.set_state(State::IdentState),
         }
+    }
+
+    fn cur_state_is(&self, state: State) -> bool {
+        *self.cur_state.borrow() == state
+    }
+
+    fn set_state(&self, state: State) {
+        *self.cur_state.borrow_mut() = state;
     }
 
     fn trans_to_token_type(&self) -> TokenType {
