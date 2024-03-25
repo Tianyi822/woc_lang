@@ -110,7 +110,7 @@ impl Lexer {
                     if c.eq(&'h') {
                         *self.cur_state.borrow_mut() = State::WhileState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -118,7 +118,7 @@ impl Lexer {
                     if c.eq(&'i') {
                         *self.cur_state.borrow_mut() = State::WhileState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -126,7 +126,7 @@ impl Lexer {
                     if c.eq(&'l') {
                         *self.cur_state.borrow_mut() = State::WhileState4;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -134,7 +134,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::WhileState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -147,7 +147,7 @@ impl Lexer {
                     } else if c.eq(&'a') {
                         *self.cur_state.borrow_mut() = State::FalseState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -155,7 +155,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         *self.cur_state.borrow_mut() = State::ForState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -175,7 +175,7 @@ impl Lexer {
                     } else if c.eq(&'n') {
                         *self.cur_state.borrow_mut() = State::EnumState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -183,7 +183,7 @@ impl Lexer {
                     if c.eq(&'s') {
                         *self.cur_state.borrow_mut() = State::ElseState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -191,7 +191,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::ElseState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -200,7 +200,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         *self.cur_state.borrow_mut() = State::BreakState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -208,7 +208,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::BreakState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -216,7 +216,7 @@ impl Lexer {
                     if c.eq(&'a') {
                         *self.cur_state.borrow_mut() = State::BreakState4;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -224,7 +224,7 @@ impl Lexer {
                     if c.eq(&'k') {
                         *self.cur_state.borrow_mut() = State::BreakState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -233,7 +233,7 @@ impl Lexer {
                     if c.eq(&'o') {
                         *self.cur_state.borrow_mut() = State::ContinueState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -241,7 +241,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         *self.cur_state.borrow_mut() = State::ContinueState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -249,7 +249,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         *self.cur_state.borrow_mut() = State::ContinueState4;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -257,7 +257,7 @@ impl Lexer {
                     if c.eq(&'i') {
                         *self.cur_state.borrow_mut() = State::ContinueState5;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -265,7 +265,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         *self.cur_state.borrow_mut() = State::ContinueState6;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -273,7 +273,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         *self.cur_state.borrow_mut() = State::ContinueState7;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -281,7 +281,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::ContinueState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -290,7 +290,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::LetState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -298,7 +298,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         *self.cur_state.borrow_mut() = State::LetState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -307,7 +307,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         *self.cur_state.borrow_mut() = State::FuncState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -315,7 +315,7 @@ impl Lexer {
                     if c.eq(&'c') {
                         *self.cur_state.borrow_mut() = State::FuncState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -324,7 +324,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::ReturnState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -332,7 +332,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         *self.cur_state.borrow_mut() = State::ReturnState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -340,7 +340,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         *self.cur_state.borrow_mut() = State::ReturnState4;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -348,7 +348,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         *self.cur_state.borrow_mut() = State::ReturnState5;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -356,7 +356,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         *self.cur_state.borrow_mut() = State::ReturnState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -365,7 +365,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         *self.cur_state.borrow_mut() = State::StructState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -373,7 +373,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         *self.cur_state.borrow_mut() = State::StructState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -381,7 +381,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         *self.cur_state.borrow_mut() = State::StructState4;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -389,7 +389,7 @@ impl Lexer {
                     if c.eq(&'c') {
                         *self.cur_state.borrow_mut() = State::StructState5;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -397,7 +397,7 @@ impl Lexer {
                     if c.eq(&'t') {
                         *self.cur_state.borrow_mut() = State::StructState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -406,7 +406,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         *self.cur_state.borrow_mut() = State::EnumState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -414,7 +414,7 @@ impl Lexer {
                     if c.eq(&'m') {
                         *self.cur_state.borrow_mut() = State::EnumState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -423,7 +423,7 @@ impl Lexer {
                     if c.eq(&'o') {
                         *self.cur_state.borrow_mut() = State::NoneState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -431,7 +431,7 @@ impl Lexer {
                     if c.eq(&'n') {
                         *self.cur_state.borrow_mut() = State::NoneState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -439,7 +439,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::NoneState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -448,7 +448,7 @@ impl Lexer {
                     if c.eq(&'r') {
                         *self.cur_state.borrow_mut() = State::TrueState2;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -456,7 +456,7 @@ impl Lexer {
                     if c.eq(&'u') {
                         *self.cur_state.borrow_mut() = State::TrueState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -464,7 +464,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::TrueState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -473,7 +473,7 @@ impl Lexer {
                     if c.eq(&'l') {
                         *self.cur_state.borrow_mut() = State::FalseState3;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -481,7 +481,7 @@ impl Lexer {
                     if c.eq(&'s') {
                         *self.cur_state.borrow_mut() = State::FalseState4;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -489,7 +489,7 @@ impl Lexer {
                     if c.eq(&'e') {
                         *self.cur_state.borrow_mut() = State::FalseState;
                     } else {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     }
                 }
 
@@ -515,7 +515,7 @@ impl Lexer {
                     } else if c.eq(&'.') {
                         *self.cur_state.borrow_mut() = State::FloatNumState;
                     } else if c.is_alphabetic() {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -525,14 +525,14 @@ impl Lexer {
                     if c.is_numeric() {
                         *self.cur_state.borrow_mut() = State::FloatNumState;
                     } else if c.is_alphabetic() {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     } else {
                         self.store_token_and_trans_state();
                     }
                 }
 
                 // =============== Literal ===============
-                State::LiteralState => {
+                State::IdentState => {
                     if !(c.is_alphanumeric() || c.eq(&'_')) {
                         self.store_token_and_trans_state();
                     }
@@ -655,7 +655,7 @@ impl Lexer {
                 // ============ Underline ============
                 State::UnderscoreState => {
                     if c.is_alphabetic() || c.is_numeric() {
-                        *self.cur_state.borrow_mut() = State::LiteralState;
+                        *self.cur_state.borrow_mut() = State::IdentState;
                     } else {
                         self.store_token_and_trans_state();
                     }
@@ -844,7 +844,7 @@ impl Lexer {
             State::SlashAssignState => TokenType::SlashAssign,
 
             // =============== data ===============
-            State::LiteralState => TokenType::Ident,
+            State::IdentState => TokenType::Ident,
             State::NumState => TokenType::IntegerNum,
             State::FloatNumState => TokenType::FloatNum,
 
