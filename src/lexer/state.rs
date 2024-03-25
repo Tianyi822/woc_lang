@@ -6,7 +6,7 @@ pub enum State {
     EndState,
 
     // ========================= Data Types =========================
-    LiteralState,
+    IdentState,
     NumState,
     FloatNumState,
 
