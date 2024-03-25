@@ -3,6 +3,45 @@ mod parser_test {
     use woc_lang::parser::Parser;
 
     #[test]
+    fn test_operator_precedence_parsing() {
+        let tests = vec![
+            ("-a * b;", "((-a) * b)"),
+            ("!-a;", "(!(-a))"),
+            ("a + b + c;", "((a + b) + c)"),
+            ("a + b - c;", "((a + b) - c)"),
+            ("a * b * c;", "((a * b) * c)"),
+            ("a * b / c;", "((a * b) / c)"),
+            ("a + b / c;", "(a + (b / c))"),
+            ("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f)"),
+            ("3 + 4;", "(3 + 4)"),
+            ("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4))"),
+            ("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4))"),
+            ("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+            ("true;", "true"),
+            ("false;", "false"),
+            ("3 > 5 == false;", "((3 > 5) == false)"),
+            ("3 < 5 == true;", "((3 < 5) == true)"),
+            // ("1 + (2 + 3) + 4;", "((1 + (2 + 3)) + 4)"),
+            // ("(5 + 5) * 2;", "((5 + 5) * 2)"),
+            // ("2 / (5 + 5);", "(2 / (5 + 5))"),
+            // ("-(5 + 5);", "(-(5 + 5))"),
+            // ("!(true == true);", "(!(true == true))"),
+            // ("a + add(b * c) + d;", "((a + add((b * c))) + d)"),
+        ];
+
+        for tt in tests.iter() {
+            let input = tt.0;
+            let expected = tt.1;
+
+            let parser = Parser::new(input);
+            for stmt in parser.program.statements.borrow().iter() {
+                let exp = stmt.to_string();
+                assert_eq!(exp, expected, "expected={}, got={}", expected, exp);
+            }
+        }
+    }
+
+    #[test]
     fn test_infix_expression() {
         let input = "
             5 + 5;
@@ -16,6 +55,7 @@ mod parser_test {
             true == true;
             true != false;
             false == false;
+            -a * b;
         ";
 
         let parser = Parser::new(input);
@@ -32,6 +72,7 @@ mod parser_test {
             "(true == true)",
             "(true != false)",
             "(false == false)",
+            "((-a) * b)",
         ];
 
         let mut i = 0;

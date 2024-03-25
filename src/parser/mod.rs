@@ -103,11 +103,11 @@ impl Parser {
             TokenType::Ident
             | TokenType::IntegerNum
             | TokenType::FloatNum
+            | TokenType::Not
+            | TokenType::Minus
             | TokenType::True
             | TokenType::False
-            | TokenType::Func
-            | TokenType::Not
-            | TokenType::Minus => self.parse_expression_statement(),
+            | TokenType::Func => self.parse_expression_statement(),
             _ => {
                 self.store_error("There is no such statement that starts with this token.");
                 None
