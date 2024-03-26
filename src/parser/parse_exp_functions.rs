@@ -1,7 +1,7 @@
 use super::Parser;
 use crate::ast::ast::Expression;
 use crate::ast::expression::{BooleanExp, IdentifierExp, InfixExp, NumExp, PrefixExp};
-use crate::token::precedence::PREFIX;
+use crate::token::precedence::{LEVEL_0, PREFIX};
 use crate::token::token::TokenType;
 
 impl Parser {
@@ -14,6 +14,7 @@ impl Parser {
         self.register_prefix(TokenType::Minus, Parser::parse_prefix_exp);
         self.register_prefix(TokenType::True, Parser::parse_boolean);
         self.register_prefix(TokenType::False, Parser::parse_boolean);
+        self.register_prefix(TokenType::LeftParen, Parser::parse_grouped_exp);
 
         // Register the infix parsing functions.
         self.register_infix(TokenType::Plus, Parser::parse_infix_exp);
@@ -85,6 +86,19 @@ impl Parser {
         };
 
         Some(Box::new(BooleanExp::new(cur_token, value)))
+    }
+
+    // This method is used to parse the grouped expression: (5 + 5).
+    pub(super) fn parse_grouped_exp(&self) -> Option<Box<dyn Expression>> {
+        self.next_token();
+
+        let exp = self.parse_expression(LEVEL_0);
+
+        if !self.expect_peek(TokenType::RightParen) {
+            return None;
+        }
+
+        exp
     }
 
     // ==================== Infix Parsing Functions ====================
