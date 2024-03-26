@@ -1,15 +1,15 @@
+use crate::ast::ast::Statement;
 use crate::ast::expression::IdentifierExp;
-use crate::ast::Statement;
 use crate::ast::statement::{LetStatement, ReturnStatement};
 use crate::parser::Parser;
-use crate::token::TokenType;
+use crate::token::token::TokenType;
 
 use super::LEVEL_0;
 
 impl Parser {
     // This method is used to parse the let statement.
     pub(super) fn parse_let_statement(&self) -> Option<Box<dyn Statement>> {
-        let let_tok = self.cur_token.borrow().clone();
+        let let_tok = self.get_cur_token();
 
         if !self.expect_peek(TokenType::Ident) {
             return None;
@@ -18,10 +18,7 @@ impl Parser {
         // Build the identifier expression.
         let cur_tok = self.get_cur_token();
         let value = cur_tok.literal().to_string();
-        let ident = IdentifierExp::new(
-            cur_tok,
-            value,
-        );
+        let ident = IdentifierExp::new(cur_tok, value);
 
         // Check the next token is an assignment operator,
         if self.expect_peek(TokenType::Assignment) {

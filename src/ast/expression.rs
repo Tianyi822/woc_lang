@@ -1,5 +1,5 @@
-use crate::ast::{Expression, Node};
-use crate::token::Token;
+use crate::ast::ast::{Expression, Node};
+use crate::token::token::Token;
 
 // This struct is used to represent the prefix expression: !5, -15. etc.
 pub struct PrefixExp {
@@ -154,7 +154,7 @@ impl Node for BooleanExp {
     }
 
     fn to_string(&self) -> String {
-        self.token.literal().to_string()
+        self.value.to_string()
     }
 }
 

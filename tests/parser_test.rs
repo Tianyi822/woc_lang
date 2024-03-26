@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod parser_test {
-    use woc_lang::parser::Parser;
+    use woc_lang::parser::parser::Parser;
 
     #[test]
     fn test_operator_precedence_parsing() {
@@ -16,7 +16,10 @@ mod parser_test {
             ("3 + 4;", "(3 + 4)"),
             ("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4))"),
             ("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4))"),
-            ("3 + 4 * 5 == 3 * 1 + 4 * 5;", "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))"),
+            (
+                "3 + 4 * 5 == 3 * 1 + 4 * 5;",
+                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
+            ),
             ("true;", "true"),
             ("false;", "false"),
             ("3 > 5 == false;", "((3 > 5) == false)"),

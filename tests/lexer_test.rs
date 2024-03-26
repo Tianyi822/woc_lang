@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod lexer_test {
     use woc_lang::{
-        lexer::Lexer,
-        token::{Token, TokenType},
+        lexer::lexer::Lexer,
+        token::token::{Token, TokenType},
     };
 
     #[test]

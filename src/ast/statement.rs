@@ -1,8 +1,6 @@
+use crate::ast::ast::{Expression, Node, Statement};
 use crate::ast::expression::IdentifierExp;
-use crate::ast::{Expression, Node};
-use crate::token::Token;
-
-use super::Statement;
+use crate::token::token::Token;
 
 // Because we need to cope with expression as statement,
 // we need to create a new struct to represent it.
@@ -23,7 +21,9 @@ impl Node for ExpressionStatement {
     }
 
     fn to_string(&self) -> String {
-        self.expression.as_ref().map_or(String::new(), |e| e.to_string())
+        self.expression
+            .as_ref()
+            .map_or(String::new(), |e| e.to_string())
     }
 }
 
@@ -74,7 +74,6 @@ impl Node for LetStatement {
 impl Statement for LetStatement {
     fn statement_node(&self) {}
 }
-
 
 // Return statement just store a expression.
 pub struct ReturnStatement {

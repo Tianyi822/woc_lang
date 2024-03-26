@@ -42,11 +42,11 @@ pub enum State {
     BitNotState, // ~
 
     // ========================= Data calculate symbols =========================
-    PlusState,       // +
-    MinusState,      // -
-    StarState,       // *
-    SlashState,      // /
-    PercentState,    // %
+    PlusState,        // +
+    MinusState,       // -
+    StarState,        // *
+    SlashState,       // /
+    PercentState,     // %
     PlusAssignState,  // +=
     MinusAssignState, // -=
     StarAssignState,  // *=

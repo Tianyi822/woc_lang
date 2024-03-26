@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod token_test {
-    use woc_lang::token::{Token, TokenType};
+    use woc_lang::token::token::{Token, TokenType};
 
     #[test]
     fn test_new() {

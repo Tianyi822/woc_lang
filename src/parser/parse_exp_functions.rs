@@ -1,14 +1,8 @@
-use crate::ast::expression::{InfixExp, PrefixExp};
-use crate::token::precedence::PREFIX;
-use crate::{
-    ast::{
-        expression::{BooleanExp, IdentifierExp, NumExp},
-        Expression,
-    },
-    token::TokenType,
-};
-
 use super::Parser;
+use crate::ast::ast::Expression;
+use crate::ast::expression::{BooleanExp, IdentifierExp, InfixExp, NumExp, PrefixExp};
+use crate::token::precedence::PREFIX;
+use crate::token::token::TokenType;
 
 impl Parser {
     pub(super) fn register_parse_functions(&self) {

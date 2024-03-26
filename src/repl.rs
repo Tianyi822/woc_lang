@@ -1,6 +1,7 @@
 use std::io::{self, Write as _};
 
-use crate::{lexer::Lexer, token::TokenType};
+use crate::lexer::lexer::Lexer;
+use crate::token::token::TokenType;
 
 pub fn run() {
     loop {
