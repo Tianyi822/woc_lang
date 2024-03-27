@@ -12,9 +12,10 @@ impl Parser {
         self.register_prefix(TokenType::FloatNum, Parser::parse_number);
         self.register_prefix(TokenType::Not, Parser::parse_prefix_exp);
         self.register_prefix(TokenType::Minus, Parser::parse_prefix_exp);
+        self.register_prefix(TokenType::LeftParen, Parser::parse_grouped_exp);
         self.register_prefix(TokenType::True, Parser::parse_boolean);
         self.register_prefix(TokenType::False, Parser::parse_boolean);
-        self.register_prefix(TokenType::LeftParen, Parser::parse_grouped_exp);
+        self.register_prefix(TokenType::If, Parser::parse_if_expression);
 
         // Register the infix parsing functions.
         self.register_infix(TokenType::Plus, Parser::parse_infix_exp);
@@ -99,6 +100,11 @@ impl Parser {
         }
 
         exp
+    }
+
+    // This method is used to parse if expression: if (5 < 10) { return 5; } else { return 10; }
+    pub(super) fn parse_if_expression(&self) -> Option<Box<dyn Expression>> {
+        todo!("Implement if expression")
     }
 
     // ==================== Infix Parsing Functions ====================

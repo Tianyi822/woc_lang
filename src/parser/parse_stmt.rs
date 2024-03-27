@@ -51,4 +51,8 @@ impl Parser {
 
         Some(Box::new(ReturnStatement::new(return_tok, value)))
     }
+
+    pub(super) fn parse_block_statement(&self) -> Option<Box<dyn Statement>> {
+        todo!("Implement block statement")
+    }
 }

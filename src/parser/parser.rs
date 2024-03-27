@@ -99,12 +99,12 @@ impl Parser {
             | TokenType::FloatNum
             | TokenType::Not
             | TokenType::Minus
+            | TokenType::LeftParen
+            | TokenType::LeftBrace
             | TokenType::True
             | TokenType::False
             | TokenType::Func
-            | TokenType::LeftParen
-            | TokenType::LeftBracket
-            | TokenType::LeftBrace => self.parse_expression_statement(),
+            | TokenType::If => self.parse_expression_statement(),
             _ => {
                 self.store_error("There is no such statement that starts with this token.");
                 None
