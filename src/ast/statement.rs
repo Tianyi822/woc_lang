@@ -119,3 +119,35 @@ impl Node for ReturnStatement {
 impl Statement for ReturnStatement {
     fn statement_node(&self) {}
 }
+
+// Block statement is a list of statements.
+pub struct BlockStatement {
+    token: Token,
+    statements: Vec<Box<dyn Statement>>,
+}
+
+impl BlockStatement {
+    pub fn new(token: Token, statements: Vec<Box<dyn Statement>>) -> BlockStatement {
+        BlockStatement { token, statements }
+    }
+}
+
+impl Node for BlockStatement {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        let mut out = String::new();
+
+        for s in &self.statements {
+            out.push_str(&s.to_string());
+        }
+
+        out
+    }
+}
+
+impl Statement for BlockStatement {
+    fn statement_node(&self) {}
+}

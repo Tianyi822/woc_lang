@@ -1,6 +1,8 @@
 use crate::ast::ast::{Expression, Node};
 use crate::token::token::Token;
 
+use super::statement::BlockStatement;
+
 // This struct is used to represent the prefix expression: !5, -15. etc.
 pub struct PrefixExp {
     token: Token,
@@ -159,5 +161,55 @@ impl Node for BooleanExp {
 }
 
 impl Expression for BooleanExp {
+    fn expression_node(&self) {}
+}
+
+// This struct is used to represent the if expression.
+pub struct IfExp {
+    token: Token,
+    condition: Box<dyn Expression>,
+    consequence: BlockStatement,
+    alternative: Option<BlockStatement>,
+}
+
+impl IfExp {
+    pub fn new(
+        token: Token,
+        condition: Box<dyn Expression>,
+        consequence: BlockStatement,
+        alternative: Option<BlockStatement>,
+    ) -> IfExp {
+        IfExp {
+            token,
+            condition,
+            consequence,
+            alternative,
+        }
+    }
+}
+
+impl Node for IfExp {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        let mut out = String::new();
+
+        out.push_str("if ");
+        out.push_str(&self.condition.to_string());
+        out.push_str(" ");
+        out.push_str(&self.consequence.to_string());
+
+        if self.alternative.is_some() {
+            out.push_str(" else ");
+            out.push_str(&self.alternative.as_ref().unwrap().to_string());
+        }
+
+        out
+    }
+}
+
+impl Expression for IfExp {
     fn expression_node(&self) {}
 }
