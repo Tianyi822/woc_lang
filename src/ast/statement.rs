@@ -140,9 +140,12 @@ impl Node for BlockStatement {
     fn to_string(&self) -> String {
         let mut out = String::new();
 
+        out.push_str("{ ");
         for s in &self.statements {
             out.push_str(&s.to_string());
+            out.push_str("; ")
         }
+        out.push_str("}");
 
         out
     }
