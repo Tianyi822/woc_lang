@@ -89,7 +89,7 @@ impl Parser {
         }
     }
 
-    fn parse_statement(&self) -> Option<Box<dyn Statement>> {
+    pub(super) fn parse_statement(&self) -> Option<Box<dyn Statement>> {
         let cur_tok = self.cur_token.borrow().clone();
         match cur_tok.token_type() {
             TokenType::Let => self.parse_let_statement(),
