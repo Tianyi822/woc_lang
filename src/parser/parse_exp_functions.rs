@@ -1,6 +1,6 @@
 use super::Parser;
 use crate::ast::ast::Expression;
-use crate::ast::expression::{BooleanExp, IdentifierExp, InfixExp, NumExp, PrefixExp};
+use crate::ast::expression::{BooleanExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp};
 use crate::token::precedence::{LEVEL_0, PREFIX};
 use crate::token::token::TokenType;
 
@@ -104,7 +104,48 @@ impl Parser {
 
     // This method is used to parse if expression: if (5 < 10) { return 5; } else { return 10; }
     pub(super) fn parse_if_expression(&self) -> Option<Box<dyn Expression>> {
-        todo!("Implement if expression")
+        let cur_tok = self.get_cur_token();
+
+        if !self.expect_peek(TokenType::LeftParen) {
+            self.store_error("There is no left parenthesis after the if keyword.");
+            return None;
+        }
+
+        self.next_token();
+        let condition = match self.parse_expression(LEVEL_0) {
+            Some(exp) => exp,
+            None => {
+                self.store_error("There is no expression after the if keyword.");
+                return None;
+            }
+        };
+
+        if !self.expect_peek(TokenType::RightParen) {
+            self.store_error("There is no right parenthesis after the condition expression.");
+            return None;
+        }
+
+        if !self.expect_peek(TokenType::LeftBrace) {
+            self.store_error("There is no left brace after the right parenthesis.");
+            return None;
+        }
+
+        let consequence = match self.parse_block_statement() {
+            Some(block) => block,
+            None => {
+                self.store_error("There is no block statement after the left brace.");
+                return None;
+            }
+        };
+
+        let alternative = None;
+
+        Some(Box::new(IfExp::new(
+            cur_tok,
+            condition,
+            consequence,
+            alternative,
+        )))
     }
 
     // ==================== Infix Parsing Functions ====================

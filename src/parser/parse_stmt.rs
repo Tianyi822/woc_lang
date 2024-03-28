@@ -1,6 +1,6 @@
 use crate::ast::ast::Statement;
 use crate::ast::expression::IdentifierExp;
-use crate::ast::statement::{LetStatement, ReturnStatement};
+use crate::ast::statement::{BlockStatement, LetStatement, ReturnStatement};
 use crate::parser::Parser;
 use crate::token::token::TokenType;
 
@@ -52,7 +52,20 @@ impl Parser {
         Some(Box::new(ReturnStatement::new(return_tok, value)))
     }
 
-    pub(super) fn parse_block_statement(&self) -> Option<Box<dyn Statement>> {
-        todo!("Implement block statement")
+    // This method is used to parse the block statement: { let x = 5; let y = 10; }
+    pub(super) fn parse_block_statement(&self) -> Option<BlockStatement> {
+        let mut statements: Vec<Box<dyn Statement>> = Vec::new();
+
+        self.next_token();
+
+        while !self.cur_tok_is(&TokenType::RightBrace) && !self.cur_tok_is(&TokenType::Eof) {
+            match self.parse_statement() {
+                Some(stmt) => statements.push(stmt),
+                None => (),
+            };
+            self.next_token();
+        }
+
+        Some(BlockStatement::new(self.get_cur_token(), statements))
     }
 }
