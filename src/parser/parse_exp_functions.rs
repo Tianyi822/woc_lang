@@ -1,5 +1,5 @@
 use crate::ast::ast::Expression;
-use crate::ast::expression::{BooleanExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp};
+use crate::ast::expression::{BooleanExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp};
 use crate::ast::statement::BlockStatement;
 use crate::token::precedence::{LEVEL_0, PREFIX};
 use crate::token::token::TokenType;
@@ -163,6 +163,37 @@ impl Parser {
             consequence,
             alternative,
         )))
+    }
+
+    // This method is used to parse the function expression.
+    pub(super) fn parse_func_exp(&self) -> Option<Box<dyn Expression>> {
+        let cur_tok = self.get_cur_token();
+
+        if !self.peek_tok_is(&TokenType::LeftParen) {
+            self.store_error("There is no left parenthesis after the function keyword.");
+            return None;
+        }
+
+        let parameters = self.parse_function_parameters();
+
+        if !self.expect_peek(TokenType::LeftBrace) {
+            self.store_error("There is no left brace after the function parameters.");
+            return None;
+        }
+
+        let body = match self.parse_block_statement() {
+            Some(block) => block,
+            None => {
+                self.store_error("There is no block statement after the left brace.");
+                return None;
+            }
+        };
+
+        Some(Box::new(FunctionExp::new(cur_tok, Some(parameters), body)))
+    }
+
+    fn parse_function_parameters(&self) -> Vec<IdentifierExp> {
+        todo!("Implement the function parameters.")
     }
 
     // ==================== Infix Parsing Functions ====================

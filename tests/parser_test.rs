@@ -3,6 +3,34 @@ mod parser_test {
     use woc_lang::parser::parser::Parser;
 
     #[test]
+    fn test_fn_expression() {
+        let input = "func (x, y) { x + y; }";
+
+        let parser = Parser::new(input);
+
+        if parser.program.statements.borrow().len() != 1 {
+            panic!(
+                "parser.program.statements does not contain 1 statements. got = {}",
+                parser.program.statements.borrow().len()
+            );
+        }
+
+        // Assert the statement is an FnExp.
+        let results = vec!["func (x, y) { x + y; }"];
+        let mut i = 0;
+        for stmt in parser.program.statements.borrow().iter() {
+            let exp = stmt.to_string();
+            if exp != results[i] {
+                panic!(
+                    "parser.program.statements[{}] does not contain {}. got = {}",
+                    i, results[i], exp
+                );
+            }
+            i += 1;
+        }
+    }
+
+    #[test]
     fn test_if_else_expression() {
         let input = "if (x < y) { x; y; z; } else { a; b; c; }";
 
