@@ -18,6 +18,7 @@ impl Parser {
         self.register_prefix(TokenType::True, Parser::parse_boolean);
         self.register_prefix(TokenType::False, Parser::parse_boolean);
         self.register_prefix(TokenType::If, Parser::parse_if_expression);
+        self.register_prefix(TokenType::Func, Parser::parse_func_exp);
 
         // Register the infix parsing functions.
         self.register_infix(TokenType::Plus, Parser::parse_infix_exp);
@@ -168,6 +169,14 @@ impl Parser {
     // This method is used to parse the function expression.
     pub(super) fn parse_func_exp(&self) -> Option<Box<dyn Expression>> {
         let cur_tok = self.get_cur_token();
+
+        let func_name = match self.expect_peek(TokenType::Ident) {
+            true => self.get_cur_token().literal().to_string(),
+            false => {
+                self.store_error("There is no function name after the function keyword.");
+                return None;
+            }
+        };
 
         if !self.peek_tok_is(&TokenType::LeftParen) {
             self.store_error("There is no left parenthesis after the function keyword.");

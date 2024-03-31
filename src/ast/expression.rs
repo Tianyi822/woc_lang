@@ -217,6 +217,7 @@ impl Expression for IfExp {
 // This struct is used to represent the function expression.
 pub struct FunctionExp {
     token: Token,
+    name: IdentifierExp,
     parameters: Option<Vec<IdentifierExp>>,
     body: BlockStatement,
 }
@@ -224,11 +225,13 @@ pub struct FunctionExp {
 impl FunctionExp {
     pub fn new(
         token: Token,
+        name: IdentifierExp,
         parameters: Option<Vec<IdentifierExp>>,
         body: BlockStatement,
     ) -> FunctionExp {
         FunctionExp {
             token,
+            name,
             parameters,
             body,
         }
@@ -242,16 +245,28 @@ impl Node for FunctionExp {
 
     fn to_string(&self) -> String {
         let mut out = String::new();
-        let mut params = String::new();
 
-        for param in self.parameters.as_ref().unwrap() {
-            params.push_str(&param.to_string());
-        }
+        // func <name>(<parameters>) <body>
+        // func token
+        out.push_str(&self.token_literal());
+        out.push_str(" ");
+        // <name>
+        out.push_str(&self.name.to_string());
+        out.push_str(" ");
 
-        out.push_str(&self.token.literal());
+        // <parameters>
         out.push_str("(");
+        let mut params = String::new();
+        if self.parameters.is_some() {
+            for param in self.parameters.as_ref().unwrap() {
+                params.push_str(&param.to_string());
+                params.push_str(", ");
+            }
+        }
         out.push_str(&params);
         out.push_str(") ");
+
+        // <body>
         out.push_str(&self.body.to_string());
 
         out
