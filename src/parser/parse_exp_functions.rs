@@ -1,5 +1,7 @@
 use crate::ast::ast::Expression;
-use crate::ast::expression::{BooleanExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp};
+use crate::ast::expression::{
+    BooleanExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
+};
 use crate::ast::statement::BlockStatement;
 use crate::token::precedence::{LEVEL_0, PREFIX};
 use crate::token::token::TokenType;
@@ -170,8 +172,13 @@ impl Parser {
     pub(super) fn parse_func_exp(&self) -> Option<Box<dyn Expression>> {
         let cur_tok = self.get_cur_token();
 
+        // Get function name
         let func_name = match self.expect_peek(TokenType::Ident) {
-            true => self.get_cur_token().literal().to_string(),
+            true => {
+                let name_tok = self.get_cur_token();
+                let name = name_tok.literal().to_string();
+                IdentifierExp::new(name_tok, name)
+            }
             false => {
                 self.store_error("There is no function name after the function keyword.");
                 return None;
@@ -198,7 +205,12 @@ impl Parser {
             }
         };
 
-        Some(Box::new(FunctionExp::new(cur_tok, Some(parameters), body)))
+        Some(Box::new(FunctionExp::new(
+            cur_tok,
+            func_name,
+            Some(parameters),
+            body,
+        )))
     }
 
     fn parse_function_parameters(&self) -> Vec<IdentifierExp> {
