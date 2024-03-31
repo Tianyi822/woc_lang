@@ -169,7 +169,7 @@ impl Parser {
         self.cur_token.borrow().token_type() == token_type
     }
 
-    fn peek_tok_is(&self, token_type: &TokenType) -> bool {
+    pub(super) fn peek_tok_is(&self, token_type: &TokenType) -> bool {
         self.peek_token.borrow().token_type() == token_type
     }
 
