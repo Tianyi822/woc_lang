@@ -1,8 +1,10 @@
-use super::Parser;
 use crate::ast::ast::Expression;
 use crate::ast::expression::{BooleanExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp};
+use crate::ast::statement::BlockStatement;
 use crate::token::precedence::{LEVEL_0, PREFIX};
 use crate::token::token::TokenType;
+
+use super::Parser;
 
 impl Parser {
     pub(super) fn register_parse_functions(&self) {
@@ -138,7 +140,22 @@ impl Parser {
             }
         };
 
-        let alternative = None;
+        let mut alternative: Option<BlockStatement> = None;
+
+        if self.expect_peek(TokenType::Else) {
+            if !self.expect_peek(TokenType::LeftBrace) {
+                self.store_error("There is no left brace after the else keyword.");
+                return None;
+            }
+
+            alternative = match self.parse_block_statement() {
+                Some(block) => Some(block),
+                None => {
+                    self.store_error("There is no block statement after the left brace.");
+                    return None;
+                }
+            };
+        }
 
         Some(Box::new(IfExp::new(
             cur_tok,
