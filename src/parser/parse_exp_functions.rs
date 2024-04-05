@@ -206,15 +206,43 @@ impl Parser {
         };
 
         Some(Box::new(FunctionExp::new(
-            cur_tok,
-            func_name,
-            Some(parameters),
-            body,
+            cur_tok, func_name, parameters, body,
         )))
     }
 
-    fn parse_function_parameters(&self) -> Vec<IdentifierExp> {
-        todo!("Implement the function parameters.")
+    // Parsing the function parameters: func add(x, y)
+    fn parse_function_parameters(&self) -> Option<Vec<IdentifierExp>> {
+        if self.peek_tok_is(&TokenType::RightParen) {
+            self.next_token();
+            return None;
+        }
+
+        let mut identifiers: Vec<IdentifierExp> = Vec::new();
+
+        self.next_token();
+
+        let ident = IdentifierExp::new(
+            self.get_cur_token(),
+            self.get_cur_token().literal().to_string(),
+        );
+        identifiers.push(ident);
+
+        while self.peek_tok_is(&TokenType::Comma) {
+            self.next_token();
+            self.next_token();
+
+            let ident = IdentifierExp::new(
+                self.get_cur_token(),
+                self.get_cur_token().literal().to_string(),
+            );
+            identifiers.push(ident);
+        }
+
+        if !self.expect_peek(TokenType::RightParen) {
+            return None;
+        }
+
+        Some(identifiers)
     }
 
     // ==================== Infix Parsing Functions ====================
