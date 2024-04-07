@@ -5,7 +5,7 @@ use crate::ast::ast::{Expression, Program, Statement};
 use crate::ast::statement::ExpressionStatement;
 use crate::lexer::lexer::Lexer;
 use crate::parser::{InfixParseFn, PrefixParseFn};
-use crate::token::precedence::{LEVEL_0, Precedence};
+use crate::token::precedence::{Precedence, LEVEL_0};
 use crate::token::token::{Token, TokenType};
 
 pub struct Parser {
@@ -106,6 +106,7 @@ impl Parser {
             | TokenType::False
             | TokenType::Func
             | TokenType::If => self.parse_expression_statement(),
+            TokenType::Semicolon | TokenType::Eof => None,
             _ => {
                 self.store_error("There is no such statement that starts with this token.");
                 None

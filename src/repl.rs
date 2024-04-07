@@ -1,7 +1,6 @@
 use std::io::{self, Write as _};
 
-use crate::lexer::lexer::Lexer;
-use crate::token::token::TokenType;
+use crate::parser::parser::Parser;
 
 pub fn run() {
     loop {
@@ -16,14 +15,17 @@ pub fn run() {
             break;
         }
 
-        let lexer = Lexer::new(&input);
+        let p = Parser::new(&input);
 
-        loop {
-            let token = lexer.next_token();
-            if token.token_type() == &TokenType::Eof {
-                break;
+        if p.errors.borrow().len() > 0 {
+            for error in p.errors.borrow().iter() {
+                println!("error: {}", error);
             }
-            println!("{:?}", token);
+            continue;
+        }
+
+        for stmt in p.program.statements.borrow().iter() {
+            println!("{}", stmt.to_string());
         }
     }
 }
