@@ -1,11 +1,12 @@
+use std::cell::{Cell, RefCell};
+use std::collections::HashMap;
+
 use crate::ast::ast::{Expression, Program, Statement};
 use crate::ast::statement::ExpressionStatement;
 use crate::lexer::lexer::Lexer;
 use crate::parser::{InfixParseFn, PrefixParseFn};
-use crate::token::precedence::{Precedence, LEVEL_0};
+use crate::token::precedence::{LEVEL_0, Precedence};
 use crate::token::token::{Token, TokenType};
-use std::cell::{Cell, RefCell};
-use std::collections::HashMap;
 
 pub struct Parser {
     // The lexer that will generate tokens.
@@ -117,7 +118,7 @@ impl Parser {
         let exp_stmt =
             ExpressionStatement::new(self.get_cur_token(), self.parse_expression(LEVEL_0));
 
-        if self.peek_tok_is(&TokenType::Semicolon) {
+        if self.peek_tok_is(&TokenType::Semicolon) || self.peek_tok_is(&TokenType::Eof) {
             self.next_token();
         }
 
