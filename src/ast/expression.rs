@@ -256,14 +256,18 @@ impl Node for FunctionExp {
 
         // <parameters>
         out.push_str("(");
-        let mut params = String::new();
+        let mut params_str = String::new();
         if self.parameters.is_some() {
-            for param in self.parameters.as_ref().unwrap() {
-                params.push_str(&param.to_string());
-                params.push_str(", ");
+            // collect parameters and separate them with a comma.
+            let params = self.parameters.as_ref().unwrap();
+            for (i, param) in params.iter().enumerate() {
+                if i > 0 {
+                    params_str.push_str(", ");
+                }
+                params_str.push_str(&param.to_string());
             }
         }
-        out.push_str(&params);
+        out.push_str(&params_str);
         out.push_str(") ");
 
         // <body>
