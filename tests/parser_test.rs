@@ -16,7 +16,7 @@ mod parser_test {
         }
 
         // Assert the statement is an FnExp.
-        let results = vec!["func add (x, y) { x + y; }"];
+        let results = vec!["func add (x, y) { (x + y); }"];
         let mut i = 0;
         for stmt in parser.program.statements.borrow().iter() {
             let exp = stmt.to_string();
