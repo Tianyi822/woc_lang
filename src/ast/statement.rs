@@ -142,8 +142,11 @@ impl Node for BlockStatement {
 
         out.push_str("{ ");
         for s in &self.statements {
-            out.push_str(&s.to_string());
-            out.push_str("; ")
+            let stmt = &s.to_string();
+            out.push_str(stmt);
+            if !stmt.ends_with(";") {
+                out.push_str(";");
+            }
         }
         out.push_str("}");
 
