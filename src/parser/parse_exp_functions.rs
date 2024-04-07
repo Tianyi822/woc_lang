@@ -1,6 +1,6 @@
 use crate::ast::ast::Expression;
 use crate::ast::expression::{
-    BooleanExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
+    BooleanExp, CallExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
 };
 use crate::ast::statement::BlockStatement;
 use crate::token::precedence::{LEVEL_0, PREFIX};
@@ -31,6 +31,7 @@ impl Parser {
         self.register_infix(TokenType::NotEqualTo, Parser::parse_infix_exp);
         self.register_infix(TokenType::Greater, Parser::parse_infix_exp);
         self.register_infix(TokenType::Less, Parser::parse_infix_exp);
+        self.register_infix(TokenType::LeftParen, Parser::parse_call_exp);
     }
 
     // ==================== Prefix Parsing Functions ====================
@@ -262,5 +263,62 @@ impl Parser {
         };
 
         Some(Box::new(InfixExp::new(cur_token, left, operator, right)))
+    }
+
+    pub(super) fn parse_call_exp(
+        &self,
+        function: Box<dyn Expression>,
+    ) -> Option<Box<dyn Expression>> {
+        let cur_token = self.get_cur_token();
+        let arguments = self.parse_call_arguments();
+
+        Some(Box::new(CallExp::new(cur_token, function, arguments)))
+    }
+
+    fn parse_call_arguments(&self) -> Option<Vec<Box<dyn Expression>>> {
+        if !self.cur_tok_is(&TokenType::LeftParen) {
+            self.store_error("There is no left parenthesis after the function name.");
+            return None;
+        }
+
+        let mut args: Vec<Box<dyn Expression>> = Vec::new();
+
+        if self.peek_tok_is(&TokenType::RightParen) {
+            self.next_token();
+            return Some(args);
+        }
+
+        // Move to the first argument and store it
+        self.next_token();
+        let arg = match self.parse_expression(LEVEL_0) {
+            Some(exp) => exp,
+            None => {
+                self.store_error("There is no expression after the left parenthesis.");
+                return None;
+            }
+        };
+        args.push(arg);
+
+        // Store others arguments
+        while self.peek_tok_is(&TokenType::Comma) {
+            self.next_token();
+            self.next_token();
+
+            let arg = match self.parse_expression(LEVEL_0) {
+                Some(exp) => exp,
+                None => {
+                    self.store_error("There is no expression after the comma.");
+                    return None;
+                }
+            };
+            args.push(arg);
+        }
+
+        if !self.expect_peek(TokenType::RightParen) {
+            self.store_error("There is no right parenthesis after the arguments.");
+            return None;
+        }
+
+        Some(args)
     }
 }

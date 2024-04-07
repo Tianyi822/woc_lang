@@ -3,6 +3,48 @@ mod parser_test {
     use woc_lang::parser::parser::Parser;
 
     #[test]
+    fn test_call_expression() {
+        let input = "
+            add(1, 2 * 3, 4 + 5);
+            add(1, 2); 
+            add(1);
+            add();
+            add(x, y);
+            add(x, y, 1);
+        ";
+
+        let p = Parser::new(input);
+
+        if p.program.statements.borrow().len() != 6 {
+            panic!(
+                "parser.program.statements does not contain 5 statements. got = {}",
+                p.program.statements.borrow().len()
+            );
+        }
+
+        let results = vec![
+            "add(1, (2 * 3), (4 + 5))",
+            "add(1, 2)",
+            "add(1)",
+            "add()",
+            "add(x, y)",
+            "add(x, y, 1)",
+        ];
+
+        let mut i = 0;
+        for stmt in p.program.statements.borrow().iter() {
+            let exp = stmt.to_string();
+            if exp != results[i] {
+                panic!(
+                    "parser.program.statements[{}] does not contain {}. got = {}",
+                    i, results[i], exp
+                );
+            }
+            i += 1;
+        }
+    }
+
+    #[test]
     fn test_fn_expression() {
         let input = "func add (x, y) { x + y; }";
 
