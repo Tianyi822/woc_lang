@@ -119,6 +119,8 @@ impl Token {
             TokenType::Asterisk | TokenType::Slash | TokenType::Percent => LEVEL_6,
             // func_name()
             TokenType::Func => LEVEL_7,
+            // call
+            TokenType::LeftParen => CALL,
             // others
             _ => LEVEL_0,
         }
