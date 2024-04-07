@@ -185,18 +185,18 @@ impl Parser {
             }
         };
 
+        // Parse the function parameters
         if !self.peek_tok_is(&TokenType::LeftParen) {
             self.store_error("There is no left parenthesis after the function keyword.");
             return None;
         }
-
         let parameters = self.parse_function_parameters();
 
+        // Parse the function body
         if !self.expect_peek(TokenType::LeftBrace) {
             self.store_error("There is no left brace after the function parameters.");
             return None;
         }
-
         let body = match self.parse_block_statement() {
             Some(block) => block,
             None => {
@@ -212,14 +212,13 @@ impl Parser {
 
     // Parsing the function parameters: func add(x, y)
     fn parse_function_parameters(&self) -> Option<Vec<IdentifierExp>> {
-        if self.peek_tok_is(&TokenType::RightParen) {
+        if self.expect_peek(TokenType::LeftParen) {
             self.next_token();
+        } else {
             return None;
         }
 
         let mut identifiers: Vec<IdentifierExp> = Vec::new();
-
-        self.next_token();
 
         let ident = IdentifierExp::new(
             self.get_cur_token(),
@@ -239,6 +238,7 @@ impl Parser {
         }
 
         if !self.expect_peek(TokenType::RightParen) {
+            self.store_error("There is no right parenthesis after the function parameters.");
             return None;
         }
 
