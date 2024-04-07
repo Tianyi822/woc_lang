@@ -259,8 +259,7 @@ impl Node for FunctionExp {
         let mut params_str = String::new();
         if self.parameters.is_some() {
             // collect parameters and separate them with a comma.
-            let params = self.parameters.as_ref().unwrap();
-            for (i, param) in params.iter().enumerate() {
+            for (i, param) in self.parameters.as_ref().unwrap().iter().enumerate() {
                 if i > 0 {
                     params_str.push_str(", ");
                 }
