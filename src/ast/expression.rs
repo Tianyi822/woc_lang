@@ -280,3 +280,56 @@ impl Node for FunctionExp {
 impl Expression for FunctionExp {
     fn expression_node(&self) {}
 }
+
+pub struct CallExp {
+    token: Token,
+    function: Box<dyn Expression>,
+    arguments: Option<Vec<Box<dyn Expression>>>,
+}
+
+impl CallExp {
+    pub fn new(
+        token: Token,
+        function: Box<dyn Expression>,
+        arguments: Option<Vec<Box<dyn Expression>>>,
+    ) -> CallExp {
+        CallExp {
+            token,
+            function,
+            arguments,
+        }
+    }
+}
+
+impl Node for CallExp {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        let mut out = String::new();
+
+        out.push_str(&self.function.to_string());
+        out.push_str("(");
+
+        let mut args_str = String::new();
+        if self.arguments.is_some() {
+            let args = self.arguments.as_ref().unwrap();
+            for (i, arg) in args.iter().enumerate() {
+                if i > 0 {
+                    args_str.push_str(", ");
+                }
+                args_str.push_str(&arg.to_string());
+            }
+        }
+
+        out.push_str(&args_str);
+        out.push_str(")");
+
+        out
+    }
+}
+
+impl Expression for CallExp {
+    fn expression_node(&self) {}
+}
