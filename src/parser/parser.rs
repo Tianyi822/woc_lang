@@ -126,6 +126,19 @@ impl Parser {
         Some(Box::new(exp_stmt))
     }
 
+    // This method is the cornerstone of the syntax parser, and indeed, the entire Pratt parser. In parsing expressions,
+    // operator precedence is utilized for assistance.
+    // The `precedence` indicates right associativity; the higher the precedence, the stronger the right associativity.
+    // To put it more colloquially, the larger this value is, the more it can "cling" to the expression on the right
+    // and form a new expression. For example: 1 + 2 + 3,
+    // the precedence of the first '+' is higher than the numeric literal 2, hence 1 + 2 forms a new expression (1 + 2),
+    // then, the precedence of the second '+' is higher than the numeric literal 3,
+    // thus (1 + 2) combines with 3 through the second '+' to become ((1 + 2) + 3).
+    // Right associativity in the parsing process allows the token on the right to stay as close as possible to the current token,
+    // which is an alternative implementation of left recursion.
+    // The reason for using left recursion is to avoid symbol transformation that occurs with right recursion,
+    // For instance: x - y - z, using right recursion would transform it into (x - (y + z)), while using left recursion results in ((x - y) - z),
+    // This avoids semantic issues in the code after parsing is complete, even though the syntax is correct.
     pub(super) fn parse_expression(&self, precedence: Precedence) -> Option<Box<dyn Expression>> {
         // temporary value is freed at the end of this statement,
         // so we need to store a borrow of it in a variable
@@ -143,6 +156,12 @@ impl Parser {
 
         let mut left = prefix_func.unwrap()(self);
 
+        // Determine whether it's necessary to parse an infix expression.
+        // The step `precedence < self.peek_precedence()` is crucial. For example: 5 + 5,
+        // when the first '5' comes in, it's passed with the LOWEST precedence, which is the lowest priority,
+        // then, `self.peek_token` becomes '+', and the next token's precedence is obtained through `peek_precedence()`,
+        // which is then compared with the passed-in precedence to decide whether right associativity is needed,
+        // the precedence of '+' is obviously higher than the LOWEST, therefore, this if branch is entered.
         while !self.peek_tok_is(&TokenType::Semicolon) && precedence < self.peek_precedence() {
             let binding = self.infix_parse_fns.borrow();
             let infix_func = binding.get(self.peek_token.borrow().token_type());
