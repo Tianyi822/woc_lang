@@ -144,7 +144,7 @@ impl Node for BlockStatement {
         for (i, stmt) in self.statements.iter().enumerate() {
             let stmt_str = &stmt.to_string();
             out.push_str(stmt_str);
-            if !stmt_str.ends_with(";") {
+            if !stmt_str.ends_with("}") && !stmt_str.ends_with(";") {
                 out.push_str(";");
             }
             if i < self.statements.len() - 1 {
