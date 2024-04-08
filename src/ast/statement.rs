@@ -141,14 +141,17 @@ impl Node for BlockStatement {
         let mut out = String::new();
 
         out.push_str("{ ");
-        for s in &self.statements {
-            let stmt = &s.to_string();
-            out.push_str(stmt);
-            if !stmt.ends_with(";") {
+        for (i, stmt) in self.statements.iter().enumerate() {
+            let stmt_str = &stmt.to_string();
+            out.push_str(stmt_str);
+            if !stmt_str.ends_with(";") {
                 out.push_str(";");
             }
+            if i < self.statements.len() - 1 {
+                out.push_str(" ");
+            }
         }
-        out.push_str("}");
+        out.push_str(" }");
 
         out
     }
