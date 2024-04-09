@@ -98,6 +98,9 @@ impl Parser {
         }
     }
 
+    /// If the current statement is just declaration, the parser will call relevant method to parse it.
+    /// For example: let x = 5; let y = 10; etc.
+    /// As for expression, parser will parse it and wrap it into an [`ExpressionStatement`] by calling [`self.parse_expression_statement()`].
     pub(super) fn parse_statement(&self) -> Option<Box<dyn Statement>> {
         let cur_tok = self.cur_token.borrow().clone();
         match cur_tok.token_type() {
@@ -114,7 +117,7 @@ impl Parser {
             | TokenType::False
             | TokenType::Func
             | TokenType::If => self.parse_expression_statement(),
-            TokenType::Semicolon | TokenType::Eof => None,
+            TokenType::Semicolon | TokenType::Eof => None, // Semicolon means the end of a statement, and Eof means the end of the program.
             _ => {
                 self.store_error("There is no such statement that starts with this token.");
                 None
@@ -122,8 +125,9 @@ impl Parser {
         }
     }
 
-    // Parse expressions like: 5 + 5; 5 * 5; etc.
+    /// Parse expressions like: 5 + 5; 5 * 5; etc.
     fn parse_expression_statement(&self) -> Option<Box<dyn Statement>> {
+        // The real parsing logical is [`self.parse_expression()`], calling it with the LOWEST precedence to parse the expression.
         let exp_stmt =
             ExpressionStatement::new(self.get_cur_token(), self.parse_expression(LEVEL_0));
 
@@ -134,25 +138,26 @@ impl Parser {
         Some(Box::new(exp_stmt))
     }
 
-    // This method is the cornerstone of the syntax parser, and indeed, the entire Pratt parser. In parsing expressions,
-    // operator precedence is utilized for assistance.
-    // The `precedence` indicates right associativity; the higher the precedence, the stronger the right associativity.
-    // To put it more colloquially, the larger this value is, the more it can "cling" to the expression on the right
-    // and form a new expression. For example: 1 + 2 + 3,
-    // the precedence of the first '+' is higher than the numeric literal 2, hence 1 + 2 forms a new expression (1 + 2),
-    // then, the precedence of the second '+' is higher than the numeric literal 3,
-    // thus (1 + 2) combines with 3 through the second '+' to become ((1 + 2) + 3).
-    // Right associativity in the parsing process allows the token on the right to stay as close as possible to the current token,
-    // which is an alternative implementation of left recursion.
-    // The reason for using left recursion is to avoid symbol transformation that occurs with right recursion,
-    // For instance: x - y - z, using right recursion would transform it into (x - (y + z)), while using left recursion results in ((x - y) - z),
-    // This avoids semantic issues in the code after parsing is complete, even though the syntax is correct.
+    /// This method is the cornerstone of the syntax parser, and indeed, the entire Pratt parser. In parsing expressions,
+    /// operator precedence is utilized for assistance.
+    /// The `precedence` indicates right associativity; the higher the precedence, the stronger the right associativity.
+    /// To put it more colloquially, the larger this value is, the more it can "cling" to the expression on the right
+    /// and form a new expression. For example: 1 + 2 + 3,
+    /// the precedence of the first '+' is higher than the numeric literal 2, hence 1 + 2 forms a new expression (1 + 2),
+    /// then, the precedence of the second '+' is higher than the numeric literal 3,
+    /// thus (1 + 2) combines with 3 through the second '+' to become ((1 + 2) + 3).
+    /// Right associativity in the parsing process allows the token on the right to stay as close as possible to the current token,
+    /// which is an alternative implementation of left recursion.
+    /// The reason for using left recursion is to avoid symbol transformation that occurs with right recursion,
+    /// For instance: x - y - z, using right recursion would transform it into (x - (y + z)), while using left recursion results in ((x - y) - z),
+    /// This avoids semantic issues in the code after parsing is complete, even though the syntax is correct.
     pub(super) fn parse_expression(&self, precedence: Precedence) -> Option<Box<dyn Expression>> {
         // temporary value is freed at the end of this statement,
         // so we need to store a borrow of it in a variable
         let binding = self.prefix_parse_fns.borrow();
         let prefix_func = binding.get(self.cur_token.borrow().token_type());
 
+        // Check if the prefix parsing function exists.
         if prefix_func.is_none() {
             let msg = format!(
                 "no prefix parse function for `{:?}` found",
@@ -161,7 +166,7 @@ impl Parser {
             self.store_error(&msg);
             return None;
         }
-
+        // Call the prefix parsing function to get corresponding AST node.
         let mut left = prefix_func.unwrap()(self);
 
         // Determine whether it's necessary to parse an infix expression.
@@ -174,12 +179,11 @@ impl Parser {
             let binding = self.infix_parse_fns.borrow();
             let infix_func = binding.get(self.peek_token.borrow().token_type());
 
+            // Call the infix parsing function to get corresponding AST node.
             if infix_func.is_none() {
                 return left;
             }
-
             self.next_token();
-
             left = infix_func.unwrap()(self, left.unwrap());
         }
 
@@ -199,21 +203,32 @@ impl Parser {
     }
 
     pub(super) fn peek_tok_is(&self, token_type: &TokenType) -> bool {
-        self.peek_token.borrow().token_type() == token_type
+        if self.peek_token.borrow().token_type() == token_type {
+            true
+        } else {
+            let msg = format!(
+                "expected next token to be `{:?}`, got `{:?}` instead",
+                token_type,
+                self.peek_token.borrow().token_type()
+            );
+            self.store_error(&msg);
+            false
+        }
     }
 
-    // This method is used to check if the next token is of the expected type.
-    // It's mainly used to ensure the sequence of the tokens is correct.
+    /// This method is used to check if the next token is of the expected type.
+    /// It's mainly used to ensure the sequence of the tokens is correct.
     pub fn expect_peek(&self, token_type: TokenType) -> bool {
         if self.peek_tok_is(&token_type) {
             self.next_token();
             true
         } else {
-            self.peek_error(&token_type);
             false
         }
     }
 
+    // This method is used to parse the let statement.
+    // It gets error code by calling [`lexer.joint_tokens_to_str_by_range()`] with the start and end indexes.
     pub(super) fn store_error(&self, msg: &str) {
         // Get the error code;
         let code = self
@@ -222,19 +237,13 @@ impl Parser {
         // Update the start index of the next command.
         self.cmd_start_index.set(self.cmd_cur_index.get());
 
-        let error = format!("`{}` get error: {}", code, msg);
-        self.errors.borrow_mut().push(error);
+        // Store the error message.
+        self.errors
+            .borrow_mut()
+            .push(format!("`{}` get error: {}", code, msg));
     }
 
-    fn peek_error(&self, token_type: &TokenType) {
-        let msg = format!(
-            "expected next token to be `{:?}`, got `{:?}` instead",
-            token_type,
-            self.peek_token.borrow().token_type()
-        );
-        self.store_error(&msg);
-    }
-
+    // Move to the next token and update the current and peek tokens.
     pub(super) fn next_token(&self) {
         *self.cur_token.borrow_mut() = self.peek_token.borrow().clone();
         *self.peek_token.borrow_mut() = self.lexer.next_token();
