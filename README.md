@@ -1,7 +1,20 @@
 # WocLang
 
-新版 WocLang 语言解释器，使用 Rust 语言编写。
+The interpreter for this scripting language was originally written in **Go**, but has now been rewritten in **Rust**.
 
-## 目前进度
+## Current development progress
 
-- 使用 Rust 重写 WocLang 的词法分析器
+- Complement the Lexer
+  - Designed based on deterministic finite automata
+  - Too few keywords, to be added later
+- Complement the Parser
+  - Parses `let, return` statements
+  - Parses numeric literals (including `integers` and `floats`)
+  - Parses prefix expressions (prefix support currently limited to `-` and `!`, with plans to add more support; implementation only for now)
+  - Parses infix expressions (currently supports `+, -, *, /, >, <, >=, <=, ==, !=` infix operators)
+  - Parses boolean literals (`true, false`)
+  - Parses grouped expressions
+  - Parses `if` expressions
+  - Parses function expressions and function call expressions
+- REPL
+  - Adds REPL functionality, but evaluation is not yet possible due to the lack of syntax tree parsing
