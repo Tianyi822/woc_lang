@@ -117,6 +117,7 @@ impl Parser {
             return None;
         }
 
+        // Get the condition expressions
         self.next_token();
         let condition = match self.parse_expression(LEVEL_0) {
             Some(exp) => exp,
@@ -136,6 +137,7 @@ impl Parser {
             return None;
         }
 
+        // Get the consequence block statement
         let consequence = match self.parse_block_statement() {
             Some(block) => block,
             None => {
@@ -144,6 +146,7 @@ impl Parser {
             }
         };
 
+        // Get the else expression if it exists
         let else_exp: Option<Box<ElseExp>> = if self.expect_peek(TokenType::Else) {
             let cur_tok = self.get_cur_token();
 
@@ -231,14 +234,17 @@ impl Parser {
             return None;
         }
 
+        // The parameters list
         let mut identifiers: Vec<IdentifierExp> = Vec::new();
 
+        // Store the first parameter
         let ident = IdentifierExp::new(
             self.get_cur_token(),
             self.get_cur_token().literal().to_string(),
         );
         identifiers.push(ident);
 
+        // Store others parameters
         while self.peek_tok_is(&TokenType::Comma) {
             self.next_token();
             self.next_token();
@@ -264,6 +270,7 @@ impl Parser {
         let cur_token = self.get_cur_token();
         let operator = cur_token.literal().to_string();
 
+        // Determine whether it is necessary to associate the expression on the right based on the current precedence.
         let precedence = self.cur_precedence();
         self.next_token();
         let right = match self.parse_expression(precedence) {
@@ -287,6 +294,8 @@ impl Parser {
         Some(Box::new(CallExp::new(cur_token, function, arguments)))
     }
 
+    /// This parsing logic is similar with the [`self.parse_function_parameters`] method.
+    /// The difference is that this method returns a vector of expressions.
     fn parse_call_arguments(&self) -> Option<Vec<Box<dyn Expression>>> {
         if !self.cur_tok_is(&TokenType::LeftParen) {
             self.store_error("There is no left parenthesis after the function name.");
