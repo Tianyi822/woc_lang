@@ -17,14 +17,14 @@ pub fn run() {
 
         let p = Parser::new(&input);
 
-        if p.errors.borrow().len() > 0 {
-            for error in p.errors.borrow().iter() {
+        if p.errors().len() > 0 {
+            for error in p.errors().iter() {
                 println!("error: {}", error);
             }
             continue;
         }
 
-        for stmt in p.program.statements.borrow().iter() {
+        for stmt in p.program().statements.borrow().iter() {
             println!("{}", stmt.to_string());
         }
     }

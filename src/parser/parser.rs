@@ -23,10 +23,10 @@ pub struct Parser {
     cmd_cur_index: Cell<i32>,
 
     // The root node of the AST.
-    pub program: Program,
+    program: Box<Program>,
 
     // Collect errors that occur during parsing.
-    pub errors: RefCell<Vec<String>>,
+    errors: RefCell<Vec<String>>,
 
     // The prefix and infix parsing functions.
     prefix_parse_fns: RefCell<HashMap<TokenType, PrefixParseFn>>,
@@ -41,7 +41,7 @@ impl Parser {
             peek_token: RefCell::new(Token::new(TokenType::Eof, "")),
             cmd_start_index: Cell::new(0),
             cmd_cur_index: Cell::new(-1),
-            program: Program::new(),
+            program: Box::new(Program::new()),
             errors: RefCell::new(Vec::new()),
             prefix_parse_fns: RefCell::new(HashMap::new()),
             infix_parse_fns: RefCell::new(HashMap::new()),
@@ -60,6 +60,14 @@ impl Parser {
         parser.lexer.clear();
 
         parser
+    }
+
+    pub fn program(&self) -> &Program {
+        &self.program
+    }
+
+    pub fn errors(&self) -> Vec<String> {
+        self.errors.borrow().clone()
     }
 
     pub(super) fn get_cur_token(&self) -> Token {
