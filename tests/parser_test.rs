@@ -73,6 +73,34 @@ mod parser_test {
     }
 
     #[test]
+    fn test_else_if_expression() {
+        let input = "if (x < y) { x; y; z; } else if (x > y) { a; b; c; } else if (x == y) { d; e; f; } else { g; h; i; }";
+
+        let parser = Parser::new(input);
+
+        if parser.program.statements.borrow().len() != 1 {
+            panic!(
+                "parser.program.statements does not contain 1 statements. got = {}",
+                parser.program.statements.borrow().len()
+            );
+        }
+
+        // Assert the statement is an IfElseIfExp.
+        let results = vec!["if (x < y) { x; y; z; } else if (x > y) { a; b; c; } else if (x == y) { d; e; f; } else { g; h; i; }"];
+        let mut i = 0;
+        for stmt in parser.program.statements.borrow().iter() {
+            let exp = stmt.to_string();
+            if exp != results[i] {
+                panic!(
+                    "parser.program.statements[{}] does not contain {}. got = {}",
+                    i, results[i], exp
+                );
+            }
+            i += 1;
+        }
+    }
+
+    #[test]
     fn test_if_else_expression() {
         let input = "if (x < y) { x; y; z; } else { a; b; c; }";
 

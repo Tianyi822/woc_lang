@@ -1,6 +1,6 @@
 use crate::ast::ast::Expression;
 use crate::ast::expression::{
-    BooleanExp, CallExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
+    BooleanExp, CallExp, ElseExp, FunctionExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
 };
 use crate::ast::statement::BlockStatement;
 use crate::token::precedence::{LEVEL_0, PREFIX};
@@ -144,28 +144,40 @@ impl Parser {
             }
         };
 
-        let mut alternative: Option<BlockStatement> = None;
+        let else_exp: Option<Box<ElseExp>> = if self.expect_peek(TokenType::Else) {
+            let cur_tok = self.get_cur_token();
 
-        if self.expect_peek(TokenType::Else) {
-            if !self.expect_peek(TokenType::LeftBrace) {
-                self.store_error("There is no left brace after the else keyword.");
-                return None;
+            let mut if_exp: Option<Box<dyn Expression>> = None;
+            let mut alternative: Option<BlockStatement> = None;
+
+            if self.expect_peek(TokenType::If) {
+                if_exp = match self.parse_if_expression() {
+                    Some(exp) => Some(exp),
+                    None => {
+                        self.store_error("There is no if expression after the else keyword.");
+                        return None;
+                    }
+                };
+            } else if self.expect_peek(TokenType::LeftBrace) {
+                alternative = match self.parse_block_statement() {
+                    Some(block) => Some(block),
+                    None => {
+                        self.store_error("There is no block statement after the else keyword.");
+                        return None;
+                    }
+                };
             }
 
-            alternative = match self.parse_block_statement() {
-                Some(block) => Some(block),
-                None => {
-                    self.store_error("There is no block statement after the left brace.");
-                    return None;
-                }
-            };
-        }
+            Some(Box::new(ElseExp::new(cur_tok, if_exp, alternative)))
+        } else {
+            None
+        };
 
         Some(Box::new(IfExp::new(
             cur_tok,
             condition,
             consequence,
-            alternative,
+            else_exp,
         )))
     }
 
