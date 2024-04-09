@@ -169,7 +169,7 @@ pub struct IfExp {
     token: Token,
     condition: Box<dyn Expression>,
     consequence: BlockStatement,
-    alternative: Option<BlockStatement>,
+    else_exp: Option<Box<ElseExp>>,
 }
 
 impl IfExp {
@@ -177,13 +177,13 @@ impl IfExp {
         token: Token,
         condition: Box<dyn Expression>,
         consequence: BlockStatement,
-        alternative: Option<BlockStatement>,
+        else_exp: Option<Box<ElseExp>>,
     ) -> IfExp {
         IfExp {
             token,
             condition,
             consequence,
-            alternative,
+            else_exp,
         }
     }
 }
@@ -201,9 +201,8 @@ impl Node for IfExp {
         out.push_str(" ");
         out.push_str(&self.consequence.to_string());
 
-        if self.alternative.is_some() {
-            out.push_str(" else ");
-            out.push_str(&self.alternative.as_ref().unwrap().to_string());
+        if self.else_exp.is_some() {
+            out.push_str(&self.else_exp.as_ref().unwrap().to_string());
         }
 
         out
@@ -211,6 +210,53 @@ impl Node for IfExp {
 }
 
 impl Expression for IfExp {
+    fn expression_node(&self) {}
+}
+
+// This struct is used to represent the else expression.
+pub struct ElseExp {
+    token: Token,
+    if_exp: Option<Box<dyn Expression>>,
+    alternative: Option<BlockStatement>,
+}
+
+impl ElseExp {
+    pub fn new(
+        token: Token,
+        if_exp: Option<Box<dyn Expression>>,
+        alternative: Option<BlockStatement>,
+    ) -> ElseExp {
+        ElseExp {
+            token,
+            if_exp,
+            alternative,
+        }
+    }
+}
+
+impl Node for ElseExp {
+    fn token_literal(&self) -> String {
+        self.token.literal().to_string()
+    }
+
+    fn to_string(&self) -> String {
+        let mut out = String::new();
+
+        out.push_str(" else ");
+
+        if self.if_exp.is_some() {
+            out.push_str(&self.if_exp.as_ref().unwrap().to_string());
+        }
+
+        if self.alternative.is_some() {
+            out.push_str(&self.alternative.as_ref().unwrap().to_string());
+        }
+
+        out
+    }
+}
+
+impl Expression for ElseExp {
     fn expression_node(&self) {}
 }
 
