@@ -15,7 +15,7 @@ impl Integer {
 }
 
 impl Object for Integer {
-    fn obj_type() -> OBJType {
+    fn obj_type(&self) -> OBJType {
         OBJType::IntegerObj
     }
 
@@ -37,7 +37,7 @@ impl Boolean {
 }
 
 impl Object for Boolean {
-    fn obj_type() -> OBJType {
+    fn obj_type(&self) -> OBJType {
         OBJType::BooleanObj
     }
 
@@ -51,7 +51,7 @@ impl Object for Boolean {
 pub struct Null;
 
 impl Object for Null {
-    fn obj_type() -> OBJType {
+    fn obj_type(&self) -> OBJType {
         OBJType::NullObj
     }
 

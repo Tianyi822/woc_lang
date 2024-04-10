@@ -8,6 +8,6 @@ pub enum OBJType {
 /// - obj_type() -> ObjectType: return the type of the object
 /// - inspect() -> String: return the string representation of the object
 pub trait Object {
-    fn obj_type() -> OBJType;
+    fn obj_type(&self) -> OBJType;
     fn inspect(&self) -> String;
 }
