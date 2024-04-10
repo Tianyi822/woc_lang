@@ -62,8 +62,9 @@ impl Parser {
         parser
     }
 
-    pub fn program(&self) -> &Program {
-        &self.program
+    // Move the ownership of the program to the caller.
+    pub fn program(self) -> Box<Program> {
+        self.program
     }
 
     pub fn errors(&self) -> Vec<String> {
