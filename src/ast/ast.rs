@@ -1,5 +1,3 @@
-use std::cell::RefCell;
-
 // This module is used to define the AST node.
 pub trait Node {
     // This method returns the token literal.
@@ -26,26 +24,26 @@ pub trait Expression: Node {
 // This struct stores the program information that the parser will analyze.
 // In the same time, this is the root node of the AST.
 pub struct Program {
-    pub statements: RefCell<Vec<Box<dyn Statement>>>,
+    pub statements: Vec<Box<dyn Statement>>,
 }
 
 impl Program {
     pub fn new() -> Program {
         Program {
-            statements: RefCell::new(Vec::new()),
+            statements: Vec::new(),
         }
     }
 
     // Add an AST node.
-    pub fn push(&self, statement: Box<dyn Statement>) {
-        self.statements.borrow_mut().push(statement);
+    pub fn push(&mut self, statement: Box<dyn Statement>) {
+        self.statements.push(statement);
     }
 }
 
 impl Node for Program {
     fn token_literal(&self) -> String {
-        if self.statements.borrow().len() > 0 {
-            self.statements.borrow()[0].token_literal()
+        if self.statements.len() > 0 {
+            self.statements[0].token_literal()
         } else {
             String::new()
         }
@@ -54,7 +52,7 @@ impl Node for Program {
     fn to_string(&self) -> String {
         let mut out = String::new();
 
-        for statement in self.statements.borrow().iter() {
+        for statement in self.statements.iter() {
             out.push_str(&statement.to_string());
         }
 

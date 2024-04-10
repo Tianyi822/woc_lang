@@ -4,7 +4,7 @@ use crate::{
 };
 
 pub fn eval(program: &Program) -> Box<dyn Object> {
-    eval_statements(&program.statements.borrow())
+    eval_statements(&program.statements)
 }
 
 fn eval_statements(stmts: &Vec<Box<dyn Statement>>) -> Box<dyn Object> {

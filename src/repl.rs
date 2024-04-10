@@ -24,7 +24,7 @@ pub fn run() {
             continue;
         }
 
-        for stmt in p.program().statements.borrow().iter() {
+        for stmt in p.program().statements.iter() {
             println!("{}", stmt.to_string());
         }
     }

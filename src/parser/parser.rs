@@ -35,7 +35,7 @@ pub struct Parser {
 
 impl Parser {
     pub fn new(code: &str) -> Self {
-        let parser = Self {
+        let mut parser = Self {
             lexer: Lexer::new(code),
             cur_token: RefCell::new(Token::new(TokenType::Eof, "")),
             peek_token: RefCell::new(Token::new(TokenType::Eof, "")),
@@ -87,7 +87,7 @@ impl Parser {
     }
 
     // This method is used to build the AST.
-    fn parse(&self) {
+    fn parse(&mut self) {
         while self.cur_token.borrow().token_type() != &TokenType::Eof {
             match self.parse_statement() {
                 Some(statement) => {

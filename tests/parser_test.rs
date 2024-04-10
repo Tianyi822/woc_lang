@@ -15,10 +15,10 @@ mod parser_test {
 
         let p = Parser::new(input);
 
-        if p.program().statements.borrow().len() != 6 {
+        if p.program().statements.len() != 6 {
             panic!(
                 "parser.program().statements does not contain 5 statements. got = {}",
-                p.program().statements.borrow().len()
+                p.program().statements.len()
             );
         }
 
@@ -32,7 +32,7 @@ mod parser_test {
         ];
 
         let mut i = 0;
-        for stmt in p.program().statements.borrow().iter() {
+        for stmt in p.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -50,17 +50,17 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 1 {
+        if parser.program().statements.len() != 1 {
             panic!(
                 "parser.program().statements does not contain 1 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
 
         // Assert the statement is an FnExp.
         let results = vec!["func add (x, y) { (x + y); }"];
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -78,17 +78,17 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 1 {
+        if parser.program().statements.len() != 1 {
             panic!(
                 "parser.program().statements does not contain 1 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
 
         // Assert the statement is an IfElseIfExp.
         let results = vec!["if (x < y) { x; y; z; } else if (x > y) { a; b; c; } else if (x == y) { d; e; f; } else { g; h; i; }"];
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -106,17 +106,17 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 1 {
+        if parser.program().statements.len() != 1 {
             panic!(
                 "parser.program().statements does not contain 1 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
 
         // Assert the statement is an IfElseExp.
         let results = vec!["if (x < y) { x; y; z; } else { a; b; c; }"];
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -134,17 +134,17 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 1 {
+        if parser.program().statements.len() != 1 {
             panic!(
                 "parser.program().statements does not contain 1 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
 
         // Assert the statement is an IfExp.
         let results = vec!["if (x < y) { x; y; z; }"];
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -191,7 +191,7 @@ mod parser_test {
             let expected = tt.1;
 
             let parser = Parser::new(input);
-            for stmt in parser.program().statements.borrow().iter() {
+            for stmt in parser.program().statements.iter() {
                 let exp = stmt.to_string();
                 assert_eq!(exp, expected, "expected={}, got={}", expected, exp);
             }
@@ -233,7 +233,7 @@ mod parser_test {
         ];
 
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -254,7 +254,7 @@ mod parser_test {
         // "-15;" was parsed as a IntegerNum token, so it will not be parsed as a number expression.
         let results = vec!["(!5)", "-15", "(-x)"];
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -272,10 +272,10 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 1 {
+        if parser.program().statements.len() != 1 {
             panic!(
                 "parser.program().statements does not contain 1 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
     }
@@ -291,17 +291,17 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 4 {
+        if parser.program().statements.len() != 4 {
             panic!(
                 "parser.program().statements does not contain 4 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
 
         let results = vec!["5", "10", "5.1", "10"];
 
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -323,17 +323,17 @@ mod parser_test {
 
         let parser = Parser::new(input);
 
-        if parser.program().statements.borrow().len() != 3 {
+        if parser.program().statements.len() != 3 {
             panic!(
                 "parser.program().statements does not contain 3 statements. got = {}",
-                parser.program().statements.borrow().len()
+                parser.program().statements.len()
             );
         }
 
         let results = vec!["return 5;", "return 10;", "return 993322;"];
 
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(
@@ -358,7 +358,7 @@ mod parser_test {
         let results = vec!["let x = 5;", "let y = 10;", "let foobar = 838383;"];
 
         let mut i = 0;
-        for stmt in parser.program().statements.borrow().iter() {
+        for stmt in parser.program().statements.iter() {
             let exp = stmt.to_string();
             if exp != results[i] {
                 panic!(

@@ -16,7 +16,7 @@ mod ast_test {
             ))),
         );
 
-        let program = Program::new();
+        let mut program = Program::new();
         program.push(Box::new(let_stat));
 
         assert_eq!(program.to_string(), "let myVar = anotherVar;");
