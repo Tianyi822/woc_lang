@@ -1,24 +1,24 @@
-use crate::lexer::state::State;
-use crate::token::token::{Token, TokenType};
 use std::cell::{Cell, RefCell};
 
-#[derive(Debug)]
+use crate::lexer::state::State;
+use crate::token::token::{Token, TokenType};
+
 pub struct Lexer {
     // Command what user input.
     command: Vec<char>,
 
     // Start index of token in command.
-    start_index: RefCell<usize>,
+    start_index: Cell<usize>,
 
     // Current index of token vector.
-    cur_index: RefCell<usize>,
+    cur_index: Cell<usize>,
 
     // Store the tokens that are parsed.
     tokens: RefCell<Vec<Token>>,
 
     // This is a key field to show the state about lexer at now.
     // It's used to define the type of the token currently.
-    cur_state: RefCell<State>,
+    cur_state: Cell<State>,
 
     // Current index of token vector.
     // This field is used to iterate the tokens.
@@ -30,10 +30,10 @@ impl Lexer {
     pub fn new(command: &str) -> Lexer {
         let l = Lexer {
             command: command.chars().collect(),
-            start_index: RefCell::new(0),
-            cur_index: RefCell::new(0),
+            start_index: Cell::new(0),
+            cur_index: Cell::new(0),
             tokens: RefCell::new(Vec::new()),
-            cur_state: RefCell::new(State::StartState),
+            cur_state: Cell::new(State::StartState),
             position: Cell::new(0),
         };
 
@@ -88,7 +88,7 @@ impl Lexer {
         // Iterate the command char by char.
         for (index, c) in self.command.iter().enumerate() {
             // Update self.cur_index.
-            *self.cur_index.borrow_mut() = index;
+            self.cur_index.set(index);
 
             // If the char is blank, we need to store the token and transform the state.
             if c.is_whitespace() {
@@ -96,7 +96,7 @@ impl Lexer {
                 continue;
             }
 
-            let state = self.cur_state.borrow().clone();
+            let state = self.cur_state.get();
             match state {
                 State::StartState => self.trans_state(c),
 
@@ -665,25 +665,25 @@ impl Lexer {
         // If the state of lexer is not end, we need to store the last token.
         if !self.cur_state_is(State::EndState) {
             // store the last state
-            let last_state = self.cur_state.borrow().clone();
+            let last_state = self.cur_state.get();
             // Transform the state by current char.
-            self.trans_state(&self.command[*self.cur_index.borrow()]);
+            self.trans_state(&self.command[self.cur_index.get()]);
 
             // If the state is changed, we need to store the current state and recover the last state.
             if !self.cur_state_is(last_state) {
-                let cur_state = self.cur_state.borrow().clone();
+                let cur_state = self.cur_state.get();
                 self.set_state(last_state);
                 self.store_token_and_trans_state();
                 self.set_state(cur_state);
             }
 
             // Store the last token.
-            *self.cur_index.borrow_mut() = self.command.len();
+            self.cur_index.set(self.command.len());
             self.store_token_and_trans_state();
         }
 
         // Add a EOF token to the end for the parser to determine the end of the command.
-        *self.cur_state.borrow_mut() = State::EndState;
+        self.cur_state.set(State::EndState);
         self.tokens
             .borrow_mut()
             .push(Token::new(TokenType::Eof, ""));
@@ -693,15 +693,15 @@ impl Lexer {
     fn store_token_and_trans_state(&self) {
         // Move start index to end index for ready to read next token.
         self.move_start_index_to_next_non_blank_char();
-        if *self.start_index.borrow() >= *self.cur_index.borrow() {
+        if self.start_index.get() >= self.cur_index.get() {
             return;
         }
 
         // Get the literal of token from char vector.
-        let literal: String = self.command[*self.start_index.borrow()..*self.cur_index.borrow()]
+        let literal: String = self.command[self.start_index.get()..self.cur_index.get()]
             .iter()
             .collect();
-        *self.start_index.borrow_mut() = *self.cur_index.borrow();
+        self.start_index.set(self.cur_index.get());
 
         // Match the state to get the token type.
         let token_type = self.trans_to_token_type();
@@ -714,14 +714,14 @@ impl Lexer {
         self.set_state(State::StartState);
 
         // Judge whether the state should be reset or be ended.
-        if *self.start_index.borrow() < self.command.len() {
+        if self.start_index.get() < self.command.len() {
             // Reset lexer state
-            self.trans_state(&self.command[*self.cur_index.borrow()]);
+            self.trans_state(&self.command[self.cur_index.get()]);
         }
     }
 
     fn move_start_index_to_next_non_blank_char(&self) {
-        let mut index = self.start_index.borrow().clone();
+        let mut index = self.start_index.get();
 
         // Move index to next non blank char.
         while index < self.command.len() && self.command[index].is_whitespace() {
@@ -734,7 +734,7 @@ impl Lexer {
             index = self.command.len();
         }
 
-        *self.start_index.borrow_mut() = index;
+        self.start_index.set(index);
     }
 
     // Transform lexer state by the current char.
@@ -875,11 +875,11 @@ impl Lexer {
     }
 
     fn cur_state_is(&self, state: State) -> bool {
-        *self.cur_state.borrow() == state
+        self.cur_state.get() == state
     }
 
     fn set_state(&self, state: State) {
-        *self.cur_state.borrow_mut() = state;
+        self.cur_state.set(state);
     }
 
     fn trans_2_ident_or_store_token(&self, c: &char) {
@@ -891,7 +891,7 @@ impl Lexer {
     }
 
     fn trans_to_token_type(&self) -> TokenType {
-        match *self.cur_state.borrow() {
+        match self.cur_state.get() {
             // =============== single symbols ===============
             State::CommaState => TokenType::Comma,
             State::DotState => TokenType::Dot,
