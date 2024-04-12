@@ -6,7 +6,7 @@ pub mod statements;
 /// In contrast, the new AST version 2 utilizes enums to represent different types of nodes, eliminating the need for frequent runtime type checks and thus enhancing efficiency.
 /// The new AST version 2 also provides a more straightforward and concise implementation, making it easier to understand and maintain.
 /// The statement and expression nodes are defined by [`Expression`] enum and [`Statement`] enum, respectively.
-pub enum NodeType {
+pub enum Node {
     Stmt(Statement),
     Exp(Expression),
 }
