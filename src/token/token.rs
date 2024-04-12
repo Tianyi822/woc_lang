@@ -88,16 +88,24 @@ impl Token {
         }
     }
 
+    pub fn is_eof(&self) -> bool {
+        self.token_type == TokenType::Eof
+    }
+
+    pub fn is_semicolon(&self) -> bool {
+        self.token_type == TokenType::Semicolon
+    }
+
+    pub fn eof() -> &'static Token {
+        &EOF_TOKEN
+    }
+
     pub fn literal(&self) -> &str {
         &self.literal
     }
 
     pub fn token_type(&self) -> &TokenType {
         &self.token_type
-    }
-
-    pub fn is_eof(&self) -> bool {
-        self.token_type == TokenType::Eof
     }
 
     pub fn precedence(&self) -> u32 {
@@ -125,4 +133,11 @@ impl Token {
             _ => LEVEL_0,
         }
     }
+}
+
+lazy_static! {
+    static ref EOF_TOKEN: Token = Token {
+        token_type: TokenType::Eof,
+        literal: "".to_string(),
+    };
 }
