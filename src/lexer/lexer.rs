@@ -23,21 +23,19 @@ pub struct Lexer {
 }
 
 /// This is a struct that is used to iterate the tokens.
-pub struct LexerIter {
+pub struct TokensIter {
     tokens: Vec<Rc<Token>>,
-    position: usize,
+    position: Cell<usize>,
 }
 
-impl Iterator for LexerIter {
-    type Item = Rc<Token>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.position >= self.tokens.len() {
+impl TokensIter {
+    pub fn next(&self) -> Option<Rc<Token>> {
+        if self.position.get() >= self.tokens.len() {
             return Some(self.tokens[self.tokens.len() - 1].clone());
         }
 
-        let token = self.tokens[self.position].clone();
-        self.position += 1;
+        let token = self.tokens[self.position.get()].clone();
+        self.position.set(self.position.get() + 1);
 
         Some(token)
     }
@@ -61,10 +59,10 @@ impl Lexer {
 
     /// Creates a new [`LexerIter`].
     /// This is used to iterate the tokens.
-    pub fn iter(self) -> LexerIter {
-        LexerIter {
+    pub fn tokens_iter(self) -> TokensIter {
+        TokensIter {
             tokens: self.tokens.into_inner(),
-            position: 0,
+            position: Cell::new(0),
         }
     }
 

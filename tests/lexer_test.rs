@@ -10,6 +10,7 @@ mod lexer_test {
         let input = " ten  &&& ";
 
         let lexer = Lexer::new(input);
+        let tokens_iter = lexer.tokens_iter();
 
         let tokens = vec![
             Token::new(TokenType::Ident, "ten"),
@@ -18,14 +19,10 @@ mod lexer_test {
             Token::new(TokenType::Eof, ""),
         ];
 
-        let mut i = 0;
-        for token in lexer.iter() {
-            if token.is_eof() {
-                break;
-            }
-            assert_eq!(tokens[i].token_type(), token.token_type());
-            assert_eq!(tokens[i].literal(), token.literal());
-            i += 1;
+        for tok in tokens {
+            let token = tokens_iter.next().unwrap();
+            assert_eq!(*tok.token_type(), *token.token_type());
+            assert_eq!(tok.literal(), token.literal());
         }
     }
 
@@ -34,6 +31,7 @@ mod lexer_test {
         let input: &str = "10 1_000 1.0 1_000.0 99.99";
 
         let lexer = Lexer::new(input);
+        let tokens_iter = lexer.tokens_iter();
 
         let tokens = vec![
             Token::new(TokenType::IntegerNum, "10"),
@@ -44,14 +42,10 @@ mod lexer_test {
             Token::new(TokenType::Eof, ""),
         ];
 
-        let mut i = 0;
-        for token in lexer.iter() {
-            if token.is_eof() {
-                break;
-            }
-            assert_eq!(*tokens[i].token_type(), *token.token_type());
-            assert_eq!(tokens[i].literal(), token.literal());
-            i += 1;
+        for tok in tokens {
+            let token = tokens_iter.next().unwrap();
+            assert_eq!(*tok.token_type(), *token.token_type());
+            assert_eq!(tok.literal(), token.literal());
         }
     }
 
@@ -60,6 +54,7 @@ mod lexer_test {
         let input: &str = "-10 -1_000 -1.0 -1_000.0 -99.99";
 
         let lexer = Lexer::new(input);
+        let tokens_iter = lexer.tokens_iter();
 
         let tokens = vec![
             Token::new(TokenType::IntegerNum, "-10"),
@@ -70,14 +65,10 @@ mod lexer_test {
             Token::new(TokenType::Eof, ""),
         ];
 
-        let mut i = 0;
-        for token in lexer.iter() {
-            if token.is_eof() {
-                break;
-            }
-            assert_eq!(*tokens[i].token_type(), *token.token_type());
-            assert_eq!(tokens[i].literal(), token.literal());
-            i += 1;
+        for tok in tokens {
+            let token = tokens_iter.next().unwrap();
+            assert_eq!(*tok.token_type(), *token.token_type());
+            assert_eq!(tok.literal(), token.literal());
         }
     }
 
@@ -89,6 +80,7 @@ mod lexer_test {
             ";
 
         let lexer = Lexer::new(input);
+        let tokens_iter = lexer.tokens_iter();
 
         let tokens = vec![
             Token::new(TokenType::If, "if"),
@@ -104,14 +96,10 @@ mod lexer_test {
             Token::new(TokenType::Eof, ""),
         ];
 
-        let mut i = 0;
-        for token in lexer.iter() {
-            if token.is_eof() {
-                break;
-            }
-            assert_eq!(*tokens[i].token_type(), *token.token_type());
-            assert_eq!(tokens[i].literal(), token.literal());
-            i += 1;
+        for tok in tokens {
+            let token = tokens_iter.next().unwrap();
+            assert_eq!(*tok.token_type(), *token.token_type());
+            assert_eq!(tok.literal(), token.literal());
         }
     }
 
@@ -139,6 +127,7 @@ mod lexer_test {
         ";
 
         let lexer = Lexer::new(input);
+        let tokens_iter = lexer.tokens_iter();
 
         let tokens = vec![
             Token::new(TokenType::Let, "let"),
@@ -232,14 +221,10 @@ mod lexer_test {
             Token::new(TokenType::Eof, ""),
         ];
 
-        let mut i = 0;
-        for token in lexer.iter() {
-            if token.is_eof() {
-                break;
-            }
-            assert_eq!(*tokens[i].token_type(), *token.token_type());
-            assert_eq!(tokens[i].literal(), token.literal());
-            i += 1;
+        for tok in tokens {
+            let token = tokens_iter.next().unwrap();
+            assert_eq!(*tok.token_type(), *token.token_type());
+            assert_eq!(tok.literal(), token.literal());
         }
     }
 }
