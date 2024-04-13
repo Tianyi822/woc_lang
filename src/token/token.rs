@@ -96,10 +96,6 @@ impl Token {
         self.token_type == TokenType::Semicolon
     }
 
-    pub fn eof() -> &'static Token {
-        &EOF_TOKEN
-    }
-
     pub fn literal(&self) -> &str {
         &self.literal
     }
@@ -133,11 +129,4 @@ impl Token {
             _ => LEVEL_0,
         }
     }
-}
-
-lazy_static! {
-    static ref EOF_TOKEN: Token = Token {
-        token_type: TokenType::Eof,
-        literal: "".to_string(),
-    };
 }
