@@ -1,4 +1,5 @@
 use std::cell::{Cell, RefCell};
+use std::rc::Rc;
 
 use crate::lexer::state::State;
 use crate::token::token::{Token, TokenType};
@@ -14,15 +15,32 @@ pub struct Lexer {
     cur_index: Cell<usize>,
 
     // Store the tokens that are parsed.
-    tokens: RefCell<Vec<Token>>,
+    tokens: RefCell<Vec<Rc<Token>>>,
 
     // This is a key field to show the state about lexer at now.
     // It's used to define the type of the token currently.
     cur_state: Cell<State>,
+}
 
-    // Current index of token vector.
-    // This field is used to iterate the tokens.
-    position: Cell<usize>,
+/// This is a struct that is used to iterate the tokens.
+pub struct LexerIter {
+    tokens: Vec<Rc<Token>>,
+    position: usize,
+}
+
+impl Iterator for LexerIter {
+    type Item = Rc<Token>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.position >= self.tokens.len() {
+            return Some(self.tokens[self.tokens.len() - 1].clone());
+        }
+
+        let token = self.tokens[self.position].clone();
+        self.position += 1;
+
+        Some(token)
+    }
 }
 
 impl Lexer {
@@ -34,7 +52,6 @@ impl Lexer {
             cur_index: Cell::new(0),
             tokens: RefCell::new(Vec::new()),
             cur_state: Cell::new(State::StartState),
-            position: Cell::new(0),
         };
 
         l.analyze_command();
@@ -42,45 +59,18 @@ impl Lexer {
         l
     }
 
-    // Get the tokens by range.
-    pub fn joint_tokens_to_str_by_range(&self, start: i32, end: i32) -> String {
-        let tokens = self.tokens.borrow();
-        let mut result = String::new();
-
-        // Iterate the tokens and get the literal of token.
-        for i in start..end {
-            // If the token is EOF, we need to break the loop, it means the end of the code.
-            if tokens[i as usize].token_type() == &TokenType::Eof {
-                break;
-            }
-
-            result.push_str(tokens[i as usize].literal());
-            if i < end - 1 && tokens[(i + 1) as usize].token_type() != &TokenType::Eof {
-                result.push(' ');
-            }
+    /// Creates a new [`LexerIter`].
+    /// This is used to iterate the tokens.
+    pub fn iter(self) -> LexerIter {
+        LexerIter {
+            tokens: self.tokens.into_inner(),
+            position: 0,
         }
-
-        result
     }
 
     // Clear the lexer data.
     pub fn clear(&self) {
         self.tokens.borrow_mut().clear();
-    }
-
-    // Iterate the tokens.
-    pub fn next_token(&self) -> Token {
-        let tokens = self.tokens.borrow();
-        let position = self.position.get();
-
-        if position >= tokens.len() {
-            return tokens[position - 1].clone();
-        }
-
-        let token = tokens[position].clone();
-        self.position.set(position + 1);
-
-        token
     }
 
     // Analyze the command and generate tokens.
@@ -686,7 +676,7 @@ impl Lexer {
         self.cur_state.set(State::EndState);
         self.tokens
             .borrow_mut()
-            .push(Token::new(TokenType::Eof, ""));
+            .push(Rc::new(Token::new(TokenType::Eof, "")));
     }
 
     // Store token and transform state.
@@ -708,7 +698,7 @@ impl Lexer {
 
         self.tokens
             .borrow_mut()
-            .push(Token::new(token_type, &literal));
+            .push(Rc::new(Token::new(token_type, &literal)));
 
         // Reset the state of lexer.
         self.set_state(State::StartState);
