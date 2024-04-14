@@ -76,12 +76,12 @@ impl Parser {
     fn parse_code(&self) -> Option<Node> {
         let cur_tok = self.get_cur_token();
         match cur_tok.token_type() {
-            TokenType::Let => match self.parse_let_stmt() {
+            TokenType::Let => return match self.parse_let_stmt() {
                 Some(let_stmt) => {
                     let node = Node::Stmt(Statement::Let(let_stmt));
-                    return Some(node);
+                    Some(node)
                 }
-                None => return None,
+                None => None,
             },
             TokenType::Return => {
                 self.parse_return_stmt();
