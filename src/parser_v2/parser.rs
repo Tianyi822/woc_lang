@@ -1,13 +1,13 @@
 use std::cell::{Cell, RefCell};
+use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::ast_v2::Statement;
-use crate::lexer::lexer::TokensIter;
-use crate::{
-    ast_v2::Node,
-    lexer::lexer::Lexer,
-    token::token::{Token, TokenType},
-};
+use crate::ast_v2::{Expression, Node, Statement};
+use crate::lexer::lexer::{Lexer, TokensIter};
+use crate::token::precedence::{LEVEL_0, Precedence};
+use crate::token::token::{Token, TokenType};
+
+use super::{InfixParseFn, PrefixParseFn};
 
 pub struct Parser {
     // The lexer that will generate tokens.
@@ -28,6 +28,10 @@ pub struct Parser {
 
     // Collect errors that occur during parsing.
     errors: RefCell<Vec<String>>,
+
+    // The prefix and infix parsing functions.
+    prefix_parse_fns: RefCell<HashMap<TokenType, PrefixParseFn>>,
+    infix_parse_fns: RefCell<HashMap<TokenType, InfixParseFn>>,
 }
 
 impl Parser {
@@ -40,15 +44,32 @@ impl Parser {
             cmd_cur_index: Cell::new(0),
             programs: RefCell::new(Vec::new()),
             errors: RefCell::new(Vec::new()),
+            prefix_parse_fns: RefCell::new(HashMap::new()),
+            infix_parse_fns: RefCell::new(HashMap::new()),
         };
 
         // Initialize the current and peek tokens.
         parser.next_token();
         parser.next_token();
 
+        // Register the prefix and infix parsing functions.
+        parser.register_parse_functions();
+
         parser.parse();
 
         parser
+    }
+
+    // This method is used to register the prefix parsing functions.
+    // For example: !true; -5; etc.
+    pub(super) fn register_prefix(&self, token_type: TokenType, func: PrefixParseFn) {
+        self.prefix_parse_fns.borrow_mut().insert(token_type, func);
+    }
+
+    // This method is used to register the prefix parsing functions.
+    // For example: 5 + 5; 5 * 5; etc.
+    pub(super) fn register_infix(&self, token_type: TokenType, func: InfixParseFn) {
+        self.infix_parse_fns.borrow_mut().insert(token_type, func);
     }
 
     /// Get AST from the parser.
@@ -67,6 +88,7 @@ impl Parser {
             match self.parse_code() {
                 Some(statement) => {
                     self.programs.borrow_mut().push(statement);
+                    self.next_token();
                 }
                 None => self.next_token(),
             }
@@ -76,23 +98,105 @@ impl Parser {
     fn parse_code(&self) -> Option<Node> {
         let cur_tok = self.get_cur_token();
         match cur_tok.token_type() {
-            TokenType::Let => return match self.parse_let_stmt() {
-                Some(let_stmt) => {
-                    let node = Node::Stmt(Statement::Let(let_stmt));
-                    Some(node)
+            TokenType::Let => {
+                return match self.parse_let_stmt() {
+                    Some(let_stmt) => {
+                        let node = Node::Stmt(Statement::Let(let_stmt));
+                        Some(node)
+                    }
+                    None => None,
+                };
+            }
+            TokenType::Return => {
+                return match self.parse_return_stmt() {
+                    Some(return_stmt) => {
+                        let node = Node::Stmt(Statement::Return(return_stmt));
+                        Some(node)
+                    }
+                    None => None,
+                };
+            }
+            TokenType::Ident
+            | TokenType::IntegerNum
+            | TokenType::FloatNum
+            | TokenType::Not
+            | TokenType::Minus => match self.parse_expression(LEVEL_0) {
+                Some(exp) => {
+                    let node = Node::Exp(exp);
+                    return Some(node);
                 }
                 None => None,
             },
-            TokenType::Return => {
-                self.parse_return_stmt();
-                return None;
+            TokenType::Eof | TokenType::Semicolon => None,
+            _ => {
+                self.store_error("There is no such statement that starts with this token.");
+                None
             }
-            _ => None,
         }
     }
 
     pub(super) fn get_cur_token(&self) -> Rc<Token> {
         self.cur_token.borrow().clone()
+    }
+
+    /// This method is the cornerstone of the syntax parser, and indeed, the entire Pratt parser. In parsing expressions,
+    /// operator precedence is utilized for assistance.
+    /// The `precedence` indicates right associativity; the higher the precedence, the stronger the right associativity.
+    /// To put it more colloquially, the larger this value is, the more it can "cling" to the expression on the right
+    /// and form a new expression. For example: 1 + 2 + 3,
+    /// the precedence of the first '+' is higher than the numeric literal 2, hence 1 + 2 forms a new expression (1 + 2),
+    /// then, the precedence of the second '+' is higher than the numeric literal 3,
+    /// thus (1 + 2) combines with 3 through the second '+' to become ((1 + 2) + 3).
+    /// Right associativity in the parsing process allows the token on the right to stay as close as possible to the current token,
+    /// which is an alternative implementation of left recursion.
+    /// The reason for using left recursion is to avoid symbol transformation that occurs with right recursion,
+    /// For instance: x - y - z, using right recursion would transform it into (x - (y + z)), while using left recursion results in ((x - y) - z),
+    /// This avoids semantic issues in the code after parsing is complete, even though the syntax is correct.
+    pub(super) fn parse_expression(&self, precedence: Precedence) -> Option<Expression> {
+        // temporary value is freed at the end of this statement,
+        // so we need to store a borrow of it in a variable
+        let binding = self.prefix_parse_fns.borrow();
+        let prefix_func = binding.get(self.cur_token.borrow().token_type());
+
+        // Check if the prefix parsing function exists.
+        if prefix_func.is_none() {
+            let msg = format!(
+                "no prefix parse function for `{:?}` found",
+                self.cur_token.borrow().token_type()
+            );
+            self.store_error(&msg);
+            return None;
+        }
+        // Call the prefix parsing function to get corresponding AST node.
+        let mut left = prefix_func.unwrap()(self);
+
+        // Determine whether it's necessary to parse an infix expression.
+        // The step `precedence < self.peek_precedence()` is crucial. For example: 5 + 5,
+        // when the first '5' comes in, it's passed with the LOWEST precedence, which is the lowest priority,
+        // then, `self.peek_token` becomes '+', and the next token's precedence is obtained through `peek_precedence()`,
+        // which is then compared with the passed-in precedence to decide whether right associativity is needed,
+        // the precedence of '+' is obviously higher than the LOWEST, therefore, this if branch is entered.
+        while !self.peek_tok_is(&TokenType::Semicolon) && precedence < self.peek_precedence() {
+            let binding = self.infix_parse_fns.borrow();
+            let infix_func = binding.get(self.peek_token.borrow().token_type());
+
+            // Call the infix parsing function to get corresponding AST node.
+            if infix_func.is_none() {
+                return left;
+            }
+            self.next_token();
+            left = infix_func.unwrap()(self, left.unwrap());
+        }
+
+        left
+    }
+
+    fn peek_precedence(&self) -> u32 {
+        self.peek_token.borrow().precedence()
+    }
+
+    pub(super) fn cur_precedence(&self) -> u32 {
+        self.cur_token.borrow().precedence()
     }
 
     pub(super) fn cur_token_is(&self, token_type: &TokenType) -> bool {
@@ -135,7 +239,8 @@ impl Parser {
     }
 
     /// Update the [`cur_token`] and [`peek_token`].
-    pub(super) fn next_token(&self) {// The current token is EOF means the peek token is also EOF.
+    pub(super) fn next_token(&self) {
+        // The current token is EOF means the peek token is also EOF.
         // So is no need to update the tokens.
         if (*self.cur_token.borrow()).is_eof() {
             return;
