@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use super::{expressions::IdentifierExp, Expression};
+use super::{Expression, expressions::IdentifierExp, Node};
 
 /// Let statement is a statement that binds a value to a name.
 /// For example: let x = 822;
@@ -53,6 +53,7 @@ impl Display for LetStatement {
     }
 }
 
+/// Return statement is a statement that returns a value from a function.
 pub struct ReturnStatement {
     value: Option<Expression>,
 }
@@ -90,6 +91,105 @@ impl Display for ReturnStatement {
             }
             None => {
                 write!(f, "return;")
+            }
+        }
+    }
+}
+
+/// Block statement is a statement that groups multiple statements together.
+pub struct BlockStatement {
+    statements: Vec<Box<Node>>,
+}
+
+impl BlockStatement {
+    pub fn new() -> Self {
+        Self {
+            statements: Vec::new(),
+        }
+    }
+
+    /// Get the statements in the block statement.
+    pub fn statements(&self) -> &Vec<Box<Node>> {
+        &self.statements
+    }
+
+    /// Add a statement to the block statement.
+    pub fn add(&mut self, stmt: Box<Node>) {
+        self.statements.push(stmt);
+    }
+}
+
+impl Debug for BlockStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let stmts = self.statements.iter().map(|stmt| format!("{:?}", stmt)).collect::<Vec<String>>().join(" ");
+
+        write!(f, "{{{}}}", stmts)
+    }
+}
+
+impl Display for BlockStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let stmts = self.statements.iter().map(|stmt| format!("{:?}", stmt)).collect::<Vec<String>>().join(" ");
+
+        write!(f, "{{{}}}", stmts)
+    }
+}
+
+/// Function statement is a statement that defines a function.
+/// For example: fn add(x, y) { return x + y; }
+pub struct FuncStatement {
+    ident: IdentifierExp,
+    params: Option<Vec<IdentifierExp>>,
+    body: BlockStatement,
+}
+
+impl FuncStatement {
+    pub fn new(ident: IdentifierExp, params: Option<Vec<IdentifierExp>>, body: BlockStatement) -> Self {
+        Self { ident, params, body }
+    }
+
+    /// Get the name of the function statement.
+    /// For example: fn add(x, y) { return x + y; } -> add
+    pub fn name(&self) -> &str {
+        self.ident.value()
+    }
+
+    /// Get the parameters of the function statement.
+    /// For example: fn add(x, y) { return x + y; } -> x, y
+    pub fn params(&self) -> Option<&Vec<IdentifierExp>> {
+        self.params.as_ref()
+    }
+
+    /// Get the body of the function statement.
+    /// For example: fn add(x, y) { return x + y; } -> { return x + y; }
+    pub fn body(&self) -> &BlockStatement {
+        &self.body
+    }
+}
+
+impl Debug for FuncStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.params {
+            Some(params) => {
+                let params_str = params.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ");
+                write!(f, "func {}({}) {:?}", self.ident, params_str, self.body)
+            }
+            None => {
+                write!(f, "func {}() {:?}", self.ident, self.body)
+            }
+        }
+    }
+}
+
+impl Display for FuncStatement {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.params {
+            Some(params) => {
+                let params_str = params.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ");
+                write!(f, "func {}({}) {:?}", self.ident, params_str, self.body)
+            }
+            None => {
+                write!(f, "func {}() {:?}", self.ident, self.body)
             }
         }
     }

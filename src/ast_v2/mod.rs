@@ -45,15 +45,23 @@ impl Display for Node {
 pub enum Expression {
     Identifier(expressions::IdentifierExp),
     Num(expressions::NumExp),
+    Boolean(expressions::BooleanExp),
+    If(expressions::IfExp),
+    Call(expressions::CallExp),
     Prefix(expressions::PrefixExp),
+    Infix(expressions::InfixExp),
 }
 
-impl Debug for Expression{
+impl Debug for Expression {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Expression::Identifier(ident) => write!(f, "{:?}", ident),
             Expression::Num(num) => write!(f, "{:?}", num),
+            Expression::Boolean(bool_exp) => write!(f, "{:?}", bool_exp),
+            Expression::If(if_exp) => write!(f, "{:?}", if_exp),
+            Expression::Call(call_exp) => write!(f, "{:?}", call_exp),
             Expression::Prefix(pre_exp) => write!(f, "{:?}", pre_exp),
+            Expression::Infix(infix_exp) => write!(f, "{:?}", infix_exp),
         }
     }
 }
@@ -63,7 +71,11 @@ impl Display for Expression {
         match self {
             Expression::Identifier(ident) => write!(f, "{}", ident),
             Expression::Num(num) => write!(f, "{}", num),
+            Expression::Boolean(bool_exp) => write!(f, "{}", bool_exp),
+            Expression::If(if_exp) => write!(f, "{}", if_exp),
+            Expression::Call(call_exp) => write!(f, "{}", call_exp),
             Expression::Prefix(pre_exp) => write!(f, "{}", pre_exp),
+            Expression::Infix(infix_exp) => write!(f, "{}", infix_exp),
         }
     }
 }
@@ -75,6 +87,8 @@ impl Display for Expression {
 pub enum Statement {
     Let(statements::LetStatement),
     Return(statements::ReturnStatement),
+    Block(statements::BlockStatement),
+    Func(statements::FuncStatement),
 }
 
 impl Debug for Statement {
@@ -82,6 +96,8 @@ impl Debug for Statement {
         match self {
             Statement::Let(let_stmt) => write!(f, "{:?}", let_stmt),
             Statement::Return(return_stmt) => write!(f, "{:?}", return_stmt),
+            Statement::Block(block_stmt) => write!(f, "{:?}", block_stmt),
+            Statement::Func(func_stmt) => write!(f, "{:?}", func_stmt),
         }
     }
 }
@@ -91,6 +107,8 @@ impl Display for Statement {
         match self {
             Statement::Let(let_stmt) => write!(f, "{}", let_stmt),
             Statement::Return(return_stmt) => write!(f, "{}", return_stmt),
+            Statement::Block(block_stmt) => write!(f, "{}", block_stmt),
+            Statement::Func(func_stmt) => write!(f, "{}", func_stmt),
         }
     }
 }

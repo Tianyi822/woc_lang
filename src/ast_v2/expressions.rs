@@ -1,6 +1,9 @@
-use std::{fmt::{Debug, Display}, str};
+use std::{
+    fmt::{Debug, Display},
+    str,
+};
 
-use super::Expression;
+use super::{Expression, statements::BlockStatement};
 
 /// The identifier expression represents a variable or function name.
 /// It distinguishes itself from the implementation in the previous version by removing the token field,
@@ -74,6 +77,217 @@ impl Display for NumExp {
     }
 }
 
+/// The boolean expression represents a boolean value.
+pub struct BooleanExp {
+    value: bool,
+}
+
+impl BooleanExp {
+    pub fn new(value: bool) -> Self {
+        Self { value }
+    }
+
+    pub fn value(&self) -> bool {
+        self.value
+    }
+}
+
+impl Debug for BooleanExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.value)
+    }
+}
+
+impl Display for BooleanExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
+/// The if expression represents the if condition, consequence, and alternative.
+/// For example:
+///
+/// ```
+/// if (x < y) {
+///     return x;
+/// } else {
+///     return y;
+/// }
+/// ```
+pub struct IfExp {
+    condition: Box<Expression>,
+    consequence: BlockStatement,
+    else_exp: Option<ElseExp>,
+}
+
+impl IfExp {
+    pub fn new(
+        condition: Expression,
+        consequence: BlockStatement,
+        else_exp: Option<ElseExp>,
+    ) -> Self {
+        Self {
+            condition: Box::new(condition),
+            consequence,
+            else_exp,
+        }
+    }
+
+    pub fn condition(&self) -> &Expression {
+        &self.condition
+    }
+
+    pub fn consequence(&self) -> &BlockStatement {
+        &self.consequence
+    }
+
+    pub fn else_exp(&self) -> Option<&ElseExp> {
+        self.else_exp.as_ref()
+    }
+}
+
+impl Debug for IfExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.else_exp.is_some() {
+            write!(
+                f,
+                "if {:?} {:?} {:?}",
+                self.condition, self.consequence, self.else_exp
+            )
+        } else {
+            write!(f, "if {:?} {:?}", self.condition, self.consequence)
+        }
+    }
+}
+
+impl Display for IfExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.else_exp.is_some() {
+            write!(
+                f,
+                "if {} {} {}",
+                self.condition,
+                self.consequence,
+                self.else_exp.as_ref().unwrap()
+            )
+        } else {
+            write!(f, "if {} {}", self.condition, self.consequence)
+        }
+    }
+}
+
+/// The else expression represents the if expression and the consequence.
+/// For example:
+///
+/// ```
+/// if (x < y) {
+///     return x;
+/// } else {
+///     return y;
+/// }
+/// ```
+pub struct ElseExp {
+    if_exp: Option<Box<Expression>>,
+    consequence: Option<BlockStatement>,
+}
+
+impl ElseExp {
+    pub fn new(if_exp: Option<Box<Expression>>, consequence: Option<BlockStatement>) -> Self {
+        Self {
+            if_exp: if_exp,
+            consequence: consequence,
+        }
+    }
+
+    pub fn if_exp(&self) -> Option<&Expression> {
+        self.if_exp.as_ref().map(|exp| &**exp)
+    }
+
+    pub fn consequence(&self) -> Option<&BlockStatement> {
+        self.consequence.as_ref()
+    }
+}
+
+impl Debug for ElseExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.if_exp.is_some() {
+            write!(
+                f,
+                "else {:?}",
+                self.if_exp.as_ref().unwrap(),
+            )
+        } else {
+            write!(f, "else {:?}", self.consequence.as_ref().unwrap())
+        }
+    }
+}
+
+impl Display for ElseExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        if self.if_exp.is_some() {
+            write!(
+                f,
+                "else {}",
+                self.if_exp.as_ref().unwrap(),
+            )
+        } else {
+            write!(f, "else {}", self.consequence.as_ref().unwrap())
+        }
+    }
+}
+
+/// The call expression represents the function and the arguments.
+///
+/// For example:
+///
+/// ```
+/// add(1, 2)
+/// ```
+pub struct CallExp {
+    function: Box<Expression>,
+    arguments: Vec<Expression>,
+}
+
+impl CallExp {
+    pub fn new(function: Expression, arguments: Vec<Expression>) -> Self {
+        Self {
+            function: Box::new(function),
+            arguments,
+        }
+    }
+
+    pub fn function(&self) -> &Expression {
+        &self.function
+    }
+
+    pub fn arguments(&self) -> &Vec<Expression> {
+        &self.arguments
+    }
+}
+
+impl Debug for CallExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}({:?})", self.function, self.arguments)
+    }
+}
+
+impl Display for CallExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}({})",
+            self.function,
+            self.arguments
+                .iter()
+                .map(|arg| arg.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        )
+    }
+}
+
+/// The prefix expression represents the prefix operator and the right expression.
+/// For example, !x, -y, !true, -false
 pub struct PrefixExp {
     operator: String,
     right: Box<Expression>,
@@ -81,7 +295,10 @@ pub struct PrefixExp {
 
 impl PrefixExp {
     pub fn new(operator: String, right: Expression) -> Self {
-        Self { operator, right: Box::new(right)}
+        Self {
+            operator,
+            right: Box::new(right),
+        }
     }
 
     pub fn operator(&self) -> &str {
@@ -95,12 +312,53 @@ impl PrefixExp {
 
 impl Debug for PrefixExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}{:?})", self.operator, self.right)
+        write!(f, "{}{:?}", self.operator, self.right)
     }
 }
 
 impl Display for PrefixExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({}{})", self.operator, self.right)
+        write!(f, "{}{}", self.operator, self.right)
+    }
+}
+
+/// The infix expression represents the left expression, operator, and right expression.
+pub struct InfixExp {
+    left: Box<Expression>,
+    operator: String,
+    right: Box<Expression>,
+}
+
+impl InfixExp {
+    pub fn new(left: Expression, operator: String, right: Expression) -> Self {
+        Self {
+            left: Box::new(left),
+            operator,
+            right: Box::new(right),
+        }
+    }
+
+    pub fn left(&self) -> &Expression {
+        &self.left
+    }
+
+    pub fn operator(&self) -> &str {
+        &self.operator
+    }
+
+    pub fn right(&self) -> &Expression {
+        &self.right
+    }
+}
+
+impl Debug for InfixExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({:?} {} {:?})", self.left, self.operator, self.right)
+    }
+}
+
+impl Display for InfixExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({} {} {})", self.left, self.operator, self.right)
     }
 }
