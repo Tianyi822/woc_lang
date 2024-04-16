@@ -1,7 +1,5 @@
 use std::io::{self, Write as _};
 
-use crate::parser::parser::Parser;
-
 pub fn run() {
     loop {
         print!("> ");
@@ -15,17 +13,17 @@ pub fn run() {
             break;
         }
 
-        let p = Parser::new(&input);
+        // let p = Parser::new(&input);
 
-        if p.errors().len() > 0 {
-            for error in p.errors().iter() {
-                println!("error: {}", error);
-            }
-            continue;
-        }
+        // if p.errors().len() > 0 {
+        //     for error in p.errors().iter() {
+        //         println!("error: {}", error);
+        //     }
+        //     continue;
+        // }
 
-        for stmt in p.program().statements.iter() {
-            println!("{}", stmt.to_string());
-        }
+        // for stmt in p.program().statements.iter() {
+        //     println!("{}", stmt.to_string());
+        // }
     }
 }

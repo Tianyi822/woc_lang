@@ -4,7 +4,7 @@ use std::rc::Rc;
 
 use crate::ast_v2::{Expression, Node, Statement};
 use crate::lexer::lexer::{Lexer, TokensIter};
-use crate::token::precedence::{LEVEL_0, Precedence};
+use crate::token::precedence::*;
 use crate::token::token::{Token, TokenType};
 
 use super::{InfixParseFn, PrefixParseFn};
@@ -95,32 +95,24 @@ impl Parser {
         }
     }
 
-    fn parse_code(&self) -> Option<Node> {
+    pub(super) fn parse_code(&self) -> Option<Node> {
         let cur_tok = self.get_cur_token();
         match cur_tok.token_type() {
-            TokenType::Let => {
-                return match self.parse_let_stmt() {
-                    Some(let_stmt) => {
-                        let node = Node::Stmt(Statement::Let(let_stmt));
-                        Some(node)
-                    }
-                    None => None,
-                };
-            }
-            TokenType::Return => {
-                return match self.parse_return_stmt() {
-                    Some(return_stmt) => {
-                        let node = Node::Stmt(Statement::Return(return_stmt));
-                        Some(node)
-                    }
+            TokenType::Let | TokenType::Return | TokenType::LeftBrace | TokenType::Func => {
+                return match self.parse_stmt() {
+                    Some(stmt) => Some(stmt),
                     None => None,
                 };
             }
             TokenType::Ident
             | TokenType::IntegerNum
             | TokenType::FloatNum
+            | TokenType::True
+            | TokenType::False
             | TokenType::Not
-            | TokenType::Minus => match self.parse_expression(LEVEL_0) {
+            | TokenType::Minus
+            | TokenType::LeftParen
+            | TokenType::If => match self.parse_expression(LEVEL_0) {
                 Some(exp) => {
                     let node = Node::Exp(exp);
                     return Some(node);
@@ -137,6 +129,43 @@ impl Parser {
 
     pub(super) fn get_cur_token(&self) -> Rc<Token> {
         self.cur_token.borrow().clone()
+    }
+
+    fn parse_stmt(&self) -> Option<Node> {
+        match self.get_cur_token().token_type() {
+            TokenType::Let => match self.parse_let_stmt() {
+                Some(let_stmt) => {
+                    let node = Node::Stmt(Statement::Let(let_stmt));
+                    Some(node)
+                }
+                None => None,
+            },
+            TokenType::Return => match self.parse_return_stmt() {
+                Some(return_stmt) => {
+                    let node = Node::Stmt(Statement::Return(return_stmt));
+                    Some(node)
+                }
+                None => None,
+            },
+            TokenType::LeftBrace => match self.parse_block_stmt() {
+                Some(block_stmt) => {
+                    let node = Node::Stmt(Statement::Block(block_stmt));
+                    Some(node)
+                }
+                None => None,
+            },
+            TokenType::Func => match self.parse_func_stmt() {
+                Some(func_stmt) => {
+                    let node = Node::Stmt(Statement::Func(func_stmt));
+                    Some(node)
+                }
+                None => None,
+            },
+            _ => {
+                self.store_error("There is no such statement that starts with this token.");
+                None
+            }
+        }
     }
 
     /// This method is the cornerstone of the syntax parser, and indeed, the entire Pratt parser. In parsing expressions,
@@ -199,7 +228,7 @@ impl Parser {
         self.cur_token.borrow().precedence()
     }
 
-    pub(super) fn cur_token_is(&self, token_type: &TokenType) -> bool {
+    pub(super) fn cur_tok_is(&self, token_type: &TokenType) -> bool {
         self.cur_token.borrow().token_type() == token_type
     }
 

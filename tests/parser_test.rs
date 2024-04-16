@@ -1,384 +1,233 @@
 #[cfg(test)]
 mod parser_test {
-    use woc_lang::parser::parser::Parser;
+    use woc_lang::parser_v2::parser::Parser;
 
     #[test]
-    fn test_call_expression() {
-        let input = "
-            add(1, 2 * 3, 4 + 5);
-            add(1, 2); 
-            add(1);
-            add();
-            add(x, y);
-            add(x, y, 1);
-        ";
-
-        let p = Parser::new(input);
-        let program = p.program();
-
-        if program.statements.len() != 6 {
-            panic!(
-                "program.statements does not contain 5 statements. got = {}",
-                program.statements.len()
-            );
-        }
-
-        let results = vec![
-            "add(1, (2 * 3), (4 + 5))",
-            "add(1, 2)",
-            "add(1)",
-            "add()",
-            "add(x, y)",
-            "add(x, y, 1)",
-        ];
-
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
-    }
-
-    #[test]
-    fn test_fn_expression() {
-        let input = "func add (x, y) { x + y; }";
+    fn test_parse_let_stmt() {
+        let input = "let x = 822;";
 
         let parser = Parser::new(input);
-        let program = parser.program();
+        let programs = parser.programs();
 
-        if program.statements.len() != 1 {
-            panic!(
-                "program.statements does not contain 1 statements. got = {}",
-                program.statements.len()
-            );
-        }
+        assert_eq!(programs.len(), 1);
 
-        // Assert the statement is an FnExp.
-        let results = vec!["func add (x, y) { (x + y); }"];
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
+        let let_stmt = programs.get(0).unwrap();
+        assert_eq!(let_stmt.to_string(), "let x = 822;");
     }
 
     #[test]
-    fn test_else_if_expression() {
-        let input = "if (x < y) { x; y; z; } else if (x > y) { a; b; c; } else if (x == y) { d; e; f; } else { g; h; i; }";
+    fn test_parse_return_stmt() {
+        let input = "return 822;";
 
         let parser = Parser::new(input);
-        let program = parser.program();
+        let programs = parser.programs();
 
-        if program.statements.len() != 1 {
-            panic!(
-                "program.statements does not contain 1 statements. got = {}",
-                program.statements.len()
-            );
-        }
+        assert_eq!(programs.len(), 1);
 
-        // Assert the statement is an IfElseIfExp.
-        let results = vec!["if (x < y) { x; y; z; } else if (x > y) { a; b; c; } else if (x == y) { d; e; f; } else { g; h; i; }"];
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
+        let return_stmt = programs.get(0).unwrap();
+        assert_eq!(return_stmt.to_string(), "return 822;");
     }
 
     #[test]
-    fn test_if_else_expression() {
-        let input = "if (x < y) { x; y; z; } else { a; b; c; }";
-
-        let parser = Parser::new(input);
-        let program = parser.program();
-
-        if program.statements.len() != 1 {
-            panic!(
-                "program.statements does not contain 1 statements. got = {}",
-                program.statements.len()
-            );
-        }
-
-        // Assert the statement is an IfElseExp.
-        let results = vec!["if (x < y) { x; y; z; } else { a; b; c; }"];
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
-    }
-
-    #[test]
-    fn test_if_expression() {
-        let input = "if (x < y) { x; y; z; }";
-
-        let parser = Parser::new(input);
-        let program = parser.program();
-
-        if program.statements.len() != 1 {
-            panic!(
-                "program.statements does not contain 1 statements. got = {}",
-                program.statements.len()
-            );
-        }
-
-        // Assert the statement is an IfExp.
-        let results = vec!["if (x < y) { x; y; z; }"];
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
-    }
-
-    #[test]
-    fn test_operator_precedence_parsing() {
-        let tests = vec![
-            ("-a * b;", "((-a) * b)"),
-            ("!-a;", "(!(-a))"),
-            ("a + b + c;", "((a + b) + c)"),
-            ("a + b - c;", "((a + b) - c)"),
-            ("a * b * c;", "((a * b) * c)"),
-            ("a * b / c;", "((a * b) / c)"),
-            ("a + b / c;", "(a + (b / c))"),
-            ("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f)"),
-            ("3 + 4;", "(3 + 4)"),
-            ("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4))"),
-            ("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4))"),
-            (
-                "3 + 4 * 5 == 3 * 1 + 4 * 5;",
-                "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)))",
-            ),
-            ("true;", "true"),
-            ("false;", "false"),
-            ("3 > 5 == false;", "((3 > 5) == false)"),
-            ("3 < 5 == true;", "((3 < 5) == true)"),
-            ("1 + (2 + 3) + 4;", "((1 + (2 + 3)) + 4)"),
-            ("(5 + 5) * 2;", "((5 + 5) * 2)"),
-            ("2 / (5 + 5);", "(2 / (5 + 5))"),
-            ("-(5 + 5);", "(-(5 + 5))"),
-            ("!(true == true);", "(!(true == true))"),
-            // ("a + add(b * c) + d;", "((a + add((b * c))) + d)"),
-        ];
-
-        for tt in tests.iter() {
-            let input = tt.0;
-            let expected = tt.1;
-
-            let parser = Parser::new(input);
-            let program = parser.program();
-            for stmt in program.statements.iter() {
-                let exp = stmt.to_string();
-                assert_eq!(exp, expected, "expected={}, got={}", expected, exp);
-            }
-        }
-    }
-
-    #[test]
-    fn test_infix_expression() {
-        let input = "
-            5 + 5;
-            5 - 5;
-            5 * 5;
-            5 / 5;
-            5 > 5;
-            5 < 5;
-            5 == 5;
-            5 != 5;
-            true == true;
-            true != false;
-            false == false;
-            -a * b;
-        ";
-
-        let parser = Parser::new(input);
-        let program = parser.program();
-
-        let results = vec![
-            "(5 + 5)",
-            "(5 - 5)",
-            "(5 * 5)",
-            "(5 / 5)",
-            "(5 > 5)",
-            "(5 < 5)",
-            "(5 == 5)",
-            "(5 != 5)",
-            "(true == true)",
-            "(true != false)",
-            "(false == false)",
-            "((-a) * b)",
-        ];
-
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
-    }
-
-    #[test]
-    fn test_prefix_expression() {
-        let input = "!5; -15; -x;";
-
-        let parser = Parser::new(input);
-        let program = parser.program();
-
-        // "-15;" was parsed as a IntegerNum token, so it will not be parsed as a number expression.
-        let results = vec!["(!5)", "-15", "(-x)"];
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
-    }
-
-    #[test]
-    fn test_identifier_expression() {
+    fn test_parse_identifier_exp() {
         let input = "foobar;";
 
         let parser = Parser::new(input);
-        let program = parser.program();
+        let programs = parser.programs();
 
-        if program.statements.len() != 1 {
-            panic!(
-                "program.statements does not contain 1 statements. got = {}",
-                program.statements.len()
-            );
-        }
+        assert_eq!(programs.len(), 1);
+
+        let identifier_exp = programs.get(0).unwrap();
+        assert_eq!(identifier_exp.to_string(), "foobar");
     }
 
     #[test]
-    fn test_integer_and_float_number_expression() {
-        let input = "
-            5;
-            10;
-            5.1;
-            10.0;
-        ";
+    fn test_parse_prefix_exp() {
+        let input = "!822; -x;";
 
         let parser = Parser::new(input);
-        let program = parser.program();
+        let programs = parser.programs();
 
-        if program.statements.len() != 4 {
-            panic!(
-                "program.statements does not contain 4 statements. got = {}",
-                program.statements.len()
-            );
-        }
+        assert_eq!(programs.len(), 2);
 
-        let results = vec!["5", "10", "5.1", "10"];
+        let not_exp = programs.get(0).unwrap();
+        assert_eq!(not_exp.to_string(), "!822");
 
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
+        let minus_exp = programs.get(1).unwrap();
+        assert_eq!(minus_exp.to_string(), "-x");
     }
 
     #[test]
-    fn test_return_stmt() {
-        let input = "
-            return 5;
-            return 10;
-            return 993322;
-        ";
+    fn test_parse_group_exp() {
+        let input = "822;";
 
         let parser = Parser::new(input);
-        let program = parser.program();
+        let programs = parser.programs();
 
-        if program.statements.len() != 3 {
-            panic!(
-                "program.statements does not contain 3 statements. got = {}",
-                program.statements.len()
-            );
-        }
+        assert_eq!(programs.len(), 1);
 
-        let results = vec!["return 5;", "return 10;", "return 993322;"];
-
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain {}. got = {}",
-                    i, results[i], exp
-                );
-            }
-            i += 1;
-        }
+        let group_exp = programs.get(0).unwrap();
+        assert_eq!(group_exp.to_string(), "822");
     }
 
     #[test]
-    fn test_let_stmt() {
+    fn test_parse_boolean_exp() {
+        let input = "true; false;";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 2);
+
+        let true_exp = programs.get(0).unwrap();
+        assert_eq!(true_exp.to_string(), "true");
+
+        let false_exp = programs.get(1).unwrap();
+        assert_eq!(false_exp.to_string(), "false");
+    }
+
+    #[test]
+    fn test_parse_infix_exp() {
         let input = "
-            let x = 5;
-            let y = 10;
-            let foobar = 838383;
+            5 + 5; 
+            5 - 5; 
+            5 * 5; 
+            5 / 5; 
+            5 == 5; 
+            5 != 5; 
+            5 < 5; 
+            5 > 5; 
+            5 <= 5; 
+            5 >= 5; 
+            true && false; 
+            true || false;
         ";
 
         let parser = Parser::new(input);
-        let program = parser.program();
+        let programs = parser.programs();
 
-        let results = vec!["let x = 5;", "let y = 10;", "let foobar = 838383;"];
+        assert_eq!(programs.len(), 12);
 
-        let mut i = 0;
-        for stmt in program.statements.iter() {
-            let exp = stmt.to_string();
-            if exp != results[i] {
-                panic!(
-                    "program.statements[{}] does not contain \"{}\". got = \"{}\"",
-                    i, results[i], exp
-                );
+        let infix_exp = programs.get(0).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 + 5)");
+
+        let infix_exp = programs.get(1).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 - 5)");
+
+        let infix_exp = programs.get(2).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 * 5)");
+
+        let infix_exp = programs.get(3).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 / 5)");
+
+        let infix_exp = programs.get(4).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 == 5)");
+
+        let infix_exp = programs.get(5).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 != 5)");
+
+        let infix_exp = programs.get(6).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 < 5)");
+
+        let infix_exp = programs.get(7).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 > 5)");
+
+        let infix_exp = programs.get(8).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 <= 5)");
+
+        let infix_exp = programs.get(9).unwrap();
+        assert_eq!(infix_exp.to_string(), "(5 >= 5)");
+
+        let infix_exp = programs.get(10).unwrap();
+        assert_eq!(infix_exp.to_string(), "(true && false)");
+
+        let infix_exp = programs.get(11).unwrap();
+        assert_eq!(infix_exp.to_string(), "(true || false)");
+    }
+
+    #[test]
+    fn test_parse_block_stmt() {
+        let input = "
+            {
+                let x = 5;
+                let y = 10;
+                let foobar = 838383;
             }
-            i += 1;
-        }
+        ";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let block_stmt = programs.get(0).unwrap();
+        assert_eq!(
+            block_stmt.to_string(),
+            "{let x = 5; let y = 10; let foobar = 838383;}"
+        );
+    }
+
+    #[test]
+    fn test_func_stmt() {
+        let input = "func add(x, y) { return x + y; }";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let func_stmt = programs.get(0).unwrap();
+        assert_eq!(
+            func_stmt.to_string(),
+            "func add(x, y) {return (x + y);}"
+        );
+    }
+
+    #[test]
+    fn test_parse_if_exp() {
+        let input = "if (x < y) { return x; }";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let if_exp = programs.get(0).unwrap();
+        assert_eq!(
+            if_exp.to_string(),
+            "if (x < y) {return x;}"
+        );
+    }
+
+    #[test]
+    fn test_parse_if_else_exp() {
+        let input = "if (x < y) { return x; } else if (x == y) { return x; } else { return x; }";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let if_else_exp = programs.get(0).unwrap();
+        assert_eq!(
+            if_else_exp.to_string(),
+            "if (x < y) {return x;} else if (x == y) {return x;} else {return x;}"
+        );
+    }
+
+    #[test]
+    fn test_parse_call_exp() {
+        let input = "add(5, 5);";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let call_exp = programs.get(0).unwrap();
+        assert_eq!(
+            call_exp.to_string(),
+            "add(5, 5)"
+        );
     }
 }
