@@ -57,6 +57,13 @@ impl Parser {
 
         parser.parse();
 
+        // Check if there are any errors during parsing.
+        if parser.errors.borrow().len() > 0 {
+            for error in parser.errors.borrow().iter() {
+                println!("{}", error);
+            }
+        }
+
         parser
     }
 
@@ -75,11 +82,6 @@ impl Parser {
     /// Get AST from the parser.
     pub fn programs(self) -> Vec<Node> {
         self.programs.into_inner()
-    }
-
-    /// Get errors that occur during parsing.
-    pub fn errors(self) -> Vec<String> {
-        self.errors.into_inner()
     }
 
     // This method is used to build the AST.
