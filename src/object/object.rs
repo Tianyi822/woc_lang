@@ -1,14 +1,29 @@
-#[derive(Debug)]
-pub enum OBJType {
-    NullObj,
-    IntegerObj,
-    BooleanObj,
+pub enum Object {
+    Null(Null),
+    Base(BaseValue),
 }
 
-/// This trait like the Object in Java, it has two methods:
-/// - obj_type() -> ObjectType: return the type of the object
-/// - inspect() -> String: return the string representation of the object
-pub trait Object {
-    fn obj_type(&self) -> OBJType;
-    fn inspect(&self) -> String;
+pub enum BaseValue {
+    Integer(Value<i64>),
+    Float(Value<f64>),
+    Boolean(Value<bool>),
+}
+
+/// Null is a struct that holds a null value
+pub struct Null;
+
+/// This is basic value struct that holds a value of integer, float, char and boolean
+/// For example, Value::new(10) will create a Value struct that holds an integer value of 10
+pub struct Value<T> {
+    value: T,
+}
+
+impl<T> Value<T> {
+    pub fn new(value: T) -> Self {
+        Value { value }
+    }
+
+    pub fn value(&self) -> &T {
+        &self.value
+    }
 }
