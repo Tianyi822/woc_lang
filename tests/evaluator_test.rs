@@ -1,53 +1,74 @@
 #[cfg(test)]
 mod evaluator_test {
-    use std::vec;
-
     use woc_lang::{
-        evaluator,
-        object::object::{Object, OBJType},
-        parser::parser::Parser,
+        evaluator::evaluator::eval,
+        object::object::{BaseValue, Object, Value},
+        parser_v2::parser::Parser,
     };
 
     #[test]
-    fn test_integer_eval() {
-        let tests = vec![
-            ("5", 5),
-            ("10", 10),
-            // ("-5", -5),
-            // ("-10", -10),
-            // ("5 + 5 + 5 + 5 - 10", 10),
-            // ("2 * 2 * 2 * 2 * 2", 32),
-            // ("-50 + 100 + -50", 0),
-            // ("5 * 2 + 10", 20),
-            // ("5 + 2 * 10", 25),
-            // ("20 + 2 * -10", 0),
-            // ("50 / 2 * 2 + 10", 60),
-            // ("2 * (5 + 10)", 30),
-            // ("3 * 3 * 3 + 10", 37),
-            // ("3 * (3 * 3) + 10", 37),
-            // ("(5 + 10 * 2 + 15 / 3) * 2 + -10", 50),
-        ];
+    fn test_eval_integer_exp() {
+        let _tests = vec![("5;", 5), ("10;", 10), ("-5;", -5), ("-10;", -10)];
 
-        for (input, expected) in tests {
-            let evaluated = test_eval(input);
-            test_integer_object(evaluated, expected);
+        for (input, expected) in _tests {
+            let value = test_eval(input);
+            test_equal_object(
+                value,
+                Object::Base(BaseValue::Integer(Value::new(expected))),
+            );
         }
     }
 
-    fn test_eval(input: &str) -> Box<dyn Object> {
-        let parser = Parser::new(input);
-        let program = parser.program();
+    #[test]
+    fn test_eval_float_exp() {
+        let _tests = vec![
+            ("5.5;", 5.5),
+            ("10.5;", 10.5),
+            ("-5.5;", -5.5),
+            ("-10.5;", -10.5),
+        ];
 
-        return evaluator::evaluator::eval(program);
+        for (input, expected) in _tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Float(Value::new(expected))),
+            );
+        }
     }
 
-    fn test_integer_object(obj: Box<dyn Object>, expected: i64) {
-        match obj.obj_type() {
-            OBJType::IntegerObj => {
-                let result = obj.inspect().parse::<i64>().unwrap();
-                assert_eq!(result, expected);
+    #[test]
+    fn test_eval_boolean_exp() {
+        let _tests = vec![("true;", true), ("false;", false)];
+
+        for (input, expected) in _tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Boolean(Value::new(expected))),
+            );
+        }
+    }
+
+    fn test_eval(input: &str) -> Object {
+        let parser = Parser::new(input);
+        let program = parser.programs();
+
+        return eval(program.get(0).unwrap());
+    }
+
+    fn test_equal_object(value: Object, expected: Object) {
+        match (value, expected) {
+            (Object::Base(BaseValue::Integer(v)), Object::Base(BaseValue::Integer(e))) => {
+                assert_eq!(v.value(), e.value());
             }
-            _ => panic!("object is not Integer. got={:?}", obj.obj_type()),
+            (Object::Base(BaseValue::Float(v)), Object::Base(BaseValue::Float(e))) => {
+                assert_eq!(v.value(), e.value());
+            }
+            (Object::Base(BaseValue::Boolean(v)), Object::Base(BaseValue::Boolean(e))) => {
+                assert_eq!(v.value(), e.value());
+            }
+            _ => panic!("Not implemented"),
         }
     }
 }
