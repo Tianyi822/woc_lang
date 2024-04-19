@@ -238,12 +238,6 @@ impl Parser {
         if self.peek_token.borrow().token_type() == token_type {
             true
         } else {
-            let msg = format!(
-                "expected next token to be `{:?}`, got `{:?}` instead",
-                token_type,
-                self.peek_token.borrow().token_type()
-            );
-            self.store_error(&msg);
             false
         }
     }
@@ -255,6 +249,12 @@ impl Parser {
             self.next_token();
             true
         } else {
+            let msg = format!(
+                "expected next token to be `{:?}`, got `{:?}` instead",
+                token_type,
+                self.peek_token.borrow().token_type()
+            );
+            self.store_error(&msg);
             false
         }
     }
