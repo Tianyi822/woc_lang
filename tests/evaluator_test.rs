@@ -7,6 +7,26 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_eval_prefix_exp() {
+        let _tests = vec![
+            ("!true;", false),
+            ("!false;", true),
+            ("!5;", false),
+            ("!!true;", true),
+            ("!!false;", false),
+            ("!!5;", true),
+        ];
+
+        for (input, expected) in _tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Boolean(Value::new(expected))),
+            );
+        }
+    }
+
+    #[test]
     fn test_eval_integer_exp() {
         let _tests = vec![("5;", 5), ("10;", 10), ("-5;", -5), ("-10;", -10)];
 
