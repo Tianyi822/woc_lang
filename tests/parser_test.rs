@@ -3,6 +3,19 @@ mod parser_test {
     use woc_lang::parser_v2::parser::Parser;
 
     #[test]
+    fn test_parse_multi_prefix() {
+        let input = "!!true;";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let multi_prefix = programs.get(0).unwrap();
+        assert_eq!(multi_prefix.to_string(), "!!true");
+    }
+
+    #[test]
     fn test_parse_let_stmt() {
         let input = "let x = 822;";
 
