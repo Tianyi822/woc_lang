@@ -69,4 +69,11 @@ impl<T> Value<T> {
     pub fn value(&self) -> &T {
         &self.value
     }
+
+    pub fn is_zero(&self) -> bool
+    where
+        T: PartialEq + Default,
+    {
+        self.value == Default::default()
+    }
 }
