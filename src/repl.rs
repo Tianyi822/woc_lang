@@ -1,6 +1,9 @@
 use std::io::{self, Write as _};
 
-use crate::parser_v2::parser::Parser;
+use crate::{
+    evaluator::evaluator,
+    parser_v2::parser::Parser,
+};
 
 pub fn run() {
     loop {
@@ -19,8 +22,9 @@ pub fn run() {
 
         let programs = p.programs();
 
-        for program in programs {
-            println!("{}", program);
+        let evaluated = evaluator::eval(programs.get(0).unwrap());
+        if !evaluated.is_null() {
+            println!("{}", evaluated);
         }
     }
 }
