@@ -1,6 +1,6 @@
 use crate::{
     ast_v2::{Expression, Node},
-    object::object::{BaseValue, Null, Object, Value},
+    object::object::{BaseValue, Object, Value},
 };
 
 pub fn eval(node: &Node) -> Object {
@@ -17,6 +17,6 @@ fn eval_expression(exp: &Expression) -> Object {
             None => Object::Base(BaseValue::Float(Value::new(num.float_value().unwrap()))),
         },
         Expression::Boolean(b) => Object::Base(BaseValue::Boolean(Value::new(b.value()))),
-        _ => Object::Null(Null),
+        _ => Object::Null,
     }
 }

@@ -1,7 +1,7 @@
 use std::fmt::{self, Display, Formatter};
 
 pub enum Object {
-    Null(Null),
+    Null,
     Base(BaseValue),
 }
 
@@ -16,7 +16,7 @@ pub enum ObjectType {
 impl Object {
     pub fn obj_type(&self) -> ObjectType {
         match self {
-            Object::Null(_) => ObjectType::Null,
+            Object::Null => ObjectType::Null,
             Object::Base(bv) => match bv {
                 BaseValue::Integer(_) => ObjectType::Integer,
                 BaseValue::Float(_) => ObjectType::Float,
@@ -27,7 +27,7 @@ impl Object {
 
     pub fn is_null(&self) -> bool {
         match self {
-            Object::Null(_) => true,
+            Object::Null => true,
             _ => false,
         }
     }
@@ -36,7 +36,7 @@ impl Object {
 impl Display for Object {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            Object::Null(_) => write!(f, "null"),
+            Object::Null => write!(f, "null"),
             Object::Base(bv) => match bv {
                 BaseValue::Integer(v) => write!(f, "{}", v.value()),
                 BaseValue::Float(v) => write!(f, "{}", v.value()),
