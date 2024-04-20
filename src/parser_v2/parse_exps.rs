@@ -149,7 +149,11 @@ impl Parser {
         };
 
         // Get the else expression if it exists
-        let else_exp = if self.expect_peek(&TokenType::Else) {
+        let else_exp = if self.peek_tok_is(&TokenType::Else) {
+            // Skip the else token
+            self.next_token();
+
+            // Move to the next token
             self.next_token();
 
             let mut if_exp: Option<Expression> = None;

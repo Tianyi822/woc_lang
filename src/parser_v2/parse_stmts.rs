@@ -135,7 +135,9 @@ impl Parser {
         // Move to the next token
         self.next_token();
 
-        if self.expect_peek(&TokenType::RightParen) {
+        if self.peek_tok_is(&TokenType::RightParen) {
+            // Move to RightParen token
+            self.next_token();
             return None;
         }
 
@@ -143,7 +145,11 @@ impl Parser {
         let ident = IdentifierExp::new(literal);
         params.push(ident);
 
-        while self.expect_peek(&TokenType::Comma) {
+        while self.peek_tok_is(&TokenType::Comma) {
+            // Skip Comma token
+            self.next_token();
+
+            // Move to next parameter
             self.next_token();
 
             let literal = self.get_cur_token().literal().to_string();
