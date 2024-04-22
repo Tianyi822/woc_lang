@@ -1,10 +1,10 @@
 use crate::{
     ast_v2::{
-        Expression,
         expressions::{
             BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
         },
         statements::BlockStatement,
+        Expression,
     },
     token::{precedence::*, token::TokenType},
 };
@@ -44,7 +44,6 @@ impl Parser {
 
     fn parse_prefix_exp(&self) -> Option<Expression> {
         let cur_token = self.get_cur_token();
-        let operator = cur_token.literal().to_string();
 
         self.next_token();
 
@@ -56,7 +55,10 @@ impl Parser {
             }
         };
 
-        Some(Expression::Prefix(PrefixExp::new(operator, right)))
+        Some(Expression::Prefix(PrefixExp::new(
+            cur_token.token_type().clone(),
+            right,
+        )))
     }
 
     // This method is used to parse the identifier expression.
@@ -185,7 +187,6 @@ impl Parser {
     /// This method is used to parse the infix expression.
     fn parse_infix_exp(&self, left: Expression) -> Option<Expression> {
         let cur_token = self.get_cur_token();
-        let operator = cur_token.literal().to_string();
         let precedence = self.cur_precedence();
 
         self.next_token();
@@ -198,7 +199,11 @@ impl Parser {
             }
         };
 
-        Some(Expression::Infix(InfixExp::new(left, operator, right)))
+        Some(Expression::Infix(InfixExp::new(
+            left,
+            cur_token.token_type().clone(),
+            right,
+        )))
     }
 
     /// This method is used to parse the call expression.

@@ -1,6 +1,7 @@
 use crate::{
     ast_v2::{Expression, Node},
     object::object::{BaseValue, Object, Value},
+    token::token::TokenType,
 };
 
 pub fn eval(node: &Node) -> Object {
@@ -28,7 +29,7 @@ fn eval_exp(exp: &Expression) -> Object {
 fn eval_prefix_exp(exp: &Expression) -> Object {
     match exp {
         Expression::Prefix(pre_exp) => match pre_exp.operator() {
-            "!" => {
+            TokenType::Not => {
                 let right = eval_exp(pre_exp.right());
                 match right {
                     Object::Base(BaseValue::Boolean(v)) => {
@@ -43,7 +44,7 @@ fn eval_prefix_exp(exp: &Expression) -> Object {
                     _ => Object::Null,
                 }
             }
-            "-" => {
+            TokenType::Minus => {
                 let right = eval_exp(pre_exp.right());
                 match right {
                     Object::Base(BaseValue::Integer(v)) => {
@@ -61,7 +62,6 @@ fn eval_prefix_exp(exp: &Expression) -> Object {
     }
 }
 
-
 /// Evaluate infix expression
 /// For example:
 /// - 5 + 5
@@ -76,34 +76,50 @@ fn eval_infix_exp(exp: &Expression) -> Object {
             match (left, right) {
                 (Object::Base(BaseValue::Integer(l)), Object::Base(BaseValue::Integer(r))) => {
                     match infix_exp.operator() {
-                        "+" => Object::Base(BaseValue::Integer(Value::new(l.value() + r.value()))),
-                        "-" => Object::Base(BaseValue::Integer(Value::new(l.value() - r.value()))),
-                        "*" => Object::Base(BaseValue::Integer(Value::new(l.value() * r.value()))),
-                        "/" => Object::Base(BaseValue::Integer(Value::new(l.value() / r.value()))),
+                        TokenType::Plus => {
+                            Object::Base(BaseValue::Integer(Value::new(l.value() + r.value())))
+                        }
+                        TokenType::Minus => {
+                            Object::Base(BaseValue::Integer(Value::new(l.value() - r.value())))
+                        }
+                        TokenType::Asterisk => {
+                            Object::Base(BaseValue::Integer(Value::new(l.value() * r.value())))
+                        }
+                        TokenType::Slash => {
+                            Object::Base(BaseValue::Integer(Value::new(l.value() / r.value())))
+                        }
                         _ => Object::Null,
                     }
                 }
                 (Object::Base(BaseValue::Float(l)), Object::Base(BaseValue::Float(r))) => {
                     match infix_exp.operator() {
-                        "+" => Object::Base(BaseValue::Float(Value::new(l.value() + r.value()))),
-                        "-" => Object::Base(BaseValue::Float(Value::new(l.value() - r.value()))),
-                        "*" => Object::Base(BaseValue::Float(Value::new(l.value() * r.value()))),
-                        "/" => Object::Base(BaseValue::Float(Value::new(l.value() / r.value()))),
+                        TokenType::Plus => {
+                            Object::Base(BaseValue::Float(Value::new(l.value() + r.value())))
+                        }
+                        TokenType::Minus => {
+                            Object::Base(BaseValue::Float(Value::new(l.value() - r.value())))
+                        }
+                        TokenType::Asterisk => {
+                            Object::Base(BaseValue::Float(Value::new(l.value() * r.value())))
+                        }
+                        TokenType::Slash => {
+                            Object::Base(BaseValue::Float(Value::new(l.value() / r.value())))
+                        }
                         _ => Object::Null,
                     }
                 }
                 (Object::Base(BaseValue::Integer(l)), Object::Base(BaseValue::Float(r))) => {
                     match infix_exp.operator() {
-                        "+" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Plus => Object::Base(BaseValue::Float(Value::new(
                             *l.value() as f64 + r.value(),
                         ))),
-                        "-" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Minus => Object::Base(BaseValue::Float(Value::new(
                             *l.value() as f64 - r.value(),
                         ))),
-                        "*" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Asterisk => Object::Base(BaseValue::Float(Value::new(
                             *l.value() as f64 * r.value(),
                         ))),
-                        "/" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Slash => Object::Base(BaseValue::Float(Value::new(
                             *l.value() as f64 / r.value(),
                         ))),
                         _ => Object::Null,
@@ -111,16 +127,16 @@ fn eval_infix_exp(exp: &Expression) -> Object {
                 }
                 (Object::Base(BaseValue::Float(l)), Object::Base(BaseValue::Integer(r))) => {
                     match infix_exp.operator() {
-                        "+" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Plus => Object::Base(BaseValue::Float(Value::new(
                             l.value() + *r.value() as f64,
                         ))),
-                        "-" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Minus => Object::Base(BaseValue::Float(Value::new(
                             l.value() - *r.value() as f64,
                         ))),
-                        "*" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Asterisk => Object::Base(BaseValue::Float(Value::new(
                             l.value() * *r.value() as f64,
                         ))),
-                        "/" => Object::Base(BaseValue::Float(Value::new(
+                        TokenType::Slash => Object::Base(BaseValue::Float(Value::new(
                             l.value() / *r.value() as f64,
                         ))),
                         _ => Object::Null,

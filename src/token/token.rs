@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::token::precedence::*;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -70,6 +72,67 @@ pub enum TokenType {
 
     // End of File
     Eof,
+}
+
+impl Display for TokenType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let token = match self {
+            TokenType::Comma => ",",
+            TokenType::Dot => ".",
+            TokenType::Semicolon => ";",
+            TokenType::Colon => ":",
+            TokenType::Assignment => "=",
+            TokenType::LeftParen => "(",
+            TokenType::RightParen => ")",
+            TokenType::LeftBrace => "{",
+            TokenType::RightBrace => "}",
+            TokenType::LeftBracket => "[",
+            TokenType::RightBracket => "]",
+            TokenType::Quote => "\"",
+            TokenType::SingleQuote => "'",
+            TokenType::Not => "!",
+            TokenType::Greater => ">",
+            TokenType::Less => "<",
+            TokenType::GreaterThanOrEqualTo => ">=",
+            TokenType::LessThanOrEqualTo => "<=",
+            TokenType::EqualTo => "==",
+            TokenType::NotEqualTo => "!=",
+            TokenType::And => "&&",
+            TokenType::Or => "||",
+            TokenType::BitAnd => "&",
+            TokenType::BitOr => "|",
+            TokenType::BitNot => "~",
+            TokenType::Plus => "+",
+            TokenType::Minus => "-",
+            TokenType::Asterisk => "*",
+            TokenType::Slash => "/",
+            TokenType::Percent => "%",
+            TokenType::PlusAssign => "+=",
+            TokenType::MinusAssign => "-=",
+            TokenType::AsteriskAssign => "*=",
+            TokenType::SlashAssign => "/=",
+            TokenType::Ident => "Identifier",
+            TokenType::IntegerNum => "Integer",
+            TokenType::FloatNum => "Float",
+            TokenType::While => "while",
+            TokenType::For => "for",
+            TokenType::If => "if",
+            TokenType::Else => "else",
+            TokenType::Break => "break",
+            TokenType::Continue => "continue",
+            TokenType::Let => "let",
+            TokenType::Func => "function",
+            TokenType::Return => "return",
+            TokenType::Struct => "struct",
+            TokenType::Enum => "enum",
+            TokenType::None => "None",
+            TokenType::True => "True",
+            TokenType::False => "False",
+            TokenType::Illegal => "Illegal",
+            TokenType::Eof => "EOF",
+        };
+        write!(f, "{}", token)
+    }
 }
 
 // This struct stores the token information that the lexer will analyze.

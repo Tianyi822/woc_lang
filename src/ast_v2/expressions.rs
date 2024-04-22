@@ -3,6 +3,8 @@ use std::{
     str,
 };
 
+use crate::token::token::TokenType;
+
 use super::{Expression, statements::BlockStatement};
 
 /// The identifier expression represents a variable or function name.
@@ -289,19 +291,19 @@ impl Display for CallExp {
 /// The prefix expression represents the prefix operator and the right expression.
 /// For example, !x, -y, !true, -false
 pub struct PrefixExp {
-    operator: String,
+    operator: TokenType,
     right: Box<Expression>,
 }
 
 impl PrefixExp {
-    pub fn new(operator: String, right: Expression) -> Self {
+    pub fn new(operator: TokenType, right: Expression) -> Self {
         Self {
             operator,
             right: Box::new(right),
         }
     }
 
-    pub fn operator(&self) -> &str {
+    pub fn operator(&self) -> &TokenType {
         &self.operator
     }
 
@@ -325,12 +327,12 @@ impl Display for PrefixExp {
 /// The infix expression represents the left expression, operator, and right expression.
 pub struct InfixExp {
     left: Box<Expression>,
-    operator: String,
+    operator: TokenType,
     right: Box<Expression>,
 }
 
 impl InfixExp {
-    pub fn new(left: Expression, operator: String, right: Expression) -> Self {
+    pub fn new(left: Expression, operator: TokenType, right: Expression) -> Self {
         Self {
             left: Box::new(left),
             operator,
@@ -342,7 +344,7 @@ impl InfixExp {
         &self.left
     }
 
-    pub fn operator(&self) -> &str {
+    pub fn operator(&self) -> &TokenType {
         &self.operator
     }
 
@@ -353,7 +355,7 @@ impl InfixExp {
 
 impl Debug for InfixExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({:?} {} {:?})", self.left, self.operator, self.right)
+        write!(f, "({:?} {:?} {:?})", self.left, self.operator, self.right)
     }
 }
 
