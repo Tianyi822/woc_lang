@@ -170,6 +170,8 @@ mod evaluator_test {
     }
 
     fn test_equal_object(value: Object, expected: Object) {
+        let get = value.clone();
+        let want = expected.clone();
         match (value, expected) {
             (Object::Base(BaseValue::Integer(v)), Object::Base(BaseValue::Integer(e))) => {
                 assert_eq!(v.value(), e.value());
@@ -180,7 +182,7 @@ mod evaluator_test {
             (Object::Base(BaseValue::Boolean(v)), Object::Base(BaseValue::Boolean(e))) => {
                 assert_eq!(v.value(), e.value());
             }
-            _ => panic!("Not implemented"),
+            _ => panic!("The object is not equal, got={:?}, want={:?}", get, want),
         }
     }
 }

@@ -1,5 +1,6 @@
-use std::fmt::{self, Display, Formatter};
+use std::fmt::{self, Debug, Display, Formatter};
 
+#[derive(Clone)]
 pub enum Object {
     Null,
     Base(BaseValue),
@@ -46,6 +47,20 @@ impl Display for Object {
     }
 }
 
+impl Debug for Object {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Object::Null => write!(f, "null"),
+            Object::Base(bv) => match bv {
+                BaseValue::Integer(v) => write!(f, "{:?}", v),
+                BaseValue::Float(v) => write!(f, "{:?}", v),
+                BaseValue::Boolean(v) => write!(f, "{:?}", v),
+            },
+        }
+    }
+}
+
+#[derive(Clone)]
 pub enum BaseValue {
     Integer(Value<i64>),
     Float(Value<f64>),
@@ -57,6 +72,7 @@ pub struct Null;
 
 /// This is basic value struct that holds a value of integer, float, char and boolean
 /// For example, Value::new(10) will create a Value struct that holds an integer value of 10
+#[derive(Clone)]
 pub struct Value<T> {
     value: T,
 }
@@ -75,5 +91,23 @@ impl<T> Value<T> {
         T: PartialEq + Default,
     {
         self.value == Default::default()
+    }
+}
+
+impl<T> Debug for Value<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.value)
+    }
+}
+
+impl<T> Display for Value<T>
+where
+    T: Display,
+{
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{}", self.value)
     }
 }
