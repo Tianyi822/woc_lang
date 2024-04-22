@@ -7,6 +7,87 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_eval_bool_exp() {
+        let tests = vec![
+            ("true;", true),
+            ("false;", false),
+            ("1 < 2;", true),
+            ("1 > 2;", false),
+            ("1 < 1;", false),
+            ("1 > 1;", false),
+            ("1 == 1;", true),
+            ("1 != 1;", false),
+            ("1 == 2;", false),
+            ("1 != 2;", true),
+            ("true == true;", true),
+            ("false == false;", true),
+            ("true == false;", false),
+            ("true != false;", true),
+            ("false != true;", true),
+            ("(1 < 2) == true;", true),
+            ("(1 < 2) == false;", false),
+            ("(1 > 2) == true;", false),
+            ("(1 > 2) == false;", true),
+            ("true && true;", true),
+            ("true && false;", false),
+            ("false && true;", false),
+            ("false && false;", false),
+            ("true || true;", true),
+            ("true || false;", true),
+            ("false || true;", true),
+            ("false || false;", false),
+            ("(1 < 2) && true;", true),
+            ("(1 < 2) && false;", false),
+            ("(1 > 2) && true;", false),
+            ("(1 > 2) && false;", false),
+            ("(1 < 2) || true;", true),
+            ("(1 < 2) || false;", true),
+            ("(1 > 2) || true;", true),
+            ("(1 > 2) || false;", false),
+            ("(1 < 2) && (1 == 1);", true),
+            ("(1 < 2) && (1 != 1);", false),
+            ("(1 > 2) && (1 == 1);", false),
+            ("(1 > 2) && (1 != 1);", false),
+            ("(1 < 2) || (1 == 1);", true),
+            ("(1 < 2) || (1 != 1);", true),
+            ("(1 > 2) || (1 == 1);", true),
+            ("(1 > 2) || (1 != 1);", false),
+            ("!1;", false),
+            ("!0;", true),
+            ("!!1;", true),
+            ("!!0;", false),
+            ("1 && true", true),
+            ("1 && false", false),
+            ("0 && true", false),
+            ("0 && false", false),
+            ("1 || true", true),
+            ("1 || false", true),
+            ("0 || true", true),
+            ("0 || false", false),
+            ("!1;", false),
+            ("!1 && true;", false),
+            ("!1 || true;", true),
+            ("!0;", true),
+            ("!0 && true;", true),
+            ("!0 || true;", true),
+            ("!!1;", true),
+            ("!!1 && true;", true),
+            ("!!1 || true;", true),
+            ("!!0;", false),
+            ("!!0 && true;", false),
+            ("!!0 || true;", true),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Boolean(Value::new(expected))),
+            );
+        }
+    }
+
+    #[test]
     fn test_eval_prefix_exp() {
         let _tests = vec![
             ("!true;", false),
