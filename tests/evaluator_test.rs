@@ -7,6 +7,27 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_if_exp() {
+        let tests = vec![
+            ("if (true) { 10; }", 10),
+            ("if (false) { 10; }", 0),
+            ("if (1) { 10; }", 10),
+            ("if (1 < 2) { 10; }", 10),
+            ("if (1 > 2) { 10; }", 0),
+            ("if (1 > 2) { 10; } else { 20; }", 20),
+            ("if (1 < 2) { 10; } else { 20; }", 10),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Integer(Value::new(expected))),
+            );
+        }
+    }
+
+    #[test]
     fn test_eval_bool_exp() {
         let tests = vec![
             ("true;", true),

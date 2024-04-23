@@ -1,6 +1,6 @@
 use crate::{
     ast_v2::{
-        expressions::{InfixExp, PrefixExp},
+        expressions::{IfExp, InfixExp, PrefixExp},
         Expression, Node,
     },
     object::object::{BaseValue, Object, Value},
@@ -23,6 +23,7 @@ fn eval_exp(exp: &Expression) -> Object {
         Expression::Boolean(b) => Object::Base(BaseValue::Boolean(Value::new(b.value()))),
         Expression::Prefix(pre_exp) => eval_prefix_exp(pre_exp),
         Expression::Infix(infix_exp) => eval_infix_exp(infix_exp),
+        Expression::If(if_exp) => eval_if_exp(if_exp),
         _ => Object::Null,
     }
 }
@@ -60,6 +61,24 @@ fn eval_prefix_exp(exp: &PrefixExp) -> Object {
         }
         _ => Object::Null,
     }
+}
+
+fn eval_if_exp(exp: &IfExp) -> Object {
+    let _condition = eval_exp(exp.condition());
+    todo!("Implement eval_if_exp")
+    // match condition {
+    //     Object::Base(BaseValue::Boolean(v)) => {
+    //         if *v.value() {
+    //             eval(exp.consequence())
+    //         } else {
+    //             match exp.alternative() {
+    //                 Some(alt) => eval(alt),
+    //                 None => Object::Null,
+    //             }
+    //         }
+    //     }
+    //     _ => Object::Null,
+    // }
 }
 
 /// Evaluate infix expression
