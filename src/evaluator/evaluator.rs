@@ -1,7 +1,8 @@
 use crate::{
     ast_v2::{
-        expressions::{IfExp, InfixExp, PrefixExp},
-        Expression, Node,
+        expressions::{ElseExp, IfExp, InfixExp, PrefixExp},
+        statements::BlockStatement,
+        Expression, Node, Statement,
     },
     object::object::{BaseValue, Object, Value},
     token::token::TokenType,
@@ -10,7 +11,7 @@ use crate::{
 pub fn eval(node: &Node) -> Object {
     match node {
         Node::Exp(exp) => eval_exp(exp),
-        Node::Stmt(_) => todo!(),
+        Node::Stmt(stmt) => eval_stmt(stmt),
     }
 }
 
@@ -26,6 +27,59 @@ fn eval_exp(exp: &Expression) -> Object {
         Expression::If(if_exp) => eval_if_exp(if_exp),
         _ => Object::Null,
     }
+}
+
+fn eval_stmt(stmt: &Statement) -> Object {
+    match stmt {
+        Statement::Let(_) => todo!("Implement LetStatement evaluation"),
+        Statement::Return(_) => todo!("Implement ReturnStatement evaluation"),
+        Statement::Block(block_stmt) => eval_block_stmt(block_stmt),
+        Statement::Func(_) => todo!("Implement FuncStatement evaluation"),
+    }
+}
+
+fn eval_if_exp(exp: &IfExp) -> Object {
+    let condition = eval_exp(exp.condition());
+
+    if is_truthy(&condition) {
+        // if condition is true
+        return eval_block_stmt(exp.consequence());
+    } else if exp.else_exp().is_some() {
+        // if condition is false and there is an else expression
+        return eval_else_exp(exp.else_exp().unwrap());
+    } else {
+        // if condition is false and there is no else expression
+        return Object::Base(BaseValue::Integer(Value::new(0)));
+    }
+}
+
+fn eval_else_exp(exp: &ElseExp) -> Object {
+    if exp.if_exp().is_some() {
+        return eval_exp(exp.if_exp().unwrap());
+    } else {
+        return eval_block_stmt(exp.consequence().unwrap());
+    }
+}
+
+fn is_truthy(obj: &Object) -> bool {
+    match obj {
+        Object::Base(BaseValue::Boolean(v)) => *v.value(),
+        Object::Base(BaseValue::Integer(v)) => !v.is_zero(),
+        Object::Base(BaseValue::Float(v)) => !v.is_zero(),
+        _ => false,
+    }
+}
+
+fn eval_block_stmt(stmt: &BlockStatement) -> Object {
+    let mut result = Object::Null;
+    for s in stmt.statements() {
+        result = eval(s);
+
+        if !result.is_null() {
+            return result;
+        }
+    }
+    result
 }
 
 /// Evaluate prefix expression
@@ -61,24 +115,6 @@ fn eval_prefix_exp(exp: &PrefixExp) -> Object {
         }
         _ => Object::Null,
     }
-}
-
-fn eval_if_exp(exp: &IfExp) -> Object {
-    let _condition = eval_exp(exp.condition());
-    todo!("Implement eval_if_exp")
-    // match condition {
-    //     Object::Base(BaseValue::Boolean(v)) => {
-    //         if *v.value() {
-    //             eval(exp.consequence())
-    //         } else {
-    //             match exp.alternative() {
-    //                 Some(alt) => eval(alt),
-    //                 None => Object::Null,
-    //             }
-    //         }
-    //     }
-    //     _ => Object::Null,
-    // }
 }
 
 /// Evaluate infix expression
