@@ -49,7 +49,7 @@ fn eval_if_exp(exp: &IfExp) -> Object {
         return eval_else_exp(exp.else_exp().unwrap());
     } else {
         // if condition is false and there is no else expression
-        return Object::Base(BaseValue::Integer(Value::new(0)));
+        return Object::Null;
     }
 }
 

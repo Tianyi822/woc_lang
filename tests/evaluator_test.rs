@@ -9,21 +9,45 @@ mod evaluator_test {
     #[test]
     fn test_if_exp() {
         let tests = vec![
-            ("if (true) { 10; }", 10),
-            ("if (false) { 10; }", 0),
-            ("if (1) { 10; }", 10),
-            ("if (1 < 2) { 10; }", 10),
-            ("if (1 > 2) { 10; }", 0),
-            ("if (1 > 2) { 10; } else { 20; }", 20),
-            ("if (1 < 2) { 10; } else { 20; }", 10),
+            (
+                "if (true) { 10; }",
+                Object::Base(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "if (1) { 10; }",
+                Object::Base(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "if (1 < 2) { 10; }",
+                Object::Base(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "if (1 > 2) { 10; } else { 20; }",
+                Object::Base(BaseValue::Integer(Value::new(20))),
+            ),
+            (
+                "if (1 < 2) { 10; } else { 20; }",
+                Object::Base(BaseValue::Integer(Value::new(10))),
+            ),
+            ("if (false) { 10; }", Object::Null),
+            ("if (1 > 2) { 10; }", Object::Null),
+            (
+                "if (1 < 2) { 10; } else if ( 2 > 1 ) { 20; } else { 30; }",
+                Object::Base(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "if (1 == 2) { 10; } else if ( 2 > 1 ) { 20; } else { 30; }",
+                Object::Base(BaseValue::Integer(Value::new(20))),
+            ),
+            (
+                "if (1 == 2) { 10; } else if ( 2 < 1 ) { 20; } else { 30; }",
+                Object::Base(BaseValue::Integer(Value::new(30))),
+            )
         ];
 
         for (input, expected) in tests {
             let evaluated = test_eval(input);
-            test_equal_object(
-                evaluated,
-                Object::Base(BaseValue::Integer(Value::new(expected))),
-            );
+            test_equal_object(evaluated, expected);
         }
     }
 
@@ -193,6 +217,11 @@ mod evaluator_test {
     fn test_equal_object(value: Object, expected: Object) {
         let get = value.clone();
         let want = expected.clone();
+
+        if (get.is_null()) && (want.is_null()) {
+            return;
+        }
+
         match (value, expected) {
             (Object::Base(BaseValue::Integer(v)), Object::Base(BaseValue::Integer(e))) => {
                 assert_eq!(v.value(), e.value());
