@@ -211,6 +211,12 @@ fn eval_infix_exp(exp: &InfixExp) -> Object {
             // Integer compare with Integer
             (Object::Base(BaseValue::Integer(l)), Object::Base(BaseValue::Integer(r))) => {
                 match exp.operator() {
+                    TokenType::And => {
+                        Object::Base(BaseValue::Boolean(Value::new(!l.is_zero() && !r.is_zero())))
+                    }
+                    TokenType::Or => {
+                        Object::Base(BaseValue::Boolean(Value::new(!l.is_zero() || !r.is_zero())))
+                    }
                     TokenType::EqualTo => {
                         Object::Base(BaseValue::Boolean(Value::new(l.value() == r.value())))
                     }
@@ -236,6 +242,12 @@ fn eval_infix_exp(exp: &InfixExp) -> Object {
             // Float compare with Float
             (Object::Base(BaseValue::Float(l)), Object::Base(BaseValue::Float(r))) => {
                 match exp.operator() {
+                    TokenType::And => {
+                        Object::Base(BaseValue::Boolean(Value::new(!l.is_zero() && !r.is_zero())))
+                    }
+                    TokenType::Or => {
+                        Object::Base(BaseValue::Boolean(Value::new(!l.is_zero() || !r.is_zero())))
+                    }
                     TokenType::EqualTo => {
                         Object::Base(BaseValue::Boolean(Value::new(l.value() == r.value())))
                     }
