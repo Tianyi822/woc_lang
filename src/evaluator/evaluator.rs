@@ -1,7 +1,7 @@
 use crate::{
     ast_v2::{
         expressions::{ElseExp, IfExp, InfixExp, PrefixExp},
-        statements::BlockStatement,
+        statements::{BlockStatement, ReturnStatement},
         Expression, Node, Statement,
     },
     object::object::{BaseValue, Object, Value},
@@ -15,6 +15,8 @@ pub fn eval(node: &Node) -> Object {
     }
 }
 
+// =================== Evaluate Expression ===================
+
 fn eval_exp(exp: &Expression) -> Object {
     match exp {
         Expression::Num(num) => match num.integer_value() {
@@ -26,15 +28,6 @@ fn eval_exp(exp: &Expression) -> Object {
         Expression::Infix(infix_exp) => eval_infix_exp(infix_exp),
         Expression::If(if_exp) => eval_if_exp(if_exp),
         _ => Object::Null,
-    }
-}
-
-fn eval_stmt(stmt: &Statement) -> Object {
-    match stmt {
-        Statement::Let(_) => todo!("Implement LetStatement evaluation"),
-        Statement::Return(_) => todo!("Implement ReturnStatement evaluation"),
-        Statement::Block(block_stmt) => eval_block_stmt(block_stmt),
-        Statement::Func(_) => todo!("Implement FuncStatement evaluation"),
     }
 }
 
@@ -59,27 +52,6 @@ fn eval_else_exp(exp: &ElseExp) -> Object {
     } else {
         return eval_block_stmt(exp.consequence().unwrap());
     }
-}
-
-fn is_truthy(obj: &Object) -> bool {
-    match obj {
-        Object::Base(BaseValue::Boolean(v)) => *v.value(),
-        Object::Base(BaseValue::Integer(v)) => !v.is_zero(),
-        Object::Base(BaseValue::Float(v)) => !v.is_zero(),
-        _ => false,
-    }
-}
-
-fn eval_block_stmt(stmt: &BlockStatement) -> Object {
-    let mut result = Object::Null;
-    for s in stmt.statements() {
-        result = eval(s);
-
-        if !result.is_null() {
-            return result;
-        }
-    }
-    result
 }
 
 /// Evaluate prefix expression
@@ -396,5 +368,53 @@ fn eval_infix_exp(exp: &InfixExp) -> Object {
             }
         }
         _ => Object::Null,
+    }
+}
+
+// =================== Evaluate Statement ===================
+
+fn eval_stmt(stmt: &Statement) -> Object {
+    match stmt {
+        Statement::Let(_) => todo!("Implement LetStatement evaluation"),
+        Statement::Return(ret_stmt) => eval_return_stmt(ret_stmt),
+        Statement::Block(block_stmt) => eval_block_stmt(block_stmt),
+        Statement::Func(_) => todo!("Implement FuncStatement evaluation"),
+    }
+}
+
+fn eval_block_stmt(stmt: &BlockStatement) -> Object {
+    let mut result = Object::Null;
+    for s in stmt.statements() {
+        result = eval(s);
+
+        if !result.is_null() {
+            return result;
+        }
+    }
+    result
+}
+
+fn eval_return_stmt(stmt: &ReturnStatement) -> Object {
+    let ret_val = match stmt.value() {
+        Some(v) => eval_exp(v),
+        None => Object::Null,
+    };
+
+    match ret_val {
+        Object::Base(BaseValue::Integer(v)) => Object::Return(BaseValue::Integer(v)),
+        Object::Base(BaseValue::Float(v)) => Object::Return(BaseValue::Float(v)),
+        Object::Base(BaseValue::Boolean(v)) => Object::Return(BaseValue::Boolean(v)),
+        _ => Object::Null,
+    }
+}
+
+// =================== Helper Functions ===================
+
+fn is_truthy(obj: &Object) -> bool {
+    match obj {
+        Object::Base(BaseValue::Boolean(v)) => *v.value(),
+        Object::Base(BaseValue::Integer(v)) => !v.is_zero(),
+        Object::Base(BaseValue::Float(v)) => !v.is_zero(),
+        _ => false,
     }
 }

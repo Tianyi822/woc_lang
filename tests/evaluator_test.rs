@@ -7,6 +7,37 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_return_stmt() {
+        let tests = vec![
+            ("return 1 && 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return 1 || 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return 10;", Object::Return(BaseValue::Integer(Value::new(10)))),
+            ("return 8.22;", Object::Return(BaseValue::Float(Value::new(8.22)))),
+            ("return true;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return false;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            ("return 1 + 1;", Object::Return(BaseValue::Integer(Value::new(2)))),
+            ("return 1.1 + 1.1;", Object::Return(BaseValue::Float(Value::new(2.2)))),
+            ("return 1 == 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return 1 != 1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            ("return 1 < 1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            ("return 1 > 1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            ("return 1 <= 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return 1 >= 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return !1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            ("return !!1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return !true;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            ("return !!true;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return !false;", Object::Return(BaseValue::Boolean(Value::new(true)))),
+            ("return !!false;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(evaluated, expected);
+        }
+    }
+
+    #[test]
     fn test_if_exp() {
         let tests = vec![
             (
@@ -230,6 +261,15 @@ mod evaluator_test {
                 assert_eq!(v.value(), e.value());
             }
             (Object::Base(BaseValue::Boolean(v)), Object::Base(BaseValue::Boolean(e))) => {
+                assert_eq!(v.value(), e.value());
+            }
+            (Object::Return(BaseValue::Integer(v)), Object::Return(BaseValue::Integer(e))) => {
+                assert_eq!(v.value(), e.value());
+            }
+            (Object::Return(BaseValue::Float(v)), Object::Return(BaseValue::Float(e))) => {
+                assert_eq!(v.value(), e.value());
+            }
+            (Object::Return(BaseValue::Boolean(v)), Object::Return(BaseValue::Boolean(e))) => {
                 assert_eq!(v.value(), e.value());
             }
             _ => panic!("The object is not equal, got={:?}, want={:?}", get, want),

@@ -4,6 +4,7 @@ use std::fmt::{self, Debug, Display, Formatter};
 pub enum Object {
     Null,
     Base(BaseValue),
+    Return(BaseValue),
 }
 
 #[derive(PartialEq, Eq)]
@@ -19,6 +20,11 @@ impl Object {
         match self {
             Object::Null => ObjectType::Null,
             Object::Base(bv) => match bv {
+                BaseValue::Integer(_) => ObjectType::Integer,
+                BaseValue::Float(_) => ObjectType::Float,
+                BaseValue::Boolean(_) => ObjectType::Boolean,
+            },
+            Object::Return(bv) => match bv {
                 BaseValue::Integer(_) => ObjectType::Integer,
                 BaseValue::Float(_) => ObjectType::Float,
                 BaseValue::Boolean(_) => ObjectType::Boolean,
@@ -43,6 +49,11 @@ impl Display for Object {
                 BaseValue::Float(v) => write!(f, "{}", v.value()),
                 BaseValue::Boolean(v) => write!(f, "{}", v.value()),
             },
+            Object::Return(bv) => match bv {
+                BaseValue::Integer(v) => write!(f, "return {}", v.value()),
+                BaseValue::Float(v) => write!(f, "return {}", v.value()),
+                BaseValue::Boolean(v) => write!(f, "return {}", v.value()),
+            },
         }
     }
 }
@@ -55,6 +66,11 @@ impl Debug for Object {
                 BaseValue::Integer(v) => write!(f, "{:?}", v),
                 BaseValue::Float(v) => write!(f, "{:?}", v),
                 BaseValue::Boolean(v) => write!(f, "{:?}", v),
+            },
+            Object::Return(bv) => match bv {
+                BaseValue::Integer(v) => write!(f, "return {:?}", v),
+                BaseValue::Float(v) => write!(f, "return {:?}", v),
+                BaseValue::Boolean(v) => write!(f, "return {:?}", v),
             },
         }
     }
