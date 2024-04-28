@@ -7,28 +7,131 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_return_in_block_stmt() {
+        let tests = vec![
+            (
+                "{ return 10; }",
+                Object::Return(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "{ return 10; return 20; }",
+                Object::Return(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "{ return 10; 20; }",
+                Object::Return(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "{ 10; return 20; }",
+                Object::Return(BaseValue::Integer(Value::new(20))),
+            ),
+            (
+                "{ 10; 20; return 30; }",
+                Object::Return(BaseValue::Integer(Value::new(30))),
+            ),
+            (
+                "if (1 > 2) { 10; } else { 20; }",
+                Object::Base(BaseValue::Integer(Value::new(20))),
+            ),
+            (
+                "if (1 > 2) { 10; } else { 20; return 30; }",
+                Object::Return(BaseValue::Integer(Value::new(30))),
+            ),
+            (
+                "if (10 > 1) { if (10 > 1) { return 30; } return 1; }",
+                Object::Return(BaseValue::Integer(Value::new(30))),
+            ),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(evaluated, expected);
+        }
+    }
+
+    #[test]
     fn test_return_stmt() {
         let tests = vec![
-            ("return 1 && 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return 1 || 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return 10;", Object::Return(BaseValue::Integer(Value::new(10)))),
-            ("return 8.22;", Object::Return(BaseValue::Float(Value::new(8.22)))),
-            ("return true;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return false;", Object::Return(BaseValue::Boolean(Value::new(false)))),
-            ("return 1 + 1;", Object::Return(BaseValue::Integer(Value::new(2)))),
-            ("return 1.1 + 1.1;", Object::Return(BaseValue::Float(Value::new(2.2)))),
-            ("return 1 == 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return 1 != 1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
-            ("return 1 < 1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
-            ("return 1 > 1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
-            ("return 1 <= 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return 1 >= 1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return !1;", Object::Return(BaseValue::Boolean(Value::new(false)))),
-            ("return !!1;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return !true;", Object::Return(BaseValue::Boolean(Value::new(false)))),
-            ("return !!true;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return !false;", Object::Return(BaseValue::Boolean(Value::new(true)))),
-            ("return !!false;", Object::Return(BaseValue::Boolean(Value::new(false)))),
+            (
+                "return 1 && 1;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return 1 || 1;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return 10;",
+                Object::Return(BaseValue::Integer(Value::new(10))),
+            ),
+            (
+                "return 8.22;",
+                Object::Return(BaseValue::Float(Value::new(8.22))),
+            ),
+            (
+                "return true;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return false;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
+            (
+                "return 1 + 1;",
+                Object::Return(BaseValue::Integer(Value::new(2))),
+            ),
+            (
+                "return 1.1 + 1.1;",
+                Object::Return(BaseValue::Float(Value::new(2.2))),
+            ),
+            (
+                "return 1 == 1;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return 1 != 1;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
+            (
+                "return 1 < 1;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
+            (
+                "return 1 > 1;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
+            (
+                "return 1 <= 1;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return 1 >= 1;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return !1;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
+            (
+                "return !!1;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return !true;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
+            (
+                "return !!true;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return !false;",
+                Object::Return(BaseValue::Boolean(Value::new(true))),
+            ),
+            (
+                "return !!false;",
+                Object::Return(BaseValue::Boolean(Value::new(false))),
+            ),
         ];
 
         for (input, expected) in tests {
@@ -73,7 +176,7 @@ mod evaluator_test {
             (
                 "if (1 == 2) { 10; } else if ( 2 < 1 ) { 20; } else { 30; }",
                 Object::Base(BaseValue::Integer(Value::new(30))),
-            )
+            ),
         ];
 
         for (input, expected) in tests {

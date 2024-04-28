@@ -387,8 +387,9 @@ fn eval_block_stmt(stmt: &BlockStatement) -> Object {
     for s in stmt.statements() {
         result = eval(s);
 
-        if !result.is_null() {
-            return result;
+        match result {
+            Object::Return(_) => return result,
+            _ => {}
         }
     }
     result
