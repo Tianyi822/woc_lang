@@ -2,8 +2,11 @@ use std::fmt::{self, Debug, Display, Formatter};
 
 #[derive(Clone)]
 pub enum Object {
+    // ===== Value =====
     Null,
     Base(BaseValue),
+
+    // ===== Statement =====
     Return(Box<Object>),
 }
 
@@ -91,9 +94,6 @@ pub enum BaseValue {
     Float(Value<f64>),
     Boolean(Value<bool>),
 }
-
-/// Null is a struct that holds a null value
-pub struct Null;
 
 /// This is basic value struct that holds a value of integer, float, char and boolean
 /// For example, Value::new(10) will create a Value struct that holds an integer value of 10
