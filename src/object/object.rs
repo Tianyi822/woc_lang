@@ -1,5 +1,7 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
+use crate::{ast_v2::statements::BlockStatement, environment::env::Env};
+
 #[derive(Clone)]
 pub enum Object {
     // ===== Value =====
@@ -16,6 +18,8 @@ pub enum ObjectType {
     Integer,
     Float,
     Boolean,
+
+    Return,
 }
 
 impl Object {
@@ -27,14 +31,7 @@ impl Object {
                 BaseValue::Float(_) => ObjectType::Float,
                 BaseValue::Boolean(_) => ObjectType::Boolean,
             },
-            Object::Return(bv) => match bv.as_ref() {
-                Object::Base(bv) => match bv {
-                    BaseValue::Integer(_) => ObjectType::Integer,
-                    BaseValue::Float(_) => ObjectType::Float,
-                    BaseValue::Boolean(_) => ObjectType::Boolean,
-                },
-                _ => ObjectType::Null,
-            },
+            Object::Return(_) => ObjectType::Return,
         }
     }
 
@@ -85,6 +82,55 @@ impl Debug for Object {
                 _ => write!(f, "null"),
             },
         }
+    }
+}
+
+pub struct Function {
+    parameters: Vec<Object>,
+    body: BlockStatement,
+    env: Env,
+}
+
+impl Function {
+    pub fn new(parameters: Vec<Object>, body: BlockStatement, env: Env) -> Self {
+        Self {
+            parameters,
+            body,
+            env,
+        }
+    }
+
+    pub fn parameters(&self) -> &Vec<Object> {
+        &self.parameters
+    }
+
+    pub fn body(&self) -> &BlockStatement {
+        &self.body
+    }
+
+    pub fn env(&self) -> &Env {
+        &self.env
+    }
+}
+
+impl Debug for Function {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "fn({:?}) {{ {:?} }}", self.parameters, self.body)
+    }
+}
+
+impl Display for Function {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(
+            f,
+            "fn({}) {{ {} }}",
+            self.parameters
+                .iter()
+                .map(|p| p.to_string())
+                .collect::<Vec<String>>()
+                .join(", "),
+            self.body
+        )
     }
 }
 

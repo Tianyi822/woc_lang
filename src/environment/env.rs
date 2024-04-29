@@ -1,4 +1,7 @@
-use std::{cell::RefCell, collections::HashMap};
+use std::{
+    cell::RefCell,
+    collections::HashMap,
+};
 
 use crate::object::object::Object;
 
@@ -14,7 +17,10 @@ impl Env {
     }
 
     pub fn get(&self, key: &str) -> Option<Object> {
-        self.store.borrow().get(key).cloned()
+        match self.store.borrow().get(key) {
+            Some(value) => Some(value.clone()),
+            None => None,
+        }
     }
 
     pub fn set(&self, key: String, value: Object) {

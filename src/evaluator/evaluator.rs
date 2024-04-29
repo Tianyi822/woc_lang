@@ -1,7 +1,7 @@
 use crate::{
     ast_v2::{
         expressions::{ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp},
-        statements::{BlockStatement, LetStatement, ReturnStatement},
+        statements::{BlockStatement, FuncStatement, LetStatement, ReturnStatement},
         Expression, Node, Statement,
     },
     environment::env::Env,
@@ -387,13 +387,17 @@ fn eval_stmt(stmt: &Statement, env: &Env) -> Object {
         Statement::Let(let_stmt) => eval_let_stmt(let_stmt, env),
         Statement::Return(ret_stmt) => eval_return_stmt(ret_stmt, env),
         Statement::Block(block_stmt) => eval_block_stmt(block_stmt, env),
-        Statement::Func(_) => todo!("Implement FuncStatement evaluation"),
+        Statement::Func(func_stmt) => eval_func_stmt(func_stmt, env),
     }
 }
 
 fn eval_let_stmt(stmt: &LetStatement, env: &Env) -> Object {
     let value = eval_exp(stmt.value().unwrap(), env);
     env.set(stmt.name().to_string(), value);
+    Object::Null
+}
+
+fn eval_func_stmt(_stmt: &FuncStatement, _env: &Env) -> Object {
     Object::Null
 }
 
@@ -417,9 +421,15 @@ fn eval_return_stmt(stmt: &ReturnStatement, env: &Env) -> Object {
     };
 
     match ret_val {
-        Object::Base(BaseValue::Integer(v)) => Object::Return(Box::new(Object::Base(BaseValue::Integer(v)))),
-        Object::Base(BaseValue::Float(v)) => Object::Return(Box::new(Object::Base(BaseValue::Float(v)))),
-        Object::Base(BaseValue::Boolean(v)) => Object::Return(Box::new(Object::Base(BaseValue::Boolean(v)))),
+        Object::Base(BaseValue::Integer(v)) => {
+            Object::Return(Box::new(Object::Base(BaseValue::Integer(v))))
+        }
+        Object::Base(BaseValue::Float(v)) => {
+            Object::Return(Box::new(Object::Base(BaseValue::Float(v))))
+        }
+        Object::Base(BaseValue::Boolean(v)) => {
+            Object::Return(Box::new(Object::Base(BaseValue::Boolean(v))))
+        }
         _ => Object::Null,
     }
 }
