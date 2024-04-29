@@ -1,10 +1,29 @@
 #[cfg(test)]
 mod evaluator_test {
     use woc_lang::{
+        environment::env::Env,
         evaluator::evaluator::eval,
         object::object::{BaseValue, Object, Value},
         parser_v2::parser::Parser,
     };
+
+    #[test]
+    fn test_let_stmt() {
+        let tests = vec![
+            ("let a = 5; a;", 5),
+            ("let a = 5 * 5; a;", 25),
+            ("let a = 5; let b = a; b;", 5),
+            ("let a = 5; let b = a; let c = a + b + 5; c;", 15),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Integer(Value::new(expected))),
+            );
+        }
+    }
 
     #[test]
     fn test_return_in_block_stmt() {
@@ -235,14 +254,14 @@ mod evaluator_test {
             ("!0;", true),
             ("!!1;", true),
             ("!!0;", false),
-            ("1 && true", true),
-            ("1 && false", false),
-            ("0 && true", false),
-            ("0 && false", false),
-            ("1 || true", true),
-            ("1 || false", true),
-            ("0 || true", true),
-            ("0 || false", false),
+            ("1 && true;", true),
+            ("1 && false;", false),
+            ("0 && true;", false),
+            ("0 && false;", false),
+            ("1 || true;", true),
+            ("1 || false;", true),
+            ("0 || true;", true),
+            ("0 || false;", false),
             ("!1;", false),
             ("!1 && true;", false),
             ("!1 || true;", true),
@@ -344,8 +363,14 @@ mod evaluator_test {
     fn test_eval(input: &str) -> Object {
         let parser = Parser::new(input);
         let program = parser.programs();
+        let env = Env::new();
 
-        return eval(program.get(0).unwrap());
+        let mut result = Object::Null;
+        for node in program.iter() {
+            result = eval(node, &env);
+        }
+
+        return result;
     }
 
     fn test_equal_object(value: Object, expected: Object) {

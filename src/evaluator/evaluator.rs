@@ -391,7 +391,13 @@ fn eval_stmt(stmt: &Statement, env: &Env) -> Object {
     }
 }
 
-fn eval_block_stmt(stmt: &BlockStatement) -> Object {
+fn eval_let_stmt(stmt: &LetStatement, env: &Env) -> Object {
+    let value = eval_exp(stmt.value().unwrap(), env);
+    env.set(stmt.name().to_string(), value);
+    Object::Null
+}
+
+fn eval_block_stmt(stmt: &BlockStatement, env: &Env) -> Object {
     let mut result = Object::Null;
     for s in stmt.statements() {
         result = eval(s, env);
