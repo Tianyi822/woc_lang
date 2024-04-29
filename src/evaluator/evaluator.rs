@@ -1,65 +1,74 @@
 use crate::{
     ast_v2::{
-        expressions::{ElseExp, IfExp, InfixExp, PrefixExp},
-        statements::{BlockStatement, ReturnStatement},
+        expressions::{ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp},
+        statements::{BlockStatement, LetStatement, ReturnStatement},
         Expression, Node, Statement,
     },
+    environment::env::Env,
     object::object::{BaseValue, Object, Value},
     token::token::TokenType,
 };
 
-pub fn eval(node: &Node) -> Object {
+pub fn eval(node: &Node, env: &Env) -> Object {
     match node {
-        Node::Exp(exp) => eval_exp(exp),
-        Node::Stmt(stmt) => eval_stmt(stmt),
+        Node::Exp(exp) => eval_exp(exp, env),
+        Node::Stmt(stmt) => eval_stmt(stmt, env),
     }
 }
 
 // =================== Evaluate Expression ===================
 
-fn eval_exp(exp: &Expression) -> Object {
+fn eval_exp(exp: &Expression, env: &Env) -> Object {
     match exp {
         Expression::Num(num) => match num.integer_value() {
             Some(value) => Object::Base(BaseValue::Integer(Value::new(value))),
             None => Object::Base(BaseValue::Float(Value::new(num.float_value().unwrap()))),
         },
         Expression::Boolean(b) => Object::Base(BaseValue::Boolean(Value::new(b.value()))),
-        Expression::Prefix(pre_exp) => eval_prefix_exp(pre_exp),
-        Expression::Infix(infix_exp) => eval_infix_exp(infix_exp),
-        Expression::If(if_exp) => eval_if_exp(if_exp),
+        Expression::Prefix(pre_exp) => eval_prefix_exp(pre_exp, env),
+        Expression::Infix(infix_exp) => eval_infix_exp(infix_exp, env),
+        Expression::If(if_exp) => eval_if_exp(if_exp, env),
+        Expression::Identifier(ident_exo) => eval_ident_exp(ident_exo, env),
         _ => Object::Null,
     }
 }
 
-fn eval_if_exp(exp: &IfExp) -> Object {
-    let condition = eval_exp(exp.condition());
+fn eval_if_exp(exp: &IfExp, env: &Env) -> Object {
+    let condition = eval_exp(exp.condition(), env);
 
     if is_truthy(&condition) {
         // if condition is true
-        return eval_block_stmt(exp.consequence());
+        return eval_block_stmt(exp.consequence(), env);
     } else if exp.else_exp().is_some() {
         // if condition is false and there is an else expression
-        return eval_else_exp(exp.else_exp().unwrap());
+        return eval_else_exp(exp.else_exp().unwrap(), env);
     } else {
         // if condition is false and there is no else expression
         return Object::Null;
     }
 }
 
-fn eval_else_exp(exp: &ElseExp) -> Object {
+fn eval_else_exp(exp: &ElseExp, env: &Env) -> Object {
     if exp.if_exp().is_some() {
-        return eval_exp(exp.if_exp().unwrap());
+        return eval_exp(exp.if_exp().unwrap(), env);
     } else {
-        return eval_block_stmt(exp.consequence().unwrap());
+        return eval_block_stmt(exp.consequence().unwrap(), env);
+    }
+}
+
+fn eval_ident_exp(exp: &IdentifierExp, env: &Env) -> Object {
+    match env.get(exp.value()) {
+        Some(v) => v,
+        None => Object::Null,
     }
 }
 
 /// Evaluate prefix expression
 /// For example, !true, -5, !5, !!true, !!false, !!5
-fn eval_prefix_exp(exp: &PrefixExp) -> Object {
+fn eval_prefix_exp(exp: &PrefixExp, env: &Env) -> Object {
     match exp.operator() {
         TokenType::Not => {
-            let right = eval_exp(exp.right());
+            let right = eval_exp(exp.right(), env);
             match right {
                 Object::Base(BaseValue::Boolean(v)) => {
                     Object::Base(BaseValue::Boolean(Value::new(!v.value())))
@@ -74,7 +83,7 @@ fn eval_prefix_exp(exp: &PrefixExp) -> Object {
             }
         }
         TokenType::Minus => {
-            let right = eval_exp(exp.right());
+            let right = eval_exp(exp.right(), env);
             match right {
                 Object::Base(BaseValue::Integer(v)) => {
                     Object::Base(BaseValue::Integer(Value::new(-v.value())))
@@ -97,9 +106,9 @@ fn eval_prefix_exp(exp: &PrefixExp) -> Object {
 /// - 5 / 5
 /// - 5 == 5
 /// - 5 != 5
-fn eval_infix_exp(exp: &InfixExp) -> Object {
-    let left = eval_exp(exp.left());
-    let right = eval_exp(exp.right());
+fn eval_infix_exp(exp: &InfixExp, env: &Env) -> Object {
+    let left = eval_exp(exp.left(), env);
+    let right = eval_exp(exp.right(), env);
     match exp.operator() {
         TokenType::And
         | TokenType::Or
@@ -373,11 +382,11 @@ fn eval_infix_exp(exp: &InfixExp) -> Object {
 
 // =================== Evaluate Statement ===================
 
-fn eval_stmt(stmt: &Statement) -> Object {
+fn eval_stmt(stmt: &Statement, env: &Env) -> Object {
     match stmt {
-        Statement::Let(_) => todo!("Implement LetStatement evaluation"),
-        Statement::Return(ret_stmt) => eval_return_stmt(ret_stmt),
-        Statement::Block(block_stmt) => eval_block_stmt(block_stmt),
+        Statement::Let(let_stmt) => eval_let_stmt(let_stmt, env),
+        Statement::Return(ret_stmt) => eval_return_stmt(ret_stmt, env),
+        Statement::Block(block_stmt) => eval_block_stmt(block_stmt, env),
         Statement::Func(_) => todo!("Implement FuncStatement evaluation"),
     }
 }
@@ -385,7 +394,7 @@ fn eval_stmt(stmt: &Statement) -> Object {
 fn eval_block_stmt(stmt: &BlockStatement) -> Object {
     let mut result = Object::Null;
     for s in stmt.statements() {
-        result = eval(s);
+        result = eval(s, env);
 
         match result {
             Object::Return(_) => return result,
@@ -395,9 +404,9 @@ fn eval_block_stmt(stmt: &BlockStatement) -> Object {
     result
 }
 
-fn eval_return_stmt(stmt: &ReturnStatement) -> Object {
+fn eval_return_stmt(stmt: &ReturnStatement, env: &Env) -> Object {
     let ret_val = match stmt.value() {
-        Some(v) => eval_exp(v),
+        Some(v) => eval_exp(v, env),
         None => Object::Null,
     };
 
