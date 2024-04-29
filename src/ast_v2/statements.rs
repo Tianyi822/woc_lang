@@ -162,8 +162,8 @@ impl FuncStatement {
 
     /// Get the body of the function statement.
     /// For example: fn add(x, y) { return x + y; } -> { return x + y; }
-    pub fn body(&self) -> &BlockStatement {
-        &self.body
+    pub fn body(self) -> BlockStatement {
+        self.body
     }
 }
 
