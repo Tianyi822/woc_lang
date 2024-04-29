@@ -417,9 +417,9 @@ fn eval_return_stmt(stmt: &ReturnStatement, env: &Env) -> Object {
     };
 
     match ret_val {
-        Object::Base(BaseValue::Integer(v)) => Object::Return(BaseValue::Integer(v)),
-        Object::Base(BaseValue::Float(v)) => Object::Return(BaseValue::Float(v)),
-        Object::Base(BaseValue::Boolean(v)) => Object::Return(BaseValue::Boolean(v)),
+        Object::Base(BaseValue::Integer(v)) => Object::Return(Box::new(Object::Base(BaseValue::Integer(v)))),
+        Object::Base(BaseValue::Float(v)) => Object::Return(Box::new(Object::Base(BaseValue::Float(v)))),
+        Object::Base(BaseValue::Boolean(v)) => Object::Return(Box::new(Object::Base(BaseValue::Boolean(v)))),
         _ => Object::Null,
     }
 }

@@ -30,35 +30,35 @@ mod evaluator_test {
         let tests = vec![
             (
                 "{ return 10; }",
-                Object::Return(BaseValue::Integer(Value::new(10))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(10))))),
             ),
             (
                 "{ return 10; return 20; }",
-                Object::Return(BaseValue::Integer(Value::new(10))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(10))))),
             ),
             (
                 "{ return 10; 20; }",
-                Object::Return(BaseValue::Integer(Value::new(10))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(10))))),
             ),
             (
                 "{ 10; return 20; }",
-                Object::Return(BaseValue::Integer(Value::new(20))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(20))))),
             ),
             (
                 "{ 10; 20; return 30; }",
-                Object::Return(BaseValue::Integer(Value::new(30))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(30))))),
             ),
             (
-                "if (1 > 2) { 10; } else { 20; }",
-                Object::Base(BaseValue::Integer(Value::new(20))),
+                "if (1 > 2) { 10; } else { return 20; }",
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(20))))),
             ),
             (
                 "if (1 > 2) { 10; } else { 20; return 30; }",
-                Object::Return(BaseValue::Integer(Value::new(30))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(30))))),
             ),
             (
                 "if (10 > 1) { if (10 > 1) { return 30; } return 1; }",
-                Object::Return(BaseValue::Integer(Value::new(30))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(30))))),
             ),
         ];
 
@@ -73,83 +73,83 @@ mod evaluator_test {
         let tests = vec![
             (
                 "return 1 && 1;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
                 "return 1 || 1;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
                 "return 10;",
-                Object::Return(BaseValue::Integer(Value::new(10))),
+                Object::Return(Box::new(Object::Base(BaseValue::Integer(Value::new(10))))),
             ),
             (
                 "return 8.22;",
-                Object::Return(BaseValue::Float(Value::new(8.22))),
+                Object::Return(Box::new(Object::Base(BaseValue::Float(Value::new(8.22))))),
             ),
             (
                 "return true;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
                 "return false;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
             (
-                "return 1 + 1;",
-                Object::Return(BaseValue::Integer(Value::new(2))),
+                "return 1 < 2;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return 1.1 + 1.1;",
-                Object::Return(BaseValue::Float(Value::new(2.2))),
+                "return 1 > 2;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
             (
                 "return 1 == 1;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
                 "return 1 != 1;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
             (
-                "return 1 < 1;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                "return 1 == 2;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
             (
-                "return 1 > 1;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                "return 1 != 2;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return 1 <= 1;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                "return true == true;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return 1 >= 1;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                "return false == false;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return !1;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                "return true == false;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
             (
-                "return !!1;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                "return true != false;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return !true;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                "return false != true;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return !!true;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                "return (1 < 2) == true;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(true))))),
             ),
             (
-                "return !false;",
-                Object::Return(BaseValue::Boolean(Value::new(true))),
+                "return (1 < 2) == false;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
             (
-                "return !!false;",
-                Object::Return(BaseValue::Boolean(Value::new(false))),
+                "return (1 > 2) == true;",
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
             ),
         ];
 
@@ -391,14 +391,8 @@ mod evaluator_test {
             (Object::Base(BaseValue::Boolean(v)), Object::Base(BaseValue::Boolean(e))) => {
                 assert_eq!(v.value(), e.value());
             }
-            (Object::Return(BaseValue::Integer(v)), Object::Return(BaseValue::Integer(e))) => {
-                assert_eq!(v.value(), e.value());
-            }
-            (Object::Return(BaseValue::Float(v)), Object::Return(BaseValue::Float(e))) => {
-                assert_eq!(v.value(), e.value());
-            }
-            (Object::Return(BaseValue::Boolean(v)), Object::Return(BaseValue::Boolean(e))) => {
-                assert_eq!(v.value(), e.value());
+            (Object::Return(v), Object::Return(e)) => {
+                test_equal_object(*v, *e);
             }
             _ => panic!("The object is not equal, got={:?}, want={:?}", get, want),
         }

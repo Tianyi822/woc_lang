@@ -4,7 +4,7 @@ use std::fmt::{self, Debug, Display, Formatter};
 pub enum Object {
     Null,
     Base(BaseValue),
-    Return(BaseValue),
+    Return(Box<Object>),
 }
 
 #[derive(PartialEq, Eq)]
@@ -24,10 +24,13 @@ impl Object {
                 BaseValue::Float(_) => ObjectType::Float,
                 BaseValue::Boolean(_) => ObjectType::Boolean,
             },
-            Object::Return(bv) => match bv {
-                BaseValue::Integer(_) => ObjectType::Integer,
-                BaseValue::Float(_) => ObjectType::Float,
-                BaseValue::Boolean(_) => ObjectType::Boolean,
+            Object::Return(bv) => match bv.as_ref() {
+                Object::Base(bv) => match bv {
+                    BaseValue::Integer(_) => ObjectType::Integer,
+                    BaseValue::Float(_) => ObjectType::Float,
+                    BaseValue::Boolean(_) => ObjectType::Boolean,
+                },
+                _ => ObjectType::Null,
             },
         }
     }
@@ -49,10 +52,13 @@ impl Display for Object {
                 BaseValue::Float(v) => write!(f, "{}", v.value()),
                 BaseValue::Boolean(v) => write!(f, "{}", v.value()),
             },
-            Object::Return(bv) => match bv {
-                BaseValue::Integer(v) => write!(f, "return {}", v.value()),
-                BaseValue::Float(v) => write!(f, "return {}", v.value()),
-                BaseValue::Boolean(v) => write!(f, "return {}", v.value()),
+            Object::Return(bv) => match bv.as_ref() {
+                Object::Base(bv) => match bv {
+                    BaseValue::Integer(v) => write!(f, "return {}", v.value()),
+                    BaseValue::Float(v) => write!(f, "return {}", v.value()),
+                    BaseValue::Boolean(v) => write!(f, "return {}", v.value()),
+                },
+                _ => write!(f, "null"),
             },
         }
     }
@@ -67,10 +73,13 @@ impl Debug for Object {
                 BaseValue::Float(v) => write!(f, "{:?}", v),
                 BaseValue::Boolean(v) => write!(f, "{:?}", v),
             },
-            Object::Return(bv) => match bv {
-                BaseValue::Integer(v) => write!(f, "return {:?}", v),
-                BaseValue::Float(v) => write!(f, "return {:?}", v),
-                BaseValue::Boolean(v) => write!(f, "return {:?}", v),
+            Object::Return(bv) => match bv.as_ref() {
+                Object::Base(bv) => match bv {
+                    BaseValue::Integer(v) => write!(f, "return {:?}", v),
+                    BaseValue::Float(v) => write!(f, "return {:?}", v),
+                    BaseValue::Boolean(v) => write!(f, "return {:?}", v),
+                },
+                _ => write!(f, "null"),
             },
         }
     }
