@@ -8,6 +8,7 @@ pub mod statements;
 /// In contrast, the new AST version 2 utilizes enums to represent different types of nodes, eliminating the need for frequent runtime type checks and thus enhancing efficiency.
 /// The new AST version 2 also provides a more straightforward and concise implementation, making it easier to understand and maintain.
 /// The statement and expression nodes are defined by [`Expression`] enum and [`Statement`] enum, respectively.
+#[derive(Clone)]
 pub enum Node {
     Stmt(Statement),
     Exp(Expression),
@@ -42,6 +43,7 @@ impl Display for Node {
 ///     The above infix expressions will be parsed into the InfixExp node.
 /// - IfExp and ElseExp: if (x < y) { return x; } else { return y; }
 /// - FuncExp: fn add(x, y) { return x + y; }
+#[derive(Clone)]
 pub enum Expression {
     Identifier(expressions::IdentifierExp),
     Num(expressions::NumExp),
@@ -84,6 +86,7 @@ impl Display for Expression {
 /// For example:
 /// - LetStatement: let x = 822;
 /// - ReturnStatement: return x;
+#[derive(Clone)]
 pub enum Statement {
     Let(statements::LetStatement),
     Return(statements::ReturnStatement),

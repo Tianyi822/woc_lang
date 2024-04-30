@@ -5,11 +5,12 @@ use std::{
 
 use crate::token::token::TokenType;
 
-use super::{Expression, statements::BlockStatement};
+use super::{statements::BlockStatement, Expression};
 
 /// The identifier expression represents a variable or function name.
 /// It distinguishes itself from the implementation in the previous version by removing the token field,
 /// reduce memory usage, and simplify the implementation.
+#[derive(Clone)]
 pub struct IdentifierExp {
     value: String,
 }
@@ -37,6 +38,7 @@ impl Display for IdentifierExp {
 }
 
 /// The number expression represents an integer or float number.
+#[derive(Clone)]
 pub struct NumExp {
     integer_value: Option<i64>,
     float_value: Option<f64>,
@@ -80,6 +82,7 @@ impl Display for NumExp {
 }
 
 /// The boolean expression represents a boolean value.
+#[derive(Clone)]
 pub struct BooleanExp {
     value: bool,
 }
@@ -116,6 +119,7 @@ impl Display for BooleanExp {
 ///     return y;
 /// }
 /// ```
+#[derive(Clone)]
 pub struct IfExp {
     condition: Box<Expression>,
     consequence: BlockStatement,
@@ -188,6 +192,7 @@ impl Display for IfExp {
 ///     return y;
 /// }
 /// ```
+#[derive(Clone)]
 pub struct ElseExp {
     if_exp: Option<Box<Expression>>,
     consequence: Option<BlockStatement>,
@@ -213,11 +218,7 @@ impl ElseExp {
 impl Debug for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(
-                f,
-                "else {:?}",
-                self.if_exp.as_ref().unwrap(),
-            )
+            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(),)
         } else {
             write!(f, "else {:?}", self.consequence.as_ref().unwrap())
         }
@@ -227,11 +228,7 @@ impl Debug for ElseExp {
 impl Display for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(
-                f,
-                "else {}",
-                self.if_exp.as_ref().unwrap(),
-            )
+            write!(f, "else {}", self.if_exp.as_ref().unwrap(),)
         } else {
             write!(f, "else {}", self.consequence.as_ref().unwrap())
         }
@@ -245,6 +242,7 @@ impl Display for ElseExp {
 /// ```
 /// add(1, 2)
 /// ```
+#[derive(Clone)]
 pub struct CallExp {
     function: Box<Expression>,
     arguments: Vec<Expression>,
@@ -290,6 +288,7 @@ impl Display for CallExp {
 
 /// The prefix expression represents the prefix operator and the right expression.
 /// For example, !x, -y, !true, -false
+#[derive(Clone)]
 pub struct PrefixExp {
     operator: TokenType,
     right: Box<Expression>,
@@ -325,6 +324,7 @@ impl Display for PrefixExp {
 }
 
 /// The infix expression represents the left expression, operator, and right expression.
+#[derive(Clone)]
 pub struct InfixExp {
     left: Box<Expression>,
     operator: TokenType,

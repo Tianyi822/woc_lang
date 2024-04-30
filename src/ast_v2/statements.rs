@@ -1,9 +1,10 @@
 use std::fmt::{Debug, Display};
 
-use super::{Expression, expressions::IdentifierExp, Node};
+use super::{expressions::IdentifierExp, Expression, Node};
 
 /// Let statement is a statement that binds a value to a name.
 /// For example: let x = 822;
+#[derive(Clone)]
 pub struct LetStatement {
     ident: IdentifierExp,
     value: Option<Expression>,
@@ -54,6 +55,7 @@ impl Display for LetStatement {
 }
 
 /// Return statement is a statement that returns a value from a function.
+#[derive(Clone)]
 pub struct ReturnStatement {
     value: Option<Expression>,
 }
@@ -97,31 +99,39 @@ impl Display for ReturnStatement {
 }
 
 /// Block statement is a statement that groups multiple statements together.
+#[derive(Clone)]
 pub struct BlockStatement {
-    statements: Vec<Box<Node>>,
+    statements: Option<Vec<Box<Node>>>,
 }
 
 impl BlockStatement {
     pub fn new() -> Self {
-        Self {
-            statements: Vec::new(),
-        }
+        Self { statements: None }
     }
 
     /// Get the statements in the block statement.
-    pub fn statements(self) -> Vec<Box<Node>> {
+    pub fn statements(self) -> Option<Vec<Box<Node>>> {
         self.statements
     }
 
     /// Add a statement to the block statement.
     pub fn add(&mut self, stmt: Box<Node>) {
-        self.statements.push(stmt);
+        if self.statements.is_none() {
+            self.statements = Some(vec![]);
+        }
+
+        self.statements.as_mut().unwrap().push(stmt);
     }
 }
 
 impl Debug for BlockStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let stmts = self.statements.iter().map(|stmt| format!("{:?}", stmt)).collect::<Vec<String>>().join(" ");
+        let stmts = self
+            .statements
+            .iter()
+            .map(|stmt| format!("{:?}", stmt))
+            .collect::<Vec<String>>()
+            .join(" ");
 
         write!(f, "{{{}}}", stmts)
     }
@@ -129,7 +139,12 @@ impl Debug for BlockStatement {
 
 impl Display for BlockStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let stmts = self.statements.iter().map(|stmt| format!("{:?}", stmt)).collect::<Vec<String>>().join(" ");
+        let stmts = self
+            .statements
+            .iter()
+            .map(|stmt| format!("{:?}", stmt))
+            .collect::<Vec<String>>()
+            .join(" ");
 
         write!(f, "{{{}}}", stmts)
     }
@@ -137,6 +152,7 @@ impl Display for BlockStatement {
 
 /// Function statement is a statement that defines a function.
 /// For example: fn add(x, y) { return x + y; }
+#[derive(Clone)]
 pub struct FuncStatement {
     ident: IdentifierExp,
     params: Option<Vec<IdentifierExp>>,
@@ -144,8 +160,16 @@ pub struct FuncStatement {
 }
 
 impl FuncStatement {
-    pub fn new(ident: IdentifierExp, params: Option<Vec<IdentifierExp>>, body: BlockStatement) -> Self {
-        Self { ident, params, body }
+    pub fn new(
+        ident: IdentifierExp,
+        params: Option<Vec<IdentifierExp>>,
+        body: BlockStatement,
+    ) -> Self {
+        Self {
+            ident,
+            params,
+            body,
+        }
     }
 
     /// Get the name of the function statement.
@@ -171,7 +195,11 @@ impl Debug for FuncStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.params {
             Some(params) => {
-                let params_str = params.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ");
+                let params_str = params
+                    .iter()
+                    .map(|p| p.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
                 write!(f, "func {}({}) {:?}", self.ident, params_str, self.body)
             }
             None => {
@@ -185,7 +213,11 @@ impl Display for FuncStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.params {
             Some(params) => {
-                let params_str = params.iter().map(|p| p.to_string()).collect::<Vec<String>>().join(", ");
+                let params_str = params
+                    .iter()
+                    .map(|p| p.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ");
                 write!(f, "func {}({}) {:?}", self.ident, params_str, self.body)
             }
             None => {
