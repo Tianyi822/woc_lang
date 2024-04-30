@@ -126,27 +126,37 @@ impl BlockStatement {
 
 impl Debug for BlockStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let stmts = self
-            .statements
-            .iter()
-            .map(|stmt| format!("{:?}", stmt))
-            .collect::<Vec<String>>()
-            .join(" ");
-
-        write!(f, "{{{}}}", stmts)
+        match &self.statements {
+            Some(stmts) => {
+                let stmts_str = stmts
+                    .iter()
+                    .map(|stmt| format!("{:?}", stmt))
+                    .collect::<Vec<String>>()
+                    .join(" ");
+                write!(f, "{{{}}}", stmts_str)
+            }
+            None => {
+                write!(f, "{{}}")
+            }
+        }
     }
 }
 
 impl Display for BlockStatement {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let stmts = self
-            .statements
-            .iter()
-            .map(|stmt| format!("{:?}", stmt))
-            .collect::<Vec<String>>()
-            .join(" ");
-
-        write!(f, "{{{}}}", stmts)
+        match &self.statements {
+            Some(stmts) => {
+                let stmts_str = stmts
+                    .iter()
+                    .map(|stmt| format!("{}", stmt))
+                    .collect::<Vec<String>>()
+                    .join(" ");
+                write!(f, "{{{}}}", stmts_str)
+            }
+            None => {
+                write!(f, "{{}}")
+            }
+        }
     }
 }
 
