@@ -1,6 +1,6 @@
 use std::io::{self, Write as _};
 
-use crate::{environment::env::Env, evaluator::evaluator, parser_v2::parser::Parser};
+use crate::{environment::env::Env, parser_v2::parser::Parser};
 
 pub fn run() {
     let env = Env::new();
@@ -21,9 +21,9 @@ pub fn run() {
 
         let programs = p.programs();
 
-        let evaluated = evaluator::eval(programs.get(0).unwrap(), &env);
-        if !evaluated.is_null() {
-            println!("{}", evaluated);
-        }
+        // let evaluated = evaluator::eval(programs.get(0).unwrap(), &env);
+        // if !evaluated.is_null() {
+        //     println!("{}", evaluated);
+        // }
     }
 }
