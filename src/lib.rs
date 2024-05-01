@@ -1,6 +1,5 @@
 pub mod ast_v2;
 pub mod environment;
-pub mod evaluator;
 pub mod evaluator_v2;
 pub mod lexer;
 pub mod object;

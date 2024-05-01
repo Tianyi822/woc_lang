@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display};
 
-use super::{expressions::IdentifierExp, Expression, Node};
+use super::{Expression, expressions::IdentifierExp, Node};
 
 /// Let statement is a statement that binds a value to a name.
 /// For example: let x = 822;
@@ -23,8 +23,8 @@ impl LetStatement {
 
     /// Get the value of the let statement.
     /// For example: let x = 822; -> 822
-    pub fn value(self) -> Option<Expression> {
-        self.value
+    pub fn value(&self) -> Option<&Expression> {
+        self.value.as_ref()
     }
 }
 
@@ -67,8 +67,8 @@ impl ReturnStatement {
 
     /// Get the value of the return statement.
     /// For example: return 822; -> 822
-    pub fn value(self) -> Option<Expression> {
-        self.value
+    pub fn value(&self) -> Option<&Expression> {
+        self.value.as_ref()
     }
 }
 
@@ -110,8 +110,8 @@ impl BlockStatement {
     }
 
     /// Get the statements in the block statement.
-    pub fn statements(self) -> Option<Vec<Box<Node>>> {
-        self.statements
+    pub fn statements(&self) -> Option<&Vec<Box<Node>>> {
+        self.statements.as_ref()
     }
 
     /// Add a statement to the block statement.
@@ -190,14 +190,14 @@ impl FuncStatement {
 
     /// Get the parameters of the function statement.
     /// For example: fn add(x, y) { return x + y; } -> x, y
-    pub fn params(self) -> Option<Vec<IdentifierExp>> {
-        self.params
+    pub fn params(&self) -> Option<&Vec<IdentifierExp>> {
+        self.params.as_ref()
     }
 
     /// Get the body of the function statement.
     /// For example: fn add(x, y) { return x + y; } -> { return x + y; }
-    pub fn body(self) -> BlockStatement {
-        self.body
+    pub fn body(&self) -> &BlockStatement {
+        &self.body
     }
 }
 
