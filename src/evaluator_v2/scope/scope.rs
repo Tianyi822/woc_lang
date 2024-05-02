@@ -4,6 +4,7 @@ use crate::object::object::Object;
 
 /// Scope is a struct that stores the variables and functions in the scope and the parent scope.
 /// The parent scope is used to find some variables or functions that are not in the current scope until the global scope.
+#[derive(Clone)]
 pub struct Scope {
     // Store the variables and functions in the scope
     store: RefCell<HashMap<String, Rc<Object>>>,
