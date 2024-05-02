@@ -1,9 +1,12 @@
 use std::io::{self, Write as _};
 
-use crate::{environment::env::Env, evaluator::evaluator, parser_v2::parser::Parser};
+use crate::{
+    evaluator_v2::evaluator::Evaluator,
+    parser_v2::parser::Parser,
+};
 
 pub fn run() {
-    let env = Env::new();
+    let evaluator = Evaluator::new(None);
 
     loop {
         print!("> ");
@@ -21,7 +24,7 @@ pub fn run() {
 
         let programs = p.programs();
 
-        let evaluated = evaluator::eval(programs.get(0).unwrap(), &env);
+        let evaluated = evaluator.eval(programs.get(0).unwrap());
         if !evaluated.is_null() {
             println!("{}", evaluated);
         }

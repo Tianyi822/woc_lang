@@ -132,15 +132,15 @@ impl Parser {
     fn parse_func_parameters(&self) -> Option<Vec<IdentifierExp>> {
         let mut params = Vec::new();
 
-        // Move to the next token
-        self.next_token();
-
+        // Check if there are no parameters
         if self.peek_tok_is(&TokenType::RightParen) {
             // Move to RightParen token
             self.next_token();
             return None;
         }
 
+        // Move to the next token
+        self.next_token();
         let literal = self.get_cur_token().literal().to_string();
         let ident = IdentifierExp::new(literal);
         params.push(ident);

@@ -5,11 +5,12 @@ use std::{
 
 use crate::token::token::TokenType;
 
-use super::{Expression, statements::BlockStatement};
+use super::{statements::BlockStatement, Expression};
 
 /// The identifier expression represents a variable or function name.
 /// It distinguishes itself from the implementation in the previous version by removing the token field,
 /// reduce memory usage, and simplify the implementation.
+#[derive(Clone)]
 pub struct IdentifierExp {
     value: String,
 }
@@ -37,6 +38,7 @@ impl Display for IdentifierExp {
 }
 
 /// The number expression represents an integer or float number.
+#[derive(Clone)]
 pub struct NumExp {
     integer_value: Option<i64>,
     float_value: Option<f64>,
@@ -80,6 +82,7 @@ impl Display for NumExp {
 }
 
 /// The boolean expression represents a boolean value.
+#[derive(Clone)]
 pub struct BooleanExp {
     value: bool,
 }
@@ -116,6 +119,7 @@ impl Display for BooleanExp {
 ///     return y;
 /// }
 /// ```
+#[derive(Clone)]
 pub struct IfExp {
     condition: Box<Expression>,
     consequence: BlockStatement,
@@ -188,20 +192,21 @@ impl Display for IfExp {
 ///     return y;
 /// }
 /// ```
+#[derive(Clone)]
 pub struct ElseExp {
-    if_exp: Option<Box<Expression>>,
+    if_exp: Option<Box<IfExp>>,
     consequence: Option<BlockStatement>,
 }
 
 impl ElseExp {
-    pub fn new(if_exp: Option<Box<Expression>>, consequence: Option<BlockStatement>) -> Self {
+    pub fn new(if_exp: Option<Box<IfExp>>, consequence: Option<BlockStatement>) -> Self {
         Self {
-            if_exp: if_exp,
-            consequence: consequence,
+            if_exp,
+            consequence,
         }
     }
 
-    pub fn if_exp(&self) -> Option<&Expression> {
+    pub fn if_exp(&self) -> Option<&IfExp> {
         self.if_exp.as_ref().map(|exp| &**exp)
     }
 
@@ -213,11 +218,7 @@ impl ElseExp {
 impl Debug for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(
-                f,
-                "else {:?}",
-                self.if_exp.as_ref().unwrap(),
-            )
+            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(),)
         } else {
             write!(f, "else {:?}", self.consequence.as_ref().unwrap())
         }
@@ -227,11 +228,7 @@ impl Debug for ElseExp {
 impl Display for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(
-                f,
-                "else {}",
-                self.if_exp.as_ref().unwrap(),
-            )
+            write!(f, "else {}", self.if_exp.as_ref().unwrap(),)
         } else {
             write!(f, "else {}", self.consequence.as_ref().unwrap())
         }
@@ -245,21 +242,19 @@ impl Display for ElseExp {
 /// ```
 /// add(1, 2)
 /// ```
+#[derive(Clone)]
 pub struct CallExp {
-    function: Box<Expression>,
+    name: IdentifierExp,
     arguments: Vec<Expression>,
 }
 
 impl CallExp {
-    pub fn new(function: Expression, arguments: Vec<Expression>) -> Self {
-        Self {
-            function: Box::new(function),
-            arguments,
-        }
+    pub fn new(name: IdentifierExp, arguments: Vec<Expression>) -> Self {
+        Self { name, arguments }
     }
 
-    pub fn function(&self) -> &Expression {
-        &self.function
+    pub fn name(&self) -> &IdentifierExp {
+        &self.name
     }
 
     pub fn arguments(&self) -> &Vec<Expression> {
@@ -269,7 +264,7 @@ impl CallExp {
 
 impl Debug for CallExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}({:?})", self.function, self.arguments)
+        write!(f, "{:?}({:?})", self.name, self.arguments)
     }
 }
 
@@ -278,7 +273,7 @@ impl Display for CallExp {
         write!(
             f,
             "{}({})",
-            self.function,
+            self.name,
             self.arguments
                 .iter()
                 .map(|arg| arg.to_string())
@@ -290,6 +285,7 @@ impl Display for CallExp {
 
 /// The prefix expression represents the prefix operator and the right expression.
 /// For example, !x, -y, !true, -false
+#[derive(Clone)]
 pub struct PrefixExp {
     operator: TokenType,
     right: Box<Expression>,
@@ -325,6 +321,7 @@ impl Display for PrefixExp {
 }
 
 /// The infix expression represents the left expression, operator, and right expression.
+#[derive(Clone)]
 pub struct InfixExp {
     left: Box<Expression>,
     operator: TokenType,

@@ -3,6 +3,25 @@ mod parser_test {
     use woc_lang::parser_v2::parser::Parser;
 
     #[test]
+    fn test_func_and_call() {
+        let input = "
+            func add(x, y) { return x + y; }
+            add(5, 5);
+        ";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 2);
+
+        let func_stmt = programs.get(0).unwrap();
+        assert_eq!(func_stmt.to_string(), "func add(x, y) {return (x + y);}");
+
+        let call_exp = programs.get(1).unwrap();
+        assert_eq!(call_exp.to_string(), "add(5, 5)");
+    }
+
+    #[test]
     fn test_parse_multi_prefix() {
         let input = "!!true;";
 
@@ -190,10 +209,7 @@ mod parser_test {
         assert_eq!(programs.len(), 1);
 
         let func_stmt = programs.get(0).unwrap();
-        assert_eq!(
-            func_stmt.to_string(),
-            "func add(x, y) {return (x + y);}"
-        );
+        assert_eq!(func_stmt.to_string(), "func add(x, y) {return (x + y);}");
     }
 
     #[test]
@@ -206,10 +222,7 @@ mod parser_test {
         assert_eq!(programs.len(), 1);
 
         let if_exp = programs.get(0).unwrap();
-        assert_eq!(
-            if_exp.to_string(),
-            "if (x < y) {return x;}"
-        );
+        assert_eq!(if_exp.to_string(), "if (x < y) {return x;}");
     }
 
     #[test]
@@ -238,9 +251,6 @@ mod parser_test {
         assert_eq!(programs.len(), 1);
 
         let call_exp = programs.get(0).unwrap();
-        assert_eq!(
-            call_exp.to_string(),
-            "add(5, 5)"
-        );
+        assert_eq!(call_exp.to_string(), "add(5, 5)");
     }
 }

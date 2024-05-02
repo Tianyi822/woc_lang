@@ -1,11 +1,41 @@
 #[cfg(test)]
 mod evaluator_test {
     use woc_lang::{
-        environment::env::Env,
-        evaluator::evaluator::eval,
+        evaluator_v2::evaluator::Evaluator,
         object::object::{BaseValue, Object, Value},
         parser_v2::parser::Parser,
     };
+
+    #[test]
+    fn test_func_stmt() {
+        let tests = vec![
+            (
+                "
+                func abs(a) { if ( a < 0 ) { return -1 * a; } else { return a; } }
+                func add(a, b) { return a + b; }
+                let a = abs(-821);
+                a;
+                ",
+                Object::Base(BaseValue::Integer(Value::new(821))),
+            ),
+            (
+                "
+                    func add(a, b) { a + b; }
+                    func abs(a) { if ( a < 0 ) { return -1 * a; } else { return a; } }
+                    let a = abs(-821);
+                    a;
+                    let c = add(a, 1);
+                    c;
+                ",
+                Object::Base(BaseValue::Integer(Value::new(822))),
+            ),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(evaluated, expected);
+        }
+    }
 
     #[test]
     fn test_let_stmt() {
@@ -363,11 +393,11 @@ mod evaluator_test {
     fn test_eval(input: &str) -> Object {
         let parser = Parser::new(input);
         let program = parser.programs();
-        let env = Env::new();
+        let evaluator = Evaluator::new(None);
 
         let mut result = Object::Null;
         for node in program.iter() {
-            result = eval(node, &env);
+            result = evaluator.eval(node);
         }
 
         return result;
