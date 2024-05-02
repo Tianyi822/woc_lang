@@ -7,6 +7,31 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_recursion() {
+        let tests = vec![(
+            "
+                func counter(x) {
+                    if (x > 100) {
+                        true;
+                    } else {
+                        counter(x + 1);
+                    }
+                }
+                counter(0);
+            ",
+            true,
+        )];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(
+                evaluated,
+                Object::Base(BaseValue::Boolean(Value::new(expected))),
+            );
+        }
+    }
+
+    #[test]
     fn test_func_stmt() {
         let tests = vec![
             (
@@ -123,7 +148,9 @@ mod evaluator_test {
             ),
             (
                 "return false;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
             (
                 "return 1 < 2;",
@@ -131,7 +158,9 @@ mod evaluator_test {
             ),
             (
                 "return 1 > 2;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
             (
                 "return 1 == 1;",
@@ -139,11 +168,15 @@ mod evaluator_test {
             ),
             (
                 "return 1 != 1;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
             (
                 "return 1 == 2;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
             (
                 "return 1 != 2;",
@@ -159,7 +192,9 @@ mod evaluator_test {
             ),
             (
                 "return true == false;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
             (
                 "return true != false;",
@@ -175,11 +210,15 @@ mod evaluator_test {
             ),
             (
                 "return (1 < 2) == false;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
             (
                 "return (1 > 2) == true;",
-                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(false))))),
+                Object::Return(Box::new(Object::Base(BaseValue::Boolean(Value::new(
+                    false,
+                ))))),
             ),
         ];
 
