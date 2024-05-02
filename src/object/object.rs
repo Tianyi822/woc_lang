@@ -1,6 +1,9 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
-use crate::{ast_v2::statements::BlockStatement, environment::env::Env};
+use crate::{
+    ast_v2::{expressions::IdentifierExp, statements::BlockStatement},
+    evaluator_v2::{evaluator::Evaluator, scope::scope::Scope},
+};
 
 #[derive(Clone)]
 pub enum Object {
@@ -10,6 +13,8 @@ pub enum Object {
 
     // ===== Statement =====
     Return(Box<Object>),
+
+    Func(Function),
 }
 
 #[derive(PartialEq, Eq)]
@@ -20,6 +25,7 @@ pub enum ObjectType {
     Boolean,
 
     Return,
+    Func,
 }
 
 impl Object {
@@ -32,6 +38,7 @@ impl Object {
                 BaseValue::Boolean(_) => ObjectType::Boolean,
             },
             Object::Return(_) => ObjectType::Return,
+            Object::Func(_) => ObjectType::Func,
         }
     }
 
@@ -60,6 +67,7 @@ impl Display for Object {
                 },
                 _ => write!(f, "null"),
             },
+            Object::Func(func) => write!(f, "{}", func),
         }
     }
 }
@@ -81,41 +89,75 @@ impl Debug for Object {
                 },
                 _ => write!(f, "null"),
             },
+            Object::Func(func) => write!(f, "{:?}", func),
         }
     }
 }
 
+#[derive(Clone)]
 pub struct Function {
-    parameters: Vec<Object>,
+    parameters: Option<Vec<IdentifierExp>>,
     body: BlockStatement,
-    env: Env,
+    eval: Evaluator,
 }
 
 impl Function {
-    pub fn new(parameters: Vec<Object>, body: BlockStatement, env: Env) -> Self {
+    pub fn new(
+        parameters: Option<Vec<IdentifierExp>>,
+        body: BlockStatement,
+        parent_scope: Option<Box<Scope>>,
+    ) -> Self {
         Self {
             parameters,
             body,
-            env,
+            eval: Evaluator::new(parent_scope),
         }
     }
 
-    pub fn parameters(&self) -> &Vec<Object> {
-        &self.parameters
+    pub fn add_arguments(&mut self, args: Vec<Object>) -> Result<(), String> {
+        if args.len() != self.parameters.as_ref().unwrap().len() {
+            return Err(format!(
+                "wrong number of arguments. got={}, want={}",
+                args.len(),
+                self.parameters.as_ref().unwrap().len()
+            ));
+        }
+
+        for (i, param) in self.parameters.as_ref().unwrap().iter().enumerate() {
+            self.eval
+                .scope()
+                .set(param.value().to_string(), args[i].clone());
+        }
+
+        Ok(())
+    }
+
+    pub fn eval(&self) -> Object {
+        self.eval.eval_block_stmt(&self.body)
     }
 
     pub fn body(&self) -> &BlockStatement {
         &self.body
     }
-
-    pub fn env(&self) -> &Env {
-        &self.env
-    }
 }
 
 impl Debug for Function {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "fn({:?}) {{ {:?} }}", self.parameters, self.body)
+        write!(
+            f,
+            "fn({}) {{ {} }}",
+            self.parameters
+                .as_ref()
+                .map(|params| {
+                    params
+                        .iter()
+                        .map(|p| p.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                })
+                .unwrap_or_default(),
+            self.body
+        )
     }
 }
 
@@ -125,10 +167,15 @@ impl Display for Function {
             f,
             "fn({}) {{ {} }}",
             self.parameters
-                .iter()
-                .map(|p| p.to_string())
-                .collect::<Vec<String>>()
-                .join(", "),
+                .as_ref()
+                .map(|params| {
+                    params
+                        .iter()
+                        .map(|p| p.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                })
+                .unwrap_or_default(),
             self.body
         )
     }
@@ -158,16 +205,16 @@ impl<T> Value<T> {
     }
 
     pub fn is_zero(&self) -> bool
-    where
-        T: PartialEq + Default,
+        where
+            T: PartialEq + Default,
     {
         self.value == Default::default()
     }
 }
 
 impl<T> Debug for Value<T>
-where
-    T: Debug,
+    where
+        T: Debug,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{:?}", self.value)
@@ -175,8 +222,8 @@ where
 }
 
 impl<T> Display for Value<T>
-where
-    T: Display,
+    where
+        T: Display,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
