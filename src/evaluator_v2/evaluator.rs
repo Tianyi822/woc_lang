@@ -84,6 +84,7 @@ impl Evaluator {
     }
 
     fn eval_func_stmt(&self, func_stmt: &FuncStatement) -> Object {
+        let name = func_stmt.name();
         let params = match func_stmt.params() {
             Some(p) => {
                 let params: Vec<IdentifierExp> = p.clone();
@@ -94,12 +95,13 @@ impl Evaluator {
 
         let body = func_stmt.body().clone();
         let func = Object::Func(Function::new(
+            name.to_string(),
             params,
             body,
             Some(Box::new(self.scope.clone())),
         ));
 
-        self.scope.set(func_stmt.name().to_string(), func);
+        self.scope.set(name.to_string(), func);
 
         Object::Null
     }
@@ -164,7 +166,7 @@ impl Evaluator {
             Some(v) => {
                 let func = v.as_ref().clone();
                 match func {
-                    Object::Func(mut f) => {
+                    Object::Func(f) => {
                         // Get the arguments of the function
                         let arguments: Vec<Object> = call_exp
                             .arguments()

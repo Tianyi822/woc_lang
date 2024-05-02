@@ -96,6 +96,7 @@ impl Debug for Object {
 
 #[derive(Clone)]
 pub struct Function {
+    name: String,
     parameters: Option<Vec<IdentifierExp>>,
     body: BlockStatement,
     eval: Evaluator,
@@ -103,18 +104,20 @@ pub struct Function {
 
 impl Function {
     pub fn new(
+        name: String,
         parameters: Option<Vec<IdentifierExp>>,
         body: BlockStatement,
         parent_scope: Option<Box<Scope>>,
     ) -> Self {
         Self {
+            name,
             parameters,
             body,
             eval: Evaluator::new(parent_scope),
         }
     }
 
-    pub fn add_arguments(&mut self, args: Vec<Object>) -> Result<(), String> {
+    pub fn add_arguments(&self, args: Vec<Object>) -> Result<(), String> {
         if args.len() != self.parameters.as_ref().unwrap().len() {
             return Err(format!(
                 "wrong number of arguments. got={}, want={}",
@@ -129,15 +132,19 @@ impl Function {
                 .set(param.value().to_string(), args[i].clone());
         }
 
+        self.add_self();
+
         Ok(())
+    }
+
+    fn add_self(&self) {
+        self.eval
+            .scope()
+            .set(self.name.clone(), Object::Func(self.clone()));
     }
 
     pub fn eval(&self) -> Object {
         self.eval.eval_block_stmt(&self.body)
-    }
-
-    pub fn body(&self) -> &BlockStatement {
-        &self.body
     }
 }
 
