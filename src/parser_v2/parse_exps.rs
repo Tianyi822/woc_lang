@@ -170,10 +170,18 @@ impl Parser {
                 return None;
             }
 
-            if if_exp.is_some() {
-                Some(ElseExp::new(Some(Box::new(if_exp.unwrap())), consequence))
-            } else {
-                Some(ElseExp::new(None, consequence))
+            // Check if the else expression is an if expression
+            match if_exp {
+                Some(e) => match e {
+                    Expression::If(if_exp) => {
+                        Some(ElseExp::new(Some(Box::new(if_exp)), consequence))
+                    }
+                    _ => {
+                        self.store_error("The else expression is not an if expression.");
+                        return None;
+                    }
+                },
+                None => Some(ElseExp::new(None, consequence)),
             }
         } else {
             None
@@ -213,10 +221,16 @@ impl Parser {
     /// ```
     /// add(5, 5);
     /// ```
-    fn parse_call_exp(&self, function: Expression) -> Option<Expression> {
+    fn parse_call_exp(&self, left: Expression) -> Option<Expression> {
         let arguments = self.parse_call_arguments();
 
-        Some(Expression::Call(CallExp::new(function, arguments)))
+        match left {
+            Expression::Identifier(ident) => Some(Expression::Call(CallExp::new(ident, arguments))),
+            _ => {
+                self.store_error("The left expression is not an identifier.");
+                return None;
+            }
+        }
     }
 
     /// This method is used to parse the call arguments.

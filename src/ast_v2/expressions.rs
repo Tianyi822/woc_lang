@@ -194,19 +194,19 @@ impl Display for IfExp {
 /// ```
 #[derive(Clone)]
 pub struct ElseExp {
-    if_exp: Option<Box<Expression>>,
+    if_exp: Option<Box<IfExp>>,
     consequence: Option<BlockStatement>,
 }
 
 impl ElseExp {
-    pub fn new(if_exp: Option<Box<Expression>>, consequence: Option<BlockStatement>) -> Self {
+    pub fn new(if_exp: Option<Box<IfExp>>, consequence: Option<BlockStatement>) -> Self {
         Self {
-            if_exp: if_exp,
-            consequence: consequence,
+            if_exp,
+            consequence,
         }
     }
 
-    pub fn if_exp(&self) -> Option<&Expression> {
+    pub fn if_exp(&self) -> Option<&IfExp> {
         self.if_exp.as_ref().map(|exp| &**exp)
     }
 
@@ -244,20 +244,17 @@ impl Display for ElseExp {
 /// ```
 #[derive(Clone)]
 pub struct CallExp {
-    function: Box<Expression>,
+    name: IdentifierExp,
     arguments: Vec<Expression>,
 }
 
 impl CallExp {
-    pub fn new(function: Expression, arguments: Vec<Expression>) -> Self {
-        Self {
-            function: Box::new(function),
-            arguments,
-        }
+    pub fn new(name: IdentifierExp, arguments: Vec<Expression>) -> Self {
+        Self { name, arguments }
     }
 
-    pub fn function(&self) -> &Expression {
-        &self.function
+    pub fn name(&self) -> &IdentifierExp {
+        &self.name
     }
 
     pub fn arguments(&self) -> &Vec<Expression> {
@@ -267,7 +264,7 @@ impl CallExp {
 
 impl Debug for CallExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}({:?})", self.function, self.arguments)
+        write!(f, "{:?}({:?})", self.name, self.arguments)
     }
 }
 
@@ -276,7 +273,7 @@ impl Display for CallExp {
         write!(
             f,
             "{}({})",
-            self.function,
+            self.name,
             self.arguments
                 .iter()
                 .map(|arg| arg.to_string())
