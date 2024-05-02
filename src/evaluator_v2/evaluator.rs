@@ -1,10 +1,11 @@
 use crate::ast_v2::{Expression, Node, Statement};
-use crate::ast_v2::expressions::{ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp};
+use crate::ast_v2::expressions::{CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp};
 use crate::ast_v2::statements::{BlockStatement, FuncStatement, LetStatement, ReturnStatement};
 use crate::evaluator_v2::scope::scope::Scope;
-use crate::object::object::{BaseValue, Object, Value};
+use crate::object::object::{BaseValue, Function, Object, Value};
 use crate::token::token::TokenType;
 
+#[derive(Clone)]
 pub struct Evaluator {
     scope: Scope,
 }
@@ -14,6 +15,10 @@ impl Evaluator {
         Self {
             scope: Scope::new(parent_scope),
         }
+    }
+
+    pub fn scope(&self) -> &Scope {
+        &self.scope
     }
 
     pub fn eval(&self, node: &Node) -> Object {
@@ -34,7 +39,7 @@ impl Evaluator {
             Expression::Prefix(pre_exp) => self.eval_prefix_exp(pre_exp),
             Expression::Infix(infix_exp) => self.eval_infix_exp(infix_exp),
             Expression::If(if_exp) => self.eval_if_exp(if_exp),
-            _ => Object::Null,
+            Expression::Call(call_exp) => self.eval_call_exp(call_exp),
         }
     }
 
@@ -50,7 +55,10 @@ impl Evaluator {
     // =================== Evaluate Statement ===================
 
     fn eval_let_stmt(&self, stmt: &LetStatement) -> Object {
-        let value = self.eval_exp(stmt.value().unwrap());
+        let value = match self.eval_exp(stmt.value().unwrap()) {
+            Object::Return(v) => *v,
+            v => v,
+        };
         self.scope.set(stmt.name().to_string(), value);
         Object::Null
     }
@@ -75,11 +83,28 @@ impl Evaluator {
         }
     }
 
-    fn eval_func_stmt(&self, _stmt: &FuncStatement) -> Object {
-        todo!("eval_func_stmt")
+    fn eval_func_stmt(&self, func_stmt: &FuncStatement) -> Object {
+        let params = match func_stmt.params() {
+            Some(p) => {
+                let params: Vec<IdentifierExp> = p.clone();
+                Some(params)
+            }
+            None => None,
+        };
+
+        let body = func_stmt.body().clone();
+        let func = Object::Func(Function::new(
+            params,
+            body,
+            Some(Box::new(self.scope.clone())),
+        ));
+
+        self.scope.set(func_stmt.name().to_string(), func);
+
+        Object::Null
     }
 
-    fn eval_block_stmt(&self, stmt: &BlockStatement) -> Object {
+    pub fn eval_block_stmt(&self, stmt: &BlockStatement) -> Object {
         let mut result = Object::Null;
         match stmt.statements() {
             Some(stmts) => {
@@ -128,9 +153,36 @@ impl Evaluator {
 
     fn eval_else_exp(&self, else_exp: &ElseExp) -> Object {
         if else_exp.if_exp().is_some() {
-            return self.eval_exp(else_exp.if_exp().unwrap());
+            return self.eval_if_exp(else_exp.if_exp().unwrap());
         } else {
             return self.eval_block_stmt(else_exp.consequence().unwrap());
+        }
+    }
+
+    fn eval_call_exp(&self, call_exp: &CallExp) -> Object {
+        match self.scope.get(call_exp.name().value()) {
+            Some(v) => {
+                let func = v.as_ref().clone();
+                match func {
+                    Object::Func(mut f) => {
+                        // Get the arguments of the function
+                        let arguments: Vec<Object> = call_exp
+                            .arguments()
+                            .iter()
+                            .map(|a| self.eval_exp(a))
+                            .collect();
+                        match f.add_arguments(arguments) {
+                            Ok(_) => {
+                                // Evaluate the body of the function
+                                return f.eval();
+                            }
+                            Err(_) => return Object::Null,
+                        }
+                    }
+                    _ => return Object::Null,
+                }
+            }
+            _ => return Object::Null,
         }
     }
 
@@ -168,8 +220,15 @@ impl Evaluator {
     }
 
     fn eval_infix_exp(&self, infix_exp: &InfixExp) -> Object {
-        let left = self.eval_exp(infix_exp.left());
-        let right = self.eval_exp(infix_exp.right());
+        let left = match self.eval_exp(infix_exp.left()) {
+            Object::Return(v) => *v,
+            v => v,
+        };
+        let right = match self.eval_exp(infix_exp.right()) {
+            Object::Return(v) => *v,
+            v => v,
+        };
+
         match infix_exp.operator() {
             TokenType::And
             | TokenType::Or

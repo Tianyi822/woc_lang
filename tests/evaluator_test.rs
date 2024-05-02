@@ -7,6 +7,37 @@ mod evaluator_test {
     };
 
     #[test]
+    fn test_func_stmt() {
+        let tests = vec![
+            (
+                "
+                func abs(a) { if ( a < 0 ) { return -1 * a; } else { return a; } }
+                func add(a, b) { return a + b; }
+                let a = abs(-821);
+                a;
+                ",
+                Object::Base(BaseValue::Integer(Value::new(821))),
+            ),
+            (
+                "
+                    func add(a, b) { a + b; }
+                    func abs(a) { if ( a < 0 ) { return -1 * a; } else { return a; } }
+                    let a = abs(-821);
+                    a;
+                    let c = add(a, 1);
+                    c;
+                ",
+                Object::Base(BaseValue::Integer(Value::new(822))),
+            ),
+        ];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(evaluated, expected);
+        }
+    }
+
+    #[test]
     fn test_let_stmt() {
         let tests = vec![
             ("let a = 5; a;", 5),
