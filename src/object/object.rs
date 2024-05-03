@@ -132,12 +132,12 @@ impl Function {
                 .set(param.value().to_string(), args[i].clone());
         }
 
-        self.add_self();
+        self.add_self_to_scope();
 
         Ok(())
     }
 
-    fn add_self(&self) {
+    fn add_self_to_scope(&self) {
         self.eval
             .scope()
             .set(self.name.clone(), Object::Func(self.clone()));
@@ -212,16 +212,16 @@ impl<T> Value<T> {
     }
 
     pub fn is_zero(&self) -> bool
-        where
-            T: PartialEq + Default,
+    where
+        T: PartialEq + Default,
     {
         self.value == Default::default()
     }
 }
 
 impl<T> Debug for Value<T>
-    where
-        T: Debug,
+where
+    T: Debug,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{:?}", self.value)
@@ -229,8 +229,8 @@ impl<T> Debug for Value<T>
 }
 
 impl<T> Display for Value<T>
-    where
-        T: Display,
+where
+    T: Display,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
