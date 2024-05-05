@@ -80,7 +80,11 @@ impl Lexer {
 
             // If the char is blank, we need to store the token and transform the state.
             if c.is_whitespace() {
-                self.store_token_and_trans_state();
+                if self.cur_state_is(State::StringState) {
+                    self.set_state(State::StringState);
+                } else {
+                    self.store_token_and_trans_state();
+                }
                 continue;
             }
 
@@ -522,6 +526,17 @@ impl Lexer {
                     }
                 }
 
+                // =============== string ===============
+                State::StringState => {
+                    if c.eq(&'"') {
+                        self.store_token_and_trans_state()
+                    } else if c.eq(&'\\') {
+                        self.set_state(State::StringState);
+                    } else if c.is_alphanumeric() || c.is_whitespace() {
+                        self.set_state(State::StringState)
+                    }
+                }
+
                 // =============== single symbols ===============
                 State::CommaState
                 | State::DotState
@@ -534,9 +549,7 @@ impl Lexer {
                 | State::LeftBracketState
                 | State::RightBracketState
                 | State::BitNotState
-                | State::PercentState
-                | State::QuoteState
-                | State::SingleQuoteState => {
+                | State::PercentState => {
                     self.store_token_and_trans_state();
                 }
 
@@ -685,14 +698,31 @@ impl Lexer {
             return;
         }
 
-        // Get the literal of token from char vector.
-        let literal: String = self.command[self.start_index.get()..self.cur_index.get()]
-            .iter()
-            .collect();
-        self.start_index.set(self.cur_index.get());
-
         // Match the state to get the token type.
         let token_type = self.trans_to_token_type();
+
+        let mut literal: String = self.command[self.start_index.get()..self.cur_index.get()]
+            .iter()
+            .collect();
+
+        // Get the literal of token from char vector.
+        literal = match token_type {
+            TokenType::String => {
+                // The reason we need to add 1 here is that the cur_index is at the second '"' character.
+                // It should move to the next character to ensure the parsing of the next token.
+                self.start_index.set(self.cur_index.get() + 1);
+
+                // Remove the first char
+                literal.remove(0);
+
+                literal
+            }
+            _ => {
+                self.start_index.set(self.cur_index.get());
+
+                literal
+            }
+        };
 
         self.tokens
             .borrow_mut()
@@ -847,8 +877,7 @@ impl Lexer {
             '~' => self.set_state(State::BitNotState),
 
             // =============== Others ===============
-            '"' => self.set_state(State::QuoteState),
-            '\'' => self.set_state(State::SingleQuoteState),
+            '"' => self.set_state(State::StringState),
             '(' => self.set_state(State::LeftParenState),
             ')' => self.set_state(State::RightParenState),
             '{' => self.set_state(State::LeftBraceState),
@@ -892,8 +921,6 @@ impl Lexer {
             State::RightBraceState => TokenType::RightBrace,
             State::LeftBracketState => TokenType::LeftBracket,
             State::RightBracketState => TokenType::RightBracket,
-            State::QuoteState => TokenType::Quote,
-            State::SingleQuoteState => TokenType::SingleQuote,
 
             // =============== logical calculation ===============
             State::NotState => TokenType::Not,
@@ -926,6 +953,7 @@ impl Lexer {
             State::IdentState => TokenType::Ident,
             State::IntegerNumState => TokenType::IntegerNum,
             State::FloatNumState => TokenType::FloatNum,
+            State::StringState => TokenType::String,
 
             // =============== keywords ===============
             State::WhileState => TokenType::While,

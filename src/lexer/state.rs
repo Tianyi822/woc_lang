@@ -9,6 +9,7 @@ pub enum State {
     IdentState,
     IntegerNumState,
     FloatNumState,
+    StringState,
 
     // ========================= Single Symbols =========================
     CommaState,        // ,
@@ -22,8 +23,6 @@ pub enum State {
     RightBraceState,   // }
     LeftBracketState,  // [
     RightBracketState, // ]
-    QuoteState,        // "
-    SingleQuoteState,  // '
 
     // ========================= Logical Symbols =========================
     NotState,                  // !
