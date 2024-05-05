@@ -50,6 +50,7 @@ pub enum TokenType {
     Ident,      // Identifier
     IntegerNum, // integer number: 1, 2, -3, 1_000 etc.
     FloatNum,   // float number: 1.0, 2.0, -3.0, 1_000.0 etc.
+    String,     // string: "hello world"
 
     // Syntax Keywords
     While,    // while
@@ -114,6 +115,7 @@ impl Display for TokenType {
             TokenType::Ident => "Identifier",
             TokenType::IntegerNum => "Integer",
             TokenType::FloatNum => "Float",
+            TokenType::String => "String",
             TokenType::While => "while",
             TokenType::For => "for",
             TokenType::If => "if",

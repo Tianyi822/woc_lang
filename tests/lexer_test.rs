@@ -4,6 +4,40 @@ mod lexer_test {
         lexer::lexer::Lexer,
         token::token::{Token, TokenType},
     };
+    
+    #[test]
+    fn test_string_token() {
+        let input = "
+            \"hello\"
+
+            \"hello world\"
+
+            \"hello
+            world\"
+
+            \"hello\\world\"
+
+            \"hello 666 world\"
+        ";
+
+        let lexer = Lexer::new(input);
+        let tokens_iter = lexer.tokens_iter();
+
+        let expects = vec![
+            Token::new(TokenType::String, "hello"),
+            Token::new(TokenType::String, "hello world"),
+            Token::new(TokenType::String, "hello\n            world"),
+            Token::new(TokenType::String, "hello\\world"),
+            Token::new(TokenType::String, "hello 666 world"),
+            Token::new(TokenType::Eof, ""),
+        ];
+
+        for expect in expects {
+            let token = tokens_iter.next().unwrap();
+            assert_eq!(*expect.token_type(), *token.token_type());
+            assert_eq!(expect.literal(), token.literal());
+        }
+    }
 
     #[test]
     fn test_ten_token() {
