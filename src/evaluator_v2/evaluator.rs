@@ -1,8 +1,8 @@
-use crate::ast_v2::{Expression, Node, Statement};
 use crate::ast_v2::expressions::{CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp};
 use crate::ast_v2::statements::{BlockStatement, FuncStatement, LetStatement, ReturnStatement};
+use crate::ast_v2::{Expression, Node, Statement};
 use crate::evaluator_v2::scope::scope::Scope;
-use crate::object::object::{BaseValue, Function, Object, Value};
+use crate::object::object::{BaseValue, Function, Object, Str, Value};
 use crate::token::token::TokenType;
 
 #[derive(Clone)]
@@ -35,6 +35,7 @@ impl Evaluator {
                 None => Object::Base(BaseValue::Float(Value::new(num.float_value().unwrap()))),
             },
             Expression::Boolean(b) => Object::Base(BaseValue::Boolean(Value::new(b.value()))),
+            Expression::Str(s) => Object::Str(Str::new(s.value().to_string())),
             Expression::Identifier(ident_exo) => self.eval_ident_exp(ident_exo),
             Expression::Prefix(pre_exp) => self.eval_prefix_exp(pre_exp),
             Expression::Infix(infix_exp) => self.eval_infix_exp(infix_exp),

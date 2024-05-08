@@ -121,7 +121,7 @@ impl Parser {
         let cur_token = self.get_cur_token();
         let value = cur_token.literal().to_string();
 
-        Some(Expression::String(StringExp::new(value)))
+        Some(Expression::Str(StringExp::new(value)))
     }
 
     fn parse_if_expression(&self) -> Option<Expression> {
