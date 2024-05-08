@@ -2,9 +2,22 @@
 mod evaluator_test {
     use woc_lang::{
         evaluator_v2::evaluator::Evaluator,
-        object::object::{BaseValue, Object, Value},
+        object::object::{BaseValue, Object, Str, Value},
         parser_v2::parser::Parser,
     };
+
+    #[test]
+    fn test_eval_str() {
+        let tests = vec![(
+            "let str = \"hello\"; str;",
+            Object::Str(Str::new("hello".to_string())),
+        )];
+
+        for (input, expected) in tests {
+            let evaluated = test_eval(input);
+            test_equal_object(evaluated, expected);
+        }
+    }
 
     #[test]
     fn test_recursion() {
@@ -462,6 +475,9 @@ mod evaluator_test {
             }
             (Object::Return(v), Object::Return(e)) => {
                 test_equal_object(*v, *e);
+            }
+            (Object::Str(v), Object::Str(e)) => {
+                assert_eq!(v.value(), e.value());
             }
             _ => panic!("The object is not equal, got={:?}, want={:?}", get, want),
         }

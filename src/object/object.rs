@@ -11,6 +11,9 @@ pub enum Object {
     Null,
     Base(BaseValue),
 
+    // ===== String =====
+    Str(Str),
+
     // ===== Statement =====
     Return(Box<Object>),
 
@@ -23,6 +26,8 @@ pub enum ObjectType {
     Integer,
     Float,
     Boolean,
+
+    String,
 
     Return,
     Func,
@@ -37,6 +42,7 @@ impl Object {
                 BaseValue::Float(_) => ObjectType::Float,
                 BaseValue::Boolean(_) => ObjectType::Boolean,
             },
+            Object::Str(_) => ObjectType::String,
             Object::Return(_) => ObjectType::Return,
             Object::Func(_) => ObjectType::Func,
         }
@@ -59,6 +65,7 @@ impl Display for Object {
                 BaseValue::Float(v) => write!(f, "{}", v.value()),
                 BaseValue::Boolean(v) => write!(f, "{}", v.value()),
             },
+            Object::Str(str) => write!(f, "{}", str.value()),
             Object::Return(bv) => match bv.as_ref() {
                 Object::Base(bv) => match bv {
                     BaseValue::Integer(v) => write!(f, "return {}", v.value()),
@@ -81,6 +88,7 @@ impl Debug for Object {
                 BaseValue::Float(v) => write!(f, "{:?}", v),
                 BaseValue::Boolean(v) => write!(f, "{:?}", v),
             },
+            Object::Str(str) => write!(f, "{:?}", str),
             Object::Return(bv) => match bv.as_ref() {
                 Object::Base(bv) => match bv {
                     BaseValue::Integer(v) => write!(f, "return {:?}", v),
@@ -91,6 +99,33 @@ impl Debug for Object {
             },
             Object::Func(func) => write!(f, "{:?}", func),
         }
+    }
+}
+
+#[derive(Clone)]
+pub struct Str {
+    value: String,
+}
+
+impl Str {
+    pub fn new(value: String) -> Self {
+        Self { value }
+    }
+
+    pub fn value(&self) -> &str {
+        &self.value
+    }
+}
+
+impl Debug for Str {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.value)
+    }
+}
+
+impl Display for Str {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{}", self.value)
     }
 }
 
@@ -212,16 +247,16 @@ impl<T> Value<T> {
     }
 
     pub fn is_zero(&self) -> bool
-    where
-        T: PartialEq + Default,
+        where
+            T: PartialEq + Default,
     {
         self.value == Default::default()
     }
 }
 
 impl<T> Debug for Value<T>
-where
-    T: Debug,
+    where
+        T: Debug,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{:?}", self.value)
@@ -229,8 +264,8 @@ where
 }
 
 impl<T> Display for Value<T>
-where
-    T: Display,
+    where
+        T: Display,
 {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.value)

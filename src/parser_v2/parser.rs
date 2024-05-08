@@ -111,6 +111,7 @@ impl Parser {
             | TokenType::FloatNum
             | TokenType::True
             | TokenType::False
+            | TokenType::String
             | TokenType::Not
             | TokenType::Minus
             | TokenType::LeftParen

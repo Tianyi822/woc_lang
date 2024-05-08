@@ -3,6 +3,58 @@ mod parser_test {
     use woc_lang::parser_v2::parser::Parser;
 
     #[test]
+    fn test_string () {
+        let input = "let str = \"hello world\"; str;";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 2);
+
+        let let_stmt = programs.get(0).unwrap();
+        assert_eq!(let_stmt.to_string(), "let str = hello world;");
+
+        let identifier_exp = programs.get(1).unwrap();
+        assert_eq!(identifier_exp.to_string(), "str");
+    }
+
+    #[test]
+    fn test_string_exp() {
+        let input = "
+            \"hello\"
+
+            \"hello world\"
+
+            \"hello
+            world\"
+
+            \"hello\\world\"
+
+            \"hello 666 world\"
+        ";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 5);
+
+        let string_exp = programs.get(0).unwrap();
+        assert_eq!(string_exp.to_string(), "hello");
+
+        let string_exp = programs.get(1).unwrap();
+        assert_eq!(string_exp.to_string(), "hello world");
+
+        let string_exp = programs.get(2).unwrap();
+        assert_eq!(string_exp.to_string(), "hello\n            world");
+
+        let string_exp = programs.get(3).unwrap();
+        assert_eq!(string_exp.to_string(), "hello\\world");
+
+        let string_exp = programs.get(4).unwrap();
+        assert_eq!(string_exp.to_string(), "hello 666 world");
+    }
+
+    #[test]
     fn test_func_and_call() {
         let input = "
             func add(x, y) { return x + y; }

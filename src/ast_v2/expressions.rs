@@ -5,7 +5,7 @@ use std::{
 
 use crate::token::token::TokenType;
 
-use super::{statements::BlockStatement, Expression};
+use super::{Expression, statements::BlockStatement};
 
 /// The identifier expression represents a variable or function name.
 /// It distinguishes itself from the implementation in the previous version by removing the token field,
@@ -104,6 +104,34 @@ impl Debug for BooleanExp {
 }
 
 impl Display for BooleanExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.value)
+    }
+}
+
+/// The string expression represents a string value.
+#[derive(Clone)]
+pub struct StringExp {
+    value: String,
+}
+
+impl StringExp {
+    pub fn new(value: String) -> Self {
+        Self { value }
+    }
+
+    pub fn value(&self) -> &str {
+        &self.value
+    }
+}
+
+impl Debug for StringExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.value)
+    }
+}
+
+impl Display for StringExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.value)
     }
@@ -218,7 +246,7 @@ impl ElseExp {
 impl Debug for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(),)
+            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(), )
         } else {
             write!(f, "else {:?}", self.consequence.as_ref().unwrap())
         }
@@ -228,7 +256,7 @@ impl Debug for ElseExp {
 impl Display for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(f, "else {}", self.if_exp.as_ref().unwrap(),)
+            write!(f, "else {}", self.if_exp.as_ref().unwrap(), )
         } else {
             write!(f, "else {}", self.consequence.as_ref().unwrap())
         }
