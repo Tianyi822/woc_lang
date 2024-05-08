@@ -701,28 +701,30 @@ impl Lexer {
         // Match the state to get the token type.
         let token_type = self.trans_to_token_type();
 
-        let mut literal: String = self.command[self.start_index.get()..self.cur_index.get()]
-            .iter()
-            .collect();
-
         // Get the literal of token from char vector.
-        literal = match token_type {
+        let literal = match token_type {
             TokenType::String => {
+                let literal: String = self.command
+                    [self.start_index.get() + 1..self.cur_index.get()]
+                    .iter()
+                    .collect();
+
                 // The reason we need to add 1 here is that the cur_index is at the second '"' character.
                 // It should move to the next character to ensure the parsing of the next token.
-                self.start_index.set(self.cur_index.get() + 1);
-
-                // Remove the first char
-                literal.remove(0);
+                self.cur_index.set(self.cur_index.get() + 1);
 
                 literal
             }
             _ => {
-                self.start_index.set(self.cur_index.get());
+                let literal: String = self.command[self.start_index.get()..self.cur_index.get()]
+                    .iter()
+                    .collect();
 
                 literal
             }
         };
+
+        self.start_index.set(self.cur_index.get());
 
         self.tokens
             .borrow_mut()
