@@ -1,10 +1,10 @@
 use crate::{
     ast_v2::{
+        Expression,
         expressions::{
-            BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp,
+            BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp, StringExp,
         },
         statements::BlockStatement,
-        Expression,
     },
     token::{precedence::*, token::TokenType},
 };
@@ -22,6 +22,7 @@ impl Parser {
         self.register_prefix(TokenType::LeftParen, Parser::parse_grouped_exp);
         self.register_prefix(TokenType::True, Parser::parse_boolean);
         self.register_prefix(TokenType::False, Parser::parse_boolean);
+        self.register_prefix(TokenType::String, Parser::parse_string);
         self.register_prefix(TokenType::If, Parser::parse_if_expression);
 
         // Register the infix parsing functions.
@@ -113,6 +114,14 @@ impl Parser {
         };
 
         Some(Expression::Boolean(BooleanExp::new(value)))
+    }
+
+    // This method is used to parse the string expression.
+    fn parse_string(&self) -> Option<Expression> {
+        let cur_token = self.get_cur_token();
+        let value = cur_token.literal().to_string();
+
+        Some(Expression::String(StringExp::new(value)))
     }
 
     fn parse_if_expression(&self) -> Option<Expression> {
