@@ -190,6 +190,8 @@ impl Token {
             TokenType::Func => LEVEL_7,
             // call
             TokenType::LeftParen => CALL,
+            // Array index
+            TokenType::LeftBracket => LEVEL_10,
             // others
             _ => LEVEL_0,
         }
