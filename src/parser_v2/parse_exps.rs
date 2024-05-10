@@ -1,10 +1,11 @@
 use crate::{
     ast_v2::{
-        Expression,
         expressions::{
-            BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp, StringExp,
+            ArrayExp, BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp,
+            PrefixExp, StringExp,
         },
         statements::BlockStatement,
+        Expression,
     },
     token::{precedence::*, token::TokenType},
 };
@@ -20,7 +21,7 @@ impl Parser {
         self.register_prefix(TokenType::IntegerNum, Parser::parse_number);
         self.register_prefix(TokenType::FloatNum, Parser::parse_number);
         self.register_prefix(TokenType::LeftParen, Parser::parse_grouped_exp);
-        self.register_prefix(TokenType::LeftBracket, Parser::parse_arr_exp);
+        self.register_prefix(TokenType::LeftBracket, Parser::parse_array_exp);
         self.register_prefix(TokenType::True, Parser::parse_boolean);
         self.register_prefix(TokenType::False, Parser::parse_boolean);
         self.register_prefix(TokenType::String, Parser::parse_string);
@@ -106,8 +107,55 @@ impl Parser {
     }
 
     // This method is used to parse the array expression.
-    fn parse_arr_exp(&self) -> Option<Expression> {
-        None
+    fn parse_array_exp(&self) -> Option<Expression> {
+        // Move to the first element of the array.
+        self.next_token();
+
+        // Store the array elements.
+        let mut elements: Vec<Expression> = Vec::new();
+
+        // If the array is empty, return an empty array expression.
+        if self.cur_tok_is(&TokenType::RightBracket) {
+            self.next_token();
+            return Some(Expression::Arr(ArrayExp::new(elements)));
+        }
+
+        // Parse the first element of the array.
+        match self.parse_expression(LEVEL_0) {
+            Some(e) => match e {
+                Expression::If(_) => {
+                    self.store_error("The element of the array cannot be an 'if' expression.");
+                    return None;
+                }
+                _ => elements.push(e),
+            },
+            None => {
+                self.store_error("There is no expression after the comma.");
+                return None;
+            }
+        };
+
+        // Parse the rest of the elements of the array.
+        while self.peek_tok_is(&TokenType::Comma) {
+            self.next_token();
+            self.next_token();
+
+            match self.parse_expression(LEVEL_0) {
+                Some(e) => match e {
+                    Expression::If(_) => {
+                        self.store_error("The element of the array cannot be an 'if' expression.");
+                        return None;
+                    }
+                    _ => elements.push(e),
+                },
+                None => {
+                    self.store_error("There is no expression after the comma.");
+                    return None;
+                }
+            };
+        }
+
+        Some(Expression::Arr(ArrayExp::new(elements)))
     }
 
     // This method is used to parse the boolean expression.

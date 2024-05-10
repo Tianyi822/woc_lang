@@ -5,7 +5,7 @@ use std::{
 
 use crate::token::token::TokenType;
 
-use super::{Expression, statements::BlockStatement};
+use super::{statements::BlockStatement, Expression};
 
 /// The identifier expression represents a variable or function name.
 /// It distinguishes itself from the implementation in the previous version by removing the token field,
@@ -137,6 +137,42 @@ impl Display for StringExp {
     }
 }
 
+/// The array expression represents an array of elements.
+#[derive(Clone)]
+pub struct ArrayExp {
+    elements: Vec<Expression>,
+}
+
+impl ArrayExp {
+    pub fn new(elements: Vec<Expression>) -> Self {
+        Self { elements }
+    }
+
+    pub fn elements(&self) -> &Vec<Expression> {
+        &self.elements
+    }
+}
+
+impl Debug for ArrayExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.elements)
+    }
+}
+
+impl Display for ArrayExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "[{}]",
+            self.elements
+                .iter()
+                .map(|elem| elem.to_string())
+                .collect::<Vec<String>>()
+                .join(", ")
+        )
+    }
+}
+
 /// The if expression represents the if condition, consequence, and alternative.
 /// For example:
 ///
@@ -246,7 +282,7 @@ impl ElseExp {
 impl Debug for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(), )
+            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(),)
         } else {
             write!(f, "else {:?}", self.consequence.as_ref().unwrap())
         }
@@ -256,7 +292,7 @@ impl Debug for ElseExp {
 impl Display for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(f, "else {}", self.if_exp.as_ref().unwrap(), )
+            write!(f, "else {}", self.if_exp.as_ref().unwrap(),)
         } else {
             write!(f, "else {}", self.consequence.as_ref().unwrap())
         }

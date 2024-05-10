@@ -3,6 +3,19 @@ mod parser_test {
     use woc_lang::parser_v2::parser::Parser;
 
     #[test]
+    fn test_parse_arr_exp() {
+        let input = "[1, 2 * 2, 3 + 3, add(1, 3)];";
+
+        let parser = Parser::new(input);
+        let programs = parser.programs();
+
+        assert_eq!(programs.len(), 1);
+
+        let arr_exp = programs.get(0).unwrap();
+        assert_eq!(arr_exp.to_string(), "[1, (2 * 2), (3 + 3), add(1, 3)]");
+    }
+
+    #[test]
     fn test_string () {
         let input = "let str = \"hello world\"; str;";
 
