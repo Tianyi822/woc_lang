@@ -4,19 +4,29 @@ mod parser_test {
 
     #[test]
     fn test_parse_arr_exp() {
-        let input = "[1, 2 * 2, 3 + 3, add(1, 3)];";
+        let input = "
+        [1, 2 * 2, 3 + 3, add(1, 3)];
+        let arr = [1, 2, 3, add(1, 3)];
+        arr[0];
+        ";
 
         let parser = Parser::new(input);
         let programs = parser.programs();
 
-        assert_eq!(programs.len(), 1);
+        assert_eq!(programs.len(), 3);
 
         let arr_exp = programs.get(0).unwrap();
         assert_eq!(arr_exp.to_string(), "[1, (2 * 2), (3 + 3), add(1, 3)]");
+
+        let let_stmt = programs.get(1).unwrap();
+        assert_eq!(let_stmt.to_string(), "let arr = [1, 2, 3, add(1, 3)];");
+
+        let arr_index_exp = programs.get(2).unwrap();
+        assert_eq!(arr_index_exp.to_string(), "arr[0]");
     }
 
     #[test]
-    fn test_string () {
+    fn test_string() {
         let input = "let str = \"hello world\"; str;";
 
         let parser = Parser::new(input);

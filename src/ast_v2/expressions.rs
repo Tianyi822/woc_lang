@@ -173,6 +173,41 @@ impl Display for ArrayExp {
     }
 }
 
+#[derive(Clone)]
+pub struct ArrayIndexExp {
+    array: IdentifierExp,
+    index: Box<Expression>,
+}
+
+impl ArrayIndexExp {
+    pub fn new(array: IdentifierExp, index: Expression) -> Self {
+        Self {
+            array: array,
+            index: Box::new(index),
+        }
+    }
+
+    pub fn array(&self) -> &IdentifierExp {
+        &self.array
+    }
+
+    pub fn index(&self) -> &Expression {
+        &self.index
+    }
+}
+
+impl Debug for ArrayIndexExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}[{:?}]", self.array, self.index)
+    }
+}
+
+impl Display for ArrayIndexExp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}[{}]", self.array, self.index)
+    }
+}
+
 /// The if expression represents the if condition, consequence, and alternative.
 /// For example:
 ///

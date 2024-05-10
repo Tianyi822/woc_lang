@@ -1,8 +1,7 @@
 use crate::{
     ast_v2::{
         expressions::{
-            ArrayExp, BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp,
-            PrefixExp, StringExp,
+            ArrayExp, ArrayIndexExp, BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp, StringExp
         },
         statements::BlockStatement,
         Expression,
@@ -41,6 +40,7 @@ impl Parser {
         self.register_infix(TokenType::And, Parser::parse_infix_exp);
         self.register_infix(TokenType::Or, Parser::parse_infix_exp);
         self.register_infix(TokenType::LeftParen, Parser::parse_call_exp);
+        self.register_infix(TokenType::LeftBracket, Parser::parse_array_index_exp);
     }
 
     // ==================== Prefix Parsing Functions ====================
@@ -155,7 +155,33 @@ impl Parser {
             };
         }
 
+        // Check if the array is closed properly.
+        if !self.expect_peek(&TokenType::RightBracket) {
+            return None;
+        }
+
         Some(Expression::Arr(ArrayExp::new(elements)))
+    }
+
+    // Get the element of an array by its index.
+    fn parse_array_index_exp(&self, left: Expression) -> Option<Expression> {
+        let arr_name = match left {
+            Expression::Identifier(ident) => ident,
+            _ => {
+                self.store_error("The left expression is not an identifier.");
+                return None;
+            }
+        };
+
+        // Move to the next expression token and parse the index.
+        self.next_token();
+        let index = self.parse_expression(LEVEL_0);
+
+        if !self.expect_peek(&TokenType::RightBracket) {
+            return None;
+        }
+
+        Some(Expression::ArrIndex(ArrayIndexExp::new(arr_name, index.unwrap())))
     }
 
     // This method is used to parse the boolean expression.

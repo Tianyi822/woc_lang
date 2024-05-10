@@ -125,7 +125,10 @@ impl Parser {
             },
             TokenType::Eof | TokenType::Semicolon => None,
             _ => {
-                self.store_error("There is no such statement that starts with this token.");
+                self.store_error(&format!(
+                    "no such statement that starts with this token: {:?}",
+                    cur_tok.token_type()
+                ));
                 None
             }
         }
@@ -217,6 +220,7 @@ impl Parser {
             if infix_func.is_none() {
                 return left;
             }
+            // Move to infix operator token and parse the infix expression.
             self.next_token();
             left = infix_func.unwrap()(self, left.unwrap());
         }
