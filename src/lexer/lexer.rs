@@ -711,7 +711,7 @@ impl Lexer {
 
                 // The reason we need to add 1 here is that the cur_index is at the second '"' character.
                 // It should move to the next character to ensure the parsing of the next token.
-                self.cur_index.set(self.cur_index.get() + 1);
+                self.start_index.set(self.cur_index.get() + 1);
 
                 literal
             }
@@ -720,11 +720,11 @@ impl Lexer {
                     .iter()
                     .collect();
 
+                self.start_index.set(self.cur_index.get());
+
                 literal
             }
         };
-
-        self.start_index.set(self.cur_index.get());
 
         self.tokens
             .borrow_mut()
@@ -736,7 +736,7 @@ impl Lexer {
         // Judge whether the state should be reset or be ended.
         if self.start_index.get() < self.command.len() {
             // Reset lexer state
-            self.trans_state(&self.command[self.cur_index.get()]);
+            self.trans_state(&self.command[self.start_index.get()]);
         }
     }
 

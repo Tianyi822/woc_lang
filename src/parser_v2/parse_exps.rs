@@ -20,6 +20,7 @@ impl Parser {
         self.register_prefix(TokenType::IntegerNum, Parser::parse_number);
         self.register_prefix(TokenType::FloatNum, Parser::parse_number);
         self.register_prefix(TokenType::LeftParen, Parser::parse_grouped_exp);
+        self.register_prefix(TokenType::LeftBracket, Parser::parse_arr_exp);
         self.register_prefix(TokenType::True, Parser::parse_boolean);
         self.register_prefix(TokenType::False, Parser::parse_boolean);
         self.register_prefix(TokenType::String, Parser::parse_string);
@@ -102,6 +103,11 @@ impl Parser {
         }
 
         exp
+    }
+
+    // This method is used to parse the array expression.
+    fn parse_arr_exp(&self) -> Option<Expression> {
+        None
     }
 
     // This method is used to parse the boolean expression.
