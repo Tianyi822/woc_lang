@@ -115,6 +115,7 @@ impl Parser {
             | TokenType::Not
             | TokenType::Minus
             | TokenType::LeftParen
+            | TokenType::LeftBracket
             | TokenType::If => match self.parse_expression(LEVEL_0) {
                 Some(exp) => {
                     let node = Node::Exp(exp);
