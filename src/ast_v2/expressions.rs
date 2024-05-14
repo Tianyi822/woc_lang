@@ -175,20 +175,20 @@ impl Display for ArrayExp {
 
 #[derive(Clone)]
 pub struct ArrayIndexExp {
-    array: IdentifierExp,
+    name: IdentifierExp,
     index: Box<Expression>,
 }
 
 impl ArrayIndexExp {
-    pub fn new(array: IdentifierExp, index: Expression) -> Self {
+    pub fn new(name: IdentifierExp, index: Expression) -> Self {
         Self {
-            array: array,
+            name: name,
             index: Box::new(index),
         }
     }
 
-    pub fn array(&self) -> &IdentifierExp {
-        &self.array
+    pub fn name(&self) -> &IdentifierExp {
+        &self.name
     }
 
     pub fn index(&self) -> &Expression {
@@ -198,13 +198,13 @@ impl ArrayIndexExp {
 
 impl Debug for ArrayIndexExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}[{:?}]", self.array, self.index)
+        write!(f, "{:?}[{:?}]", self.name, self.index)
     }
 }
 
 impl Display for ArrayIndexExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}[{}]", self.array, self.index)
+        write!(f, "{}[{}]", self.name, self.index)
     }
 }
 

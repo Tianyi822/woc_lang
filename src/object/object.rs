@@ -14,6 +14,9 @@ pub enum Object {
     // ===== String =====
     Str(Str),
 
+    // ===== Array =====
+    Array(Array),
+
     // ===== Statement =====
     Return(Box<Object>),
 
@@ -28,6 +31,7 @@ pub enum ObjectType {
     Boolean,
 
     String,
+    Array,
 
     Return,
     Func,
@@ -43,6 +47,7 @@ impl Object {
                 BaseValue::Boolean(_) => ObjectType::Boolean,
             },
             Object::Str(_) => ObjectType::String,
+            Object::Array(_) => ObjectType::Array,
             Object::Return(_) => ObjectType::Return,
             Object::Func(_) => ObjectType::Func,
         }
@@ -66,6 +71,7 @@ impl Display for Object {
                 BaseValue::Boolean(v) => write!(f, "{}", v.value()),
             },
             Object::Str(str) => write!(f, "{}", str.value()),
+            Object::Array(arr) => write!(f, "{:?}", arr.elements()),
             Object::Return(bv) => match bv.as_ref() {
                 Object::Base(bv) => match bv {
                     BaseValue::Integer(v) => write!(f, "return {}", v.value()),
@@ -89,6 +95,7 @@ impl Debug for Object {
                 BaseValue::Boolean(v) => write!(f, "{:?}", v),
             },
             Object::Str(str) => write!(f, "{:?}", str),
+            Object::Array(arr) => write!(f, "{:?}", arr),
             Object::Return(bv) => match bv.as_ref() {
                 Object::Base(bv) => match bv {
                     BaseValue::Integer(v) => write!(f, "return {:?}", v),
@@ -126,6 +133,37 @@ impl Debug for Str {
 impl Display for Str {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}", self.value)
+    }
+}
+
+#[derive(Clone)]
+pub struct Array {
+   elements: Vec<Object>,
+}
+
+impl Array {
+    pub fn new(elements: Vec<Object>) -> Self {
+        Self { elements }
+    }
+
+    pub fn elements(&self) -> &Vec<Object> {
+        &self.elements
+    }
+
+    pub fn get(&self, index: usize) -> Option<&Object> {
+        self.elements.get(index)
+    }
+}
+
+impl Debug for Array {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.elements)
+    }
+}
+
+impl Display for Array {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{:?}", self.elements)
     }
 }
 
