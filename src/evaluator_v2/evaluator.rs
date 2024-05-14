@@ -1,8 +1,10 @@
-use crate::ast_v2::expressions::{CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp};
+use crate::ast_v2::expressions::{
+    ArrayExp, ArrayIndexExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp,
+};
 use crate::ast_v2::statements::{BlockStatement, FuncStatement, LetStatement, ReturnStatement};
 use crate::ast_v2::{Expression, Node, Statement};
 use crate::evaluator_v2::scope::scope::Scope;
-use crate::object::object::{BaseValue, Function, Object, Str, Value};
+use crate::object::object::{Array, BaseValue, Function, Object, Str, Value};
 use crate::token::token::TokenType;
 
 #[derive(Clone)]
@@ -36,6 +38,8 @@ impl Evaluator {
             },
             Expression::Boolean(b) => Object::Base(BaseValue::Boolean(Value::new(b.value()))),
             Expression::Str(s) => Object::Str(Str::new(s.value().to_string())),
+            Expression::Arr(arr_exp) => self.eval_arr_exp(arr_exp),
+            Expression::ArrIndex(arr_index) => self.eval_arr_index_exp(arr_index),
             Expression::Identifier(ident_exo) => self.eval_ident_exp(ident_exo),
             Expression::Prefix(pre_exp) => self.eval_prefix_exp(pre_exp),
             Expression::Infix(infix_exp) => self.eval_infix_exp(infix_exp),
@@ -128,6 +132,40 @@ impl Evaluator {
     }
 
     // =================== Evaluate Expression ===================
+
+    fn eval_arr_exp(&self, arr_exp: &ArrayExp) -> Object {
+        let objs: Vec<Object> = arr_exp
+            .elements()
+            .iter()
+            .map(|e| self.eval_exp(e))
+            .collect();
+
+        if objs.len() == 0 {
+            return Object::Null;
+        }
+
+        Object::Array(Array::new(objs))
+    }
+
+    fn eval_arr_index_exp(&self, arr_index: &ArrayIndexExp) -> Object {
+        match self.scope.get(arr_index.name().value()) {
+            Some(v) => match v.as_ref() {
+                Object::Array(a) => {
+                    let index = match self.eval_exp(arr_index.index()) {
+                        Object::Base(BaseValue::Integer(v)) => v.value().clone(),
+                        _ => return Object::Null,
+                    };
+
+                    match a.get(index as usize) {
+                        Some(v) => v.clone(),
+                        _ => return Object::Null,
+                    }
+                },
+                _ => return Object::Null,
+            },
+            _ => return Object::Null,
+        }
+    }
 
     fn eval_ident_exp(&self, exp: &IdentifierExp) -> Object {
         let name = exp.value();

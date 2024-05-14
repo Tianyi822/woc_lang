@@ -2,9 +2,49 @@
 mod evaluator_test {
     use woc_lang::{
         evaluator_v2::evaluator::Evaluator,
-        object::object::{BaseValue, Object, Str, Value},
+        object::object::{Array, BaseValue, Object, Str, Value},
         parser_v2::parser::Parser,
     };
+
+    #[test]
+    fn test_eval_arr2() {
+        let tests = "
+            let arr = [1, 2, \"666\", 4, 5];
+            arr[2];
+        ";
+
+        let arr_2 = match test_eval(tests) {
+            Object::Str(str) => str,
+            _ => panic!("The evaluated object is not an integer"),
+        };
+
+        assert_eq!(arr_2.value(), "666".to_string());
+    }
+
+    #[test]
+    fn test_eval_arr() {
+        let tests = "
+            let arr = [1, 2, 3, 4, 5];
+            arr;
+        ";
+
+        let array = match test_eval(tests) {
+            Object::Array(arr) => arr,
+            _ => panic!("The evaluated object is not an array"),
+        };
+
+        let expected = Array::new(vec![
+            Object::Base(BaseValue::Integer(Value::new(1))),
+            Object::Base(BaseValue::Integer(Value::new(2))),
+            Object::Base(BaseValue::Integer(Value::new(3))),
+            Object::Base(BaseValue::Integer(Value::new(4))),
+            Object::Base(BaseValue::Integer(Value::new(5))),
+        ]);
+
+        for (i, obj) in array.elements().iter().enumerate() {
+            test_equal_object(obj.clone(), expected.elements()[i].clone());
+        }
+    }
 
     #[test]
     fn test_eval_str() {
