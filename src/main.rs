@@ -1,5 +1,7 @@
-use woc_lang::repl;
+use woc_lang::repl::REPL;
 
 fn main() {
-    repl::run();
+    let repl = REPL::new();
+
+    repl.run();
 }
