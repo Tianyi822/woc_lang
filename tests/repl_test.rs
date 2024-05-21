@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod repl_test {
-    use woc_lang::repl::REPL;
+    use woc_lang::repl::repl::REPL;
 
     #[test]
     fn test_run_repl() {
