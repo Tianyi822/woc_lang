@@ -2,16 +2,22 @@ use std::io::Write as _;
 
 use crate::evaluator_v2::evaluator::Evaluator;
 
+use super::history::History;
+
 pub struct REPL {
+    history: History,
     evaluator: Evaluator,
 }
 
 impl REPL {
     pub fn new() -> Self {
         Self {
+            history: History::new(),
             evaluator: Evaluator::new(None),
         }
     }
+
+    fn deal_input(&self) {}
 
     pub fn run(&self) {
         loop {
@@ -25,6 +31,7 @@ impl REPL {
             std::io::stdin().read_line(&mut input).unwrap();
 
             if input.trim() == "exit" {
+                self.history.clean();
                 break;
             }
 
