@@ -18,16 +18,14 @@ impl History {
         self.current.set(0);
     }
 
-    pub fn add(&self, item: String) {
-        self.history.borrow_mut().push(item);
+    pub fn add(&self, item: &str) {
+        self.history.borrow_mut().push(item.to_string());
+        self.current.set(self.history.borrow().len());
     }
 
     pub fn get_last(&self) -> Option<String> {
         // If the current index is 0, it means get the latest history or top history.
-        // It also means that the current index has been traversed once.
-        if self.current.get() == 0 {
-            self.current.set(self.history.borrow().len() - 1);
-        } else {
+        if self.current.get() != 0 {
             self.current.set(self.current.get() - 1);
         }
 
@@ -35,9 +33,7 @@ impl History {
     }
 
     pub fn get_next(&self) -> Option<String> {
-        if self.current.get() == self.history.borrow().len() - 1 {
-            self.current.set(0);
-        } else {
+        if self.current.get() != self.history.borrow().len() - 1 {
             self.current.set(self.current.get() + 1);
         }
 

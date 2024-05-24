@@ -13,18 +13,21 @@ mod repl_test {
     fn test_history() {
         let hist = History::new();
 
-        hist.add("1 + 2".to_string());
-        hist.add("3 + 4".to_string());
-        hist.add("5 + 6".to_string());
+        hist.add("1 + 2");
+        hist.add("3 + 4");
+        hist.add("5 + 6");
 
         assert_eq!(hist.get_last().unwrap(), "5 + 6");
         assert_eq!(hist.get_last().unwrap(), "3 + 4");
         assert_eq!(hist.get_last().unwrap(), "1 + 2");
-        assert_eq!(hist.get_last().unwrap(), "5 + 6");
+        assert_eq!(hist.get_last().unwrap(), "1 + 2");
 
-        assert_eq!(hist.get_next().unwrap(), "1 + 2");
         assert_eq!(hist.get_next().unwrap(), "3 + 4");
         assert_eq!(hist.get_next().unwrap(), "5 + 6");
-        assert_eq!(hist.get_next().unwrap(), "1 + 2");
+        assert_eq!(hist.get_next().unwrap(), "5 + 6");
+
+        assert_eq!(hist.get_last().unwrap(), "3 + 4");
+        hist.add("7 + 8");
+        assert_eq!(hist.get_last().unwrap(), "7 + 8");
     }
 }
