@@ -2,7 +2,8 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use crate::lexer::state::State;
-use crate::token::token::{Token, TokenType};
+use crate::token::token::Token;
+use crate::token::types::TokenType;
 
 pub struct Lexer {
     // Command what user input.

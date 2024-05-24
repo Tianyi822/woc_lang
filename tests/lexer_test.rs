@@ -2,8 +2,9 @@
 mod lexer_test {
     use woc_lang::{
         lexer::lexer::Lexer,
-        token::token::{Token, TokenType},
+        token::token::Token,
     };
+    use woc_lang::token::types::TokenType;
 
     #[test]
     fn test_demo() {
@@ -29,7 +30,7 @@ mod lexer_test {
             assert_eq!(expect.literal(), token.literal());
         }
     }
-    
+
     #[test]
     fn test_string_token() {
         let input = "

@@ -3,8 +3,9 @@ use crate::{
         expressions::IdentifierExp,
         statements::{BlockStatement, FuncStatement, LetStatement, ReturnStatement},
     },
-    token::{precedence::*, token::TokenType},
 };
+use crate::token::precedence::LEVEL_0;
+use crate::token::types::TokenType;
 
 use super::parser::Parser;
 
