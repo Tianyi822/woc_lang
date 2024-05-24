@@ -3,9 +3,9 @@ use std::{
     str,
 };
 
-use crate::token::token::TokenType;
+use crate::token::types::TokenType;
 
-use super::{statements::BlockStatement, Expression};
+use super::{Expression, statements::BlockStatement};
 
 /// The identifier expression represents a variable or function name.
 /// It distinguishes itself from the implementation in the previous version by removing the token field,
@@ -317,7 +317,7 @@ impl ElseExp {
 impl Debug for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(),)
+            write!(f, "else {:?}", self.if_exp.as_ref().unwrap(), )
         } else {
             write!(f, "else {:?}", self.consequence.as_ref().unwrap())
         }
@@ -327,7 +327,7 @@ impl Debug for ElseExp {
 impl Display for ElseExp {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.if_exp.is_some() {
-            write!(f, "else {}", self.if_exp.as_ref().unwrap(),)
+            write!(f, "else {}", self.if_exp.as_ref().unwrap(), )
         } else {
             write!(f, "else {}", self.consequence.as_ref().unwrap())
         }

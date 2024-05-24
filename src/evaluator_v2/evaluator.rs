@@ -1,11 +1,11 @@
+use crate::ast_v2::{Expression, Node, Statement};
 use crate::ast_v2::expressions::{
     ArrayExp, ArrayIndexExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, PrefixExp,
 };
 use crate::ast_v2::statements::{BlockStatement, FuncStatement, LetStatement, ReturnStatement};
-use crate::ast_v2::{Expression, Node, Statement};
 use crate::evaluator_v2::scope::scope::Scope;
 use crate::object::object::{Array, BaseValue, Function, Object, Str, Value};
-use crate::token::token::TokenType;
+use crate::token::types::TokenType;
 
 #[derive(Clone)]
 pub struct Evaluator {
@@ -160,7 +160,7 @@ impl Evaluator {
                         Some(v) => v.clone(),
                         _ => return Object::Null,
                     }
-                },
+                }
                 _ => return Object::Null,
             },
             _ => return Object::Null,

@@ -5,7 +5,8 @@ use std::rc::Rc;
 use crate::ast_v2::{Expression, Node, Statement};
 use crate::lexer::lexer::{Lexer, TokensIter};
 use crate::token::precedence::*;
-use crate::token::token::{Token, TokenType};
+use crate::token::token::Token;
+use crate::token::types::TokenType;
 
 use super::{InfixParseFn, PrefixParseFn};
 

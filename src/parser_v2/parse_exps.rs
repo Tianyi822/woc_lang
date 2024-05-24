@@ -6,8 +6,9 @@ use crate::{
         statements::BlockStatement,
         Expression,
     },
-    token::{precedence::*, token::TokenType},
 };
+use crate::token::precedence::{LEVEL_0, PREFIX};
+use crate::token::types::TokenType;
 
 use super::parser::Parser;
 
