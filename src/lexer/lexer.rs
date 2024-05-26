@@ -1,19 +1,26 @@
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
+use crate::fs::woc_file::WocFile;
 use crate::lexer::state::State;
 use crate::token::token::Token;
 use crate::token::types::TokenType;
 
 pub struct Lexer {
-    // Command what user input.
-    command: Vec<char>,
+    // The file that lexer is parsing.
+    woc_file: WocFile,
 
     // Start index of token in command.
     start_index: Cell<usize>,
 
     // Current index of token vector.
     cur_index: Cell<usize>,
+
+    // The number of lines of code currently parsed
+    cur_line: Cell<usize>,
+
+    // The code that is currently being parsed.
+    cur_code_chars: Vec<char>,
 
     // Store the tokens that are parsed.
     tokens: RefCell<Vec<Rc<Token>>>,
@@ -30,6 +37,7 @@ pub struct TokensIter {
 }
 
 impl TokensIter {
+    // Get the next token.
     pub fn next(&self) -> Option<Rc<Token>> {
         if self.position.get() >= self.tokens.len() {
             return Some(self.tokens[self.tokens.len() - 1].clone());
@@ -44,18 +52,43 @@ impl TokensIter {
 
 impl Lexer {
     /// Creates a new [`Lexer`].
-    pub fn new(command: &str) -> Lexer {
-        let l = Lexer {
-            command: command.chars().collect(),
+    pub fn new(file_path: &str) -> Lexer {
+        let mut l = Lexer {
+            woc_file: WocFile::new(file_path.to_string()),
             start_index: Cell::new(0),
             cur_index: Cell::new(0),
+            cur_line: Cell::new(0),
+            cur_code_chars: Vec::new(),
             tokens: RefCell::new(Vec::new()),
             cur_state: Cell::new(State::StartState),
         };
 
-        l.analyze_command();
+        loop {
+            let (line, code) = match l.woc_file.read_line() {
+                Ok((line, code)) => (line, code),
+                Err(_) => break,
+            };
+
+            l.cur_line.set(line);
+            l.cur_code_chars = code.chars().collect();
+            l.analyze_command();
+            l.initialize();
+        }
+
+        l.tokens.borrow_mut().push(Rc::new(Token::new(
+            TokenType::Eof,
+            "",
+            l.woc_file.get_path(),
+            l.cur_line.get(),
+        )));
 
         l
+    }
+
+    fn initialize(&self) {
+        self.start_index.set(0);
+        self.cur_index.set(0);
+        self.cur_state.set(State::StartState);
     }
 
     /// Creates a new [`LexerIter`].
@@ -75,7 +108,7 @@ impl Lexer {
     // Analyze the command and generate tokens.
     fn analyze_command(&self) {
         // Iterate the command char by char.
-        for (index, c) in self.command.iter().enumerate() {
+        for (index, c) in self.cur_code_chars.iter().enumerate() {
             // Update self.cur_index.
             self.cur_index.set(index);
 
@@ -91,7 +124,7 @@ impl Lexer {
 
             let state = self.cur_state.get();
             match state {
-                State::StartState => self.trans_state(c),
+                State::StartState => self.trans_state(&c),
 
                 // =============== keywords ===============
                 // ============ while ============
@@ -669,7 +702,7 @@ impl Lexer {
             // store the last state
             let last_state = self.cur_state.get();
             // Transform the state by current char.
-            self.trans_state(&self.command[self.cur_index.get()]);
+            self.trans_state(&self.cur_code_chars[self.cur_index.get()]);
 
             // If the state is changed, we need to store the current state and recover the last state.
             if !self.cur_state_is(last_state) {
@@ -680,15 +713,12 @@ impl Lexer {
             }
 
             // Store the last token.
-            self.cur_index.set(self.command.len());
+            self.cur_index.set(self.cur_code_chars.len());
             self.store_token_and_trans_state();
         }
 
         // Add a EOF token to the end for the parser to determine the end of the command.
         self.cur_state.set(State::EndState);
-        self.tokens
-            .borrow_mut()
-            .push(Rc::new(Token::new(TokenType::Eof, "")));
     }
 
     // Store token and transform state.
@@ -705,7 +735,7 @@ impl Lexer {
         // Get the literal of token from char vector.
         let literal = match token_type {
             TokenType::String => {
-                let literal: String = self.command
+                let literal: String = self.cur_code_chars
                     [self.start_index.get() + 1..self.cur_index.get()]
                     .iter()
                     .collect();
@@ -717,7 +747,8 @@ impl Lexer {
                 literal
             }
             _ => {
-                let literal: String = self.command[self.start_index.get()..self.cur_index.get()]
+                let literal: String = self.cur_code_chars
+                    [self.start_index.get()..self.cur_index.get()]
                     .iter()
                     .collect();
 
@@ -727,17 +758,20 @@ impl Lexer {
             }
         };
 
-        self.tokens
-            .borrow_mut()
-            .push(Rc::new(Token::new(token_type, &literal)));
+        self.tokens.borrow_mut().push(Rc::new(Token::new(
+            token_type,
+            &literal,
+            self.woc_file.get_path(),
+            self.cur_line.get(),
+        )));
 
         // Reset the state of lexer.
         self.set_state(State::StartState);
 
         // Judge whether the state should be reset or be ended.
-        if self.start_index.get() < self.command.len() {
+        if self.start_index.get() < self.cur_code_chars.len() {
             // Reset lexer state
-            self.trans_state(&self.command[self.start_index.get()]);
+            self.trans_state(&self.cur_code_chars[self.start_index.get()]);
         }
     }
 
@@ -745,14 +779,14 @@ impl Lexer {
         let mut index = self.start_index.get();
 
         // Move index to next non blank char.
-        while index < self.command.len() && self.command[index].is_whitespace() {
+        while index < self.cur_code_chars.len() && self.cur_code_chars[index].is_whitespace() {
             index += 1;
         }
 
         // If index is out of range, we need to set it to the end of command.
         // It means from cur_index to the end of command are all blank chars.
-        if index >= self.command.len() {
-            index = self.command.len();
+        if index >= self.cur_code_chars.len() {
+            index = self.cur_code_chars.len();
         }
 
         self.start_index.set(index);
