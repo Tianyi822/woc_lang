@@ -1,5 +1,3 @@
-use std::fmt::Display;
-
 use crate::token::precedence::*;
 use crate::token::types::TokenType;
 
@@ -11,20 +9,21 @@ pub struct Token {
     file_path: String,
 
     // It records the line number of the token.
-    file_row_number: u32,
+    file_row_number: usize,
 
     // It records the column number of the token.
-    file_col_number: u32,
+    file_col_number: usize,
 
     token_type: TokenType,
     literal: String,
 }
 
 impl Token {
-    pub fn new(token_type: TokenType, literal: &str) -> Token {
+    /// Creates a new [`Token`].
+    pub fn new(token_type: TokenType, literal: &str, file_path: &str, line: usize) -> Token {
         Token {
-            file_path: String::new(),
-            file_row_number: 0,
+            file_path: file_path.to_string(),
+            file_row_number: line,
             file_col_number: 0,
             token_type,
             literal: literal.to_string(),
@@ -45,6 +44,14 @@ impl Token {
 
     pub fn token_type(&self) -> &TokenType {
         &self.token_type
+    }
+
+    pub fn file_path(&self) -> &str {
+        &self.file_path
+    }
+
+    pub fn file_row_number(&self) -> usize {
+        self.file_row_number
     }
 
     pub fn precedence(&self) -> u32 {
