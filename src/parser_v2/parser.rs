@@ -39,8 +39,8 @@ impl Parser {
     pub fn new(code: &str) -> Self {
         let parser = Parser {
             tokens_iter: Lexer::new(code).tokens_iter(),
-            cur_token: RefCell::new(Rc::new(Token::new(TokenType::Illegal, "", "", 0))),
-            peek_token: RefCell::new(Rc::new(Token::new(TokenType::Illegal, "", "", 0))),
+            cur_token: RefCell::new(Rc::new(Token::new(TokenType::Illegal, "", "", 0, 0))),
+            peek_token: RefCell::new(Rc::new(Token::new(TokenType::Illegal, "", "", 0, 0))),
             cmd_start_index: Cell::new(0),
             cmd_cur_index: Cell::new(0),
             programs: RefCell::new(Vec::new()),
