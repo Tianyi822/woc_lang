@@ -11,8 +11,8 @@ pub struct Token {
     // It records the line number of the token.
     file_row_number: usize,
 
-    // It records the column number of the token.
-    file_col_number: usize,
+    // This field recodes the column of the token in a line.
+    token_number_in_line: usize,
 
     token_type: TokenType,
     literal: String,
@@ -20,11 +20,11 @@ pub struct Token {
 
 impl Token {
     /// Creates a new [`Token`].
-    pub fn new(token_type: TokenType, literal: &str, file_path: &str, line: usize) -> Token {
+    pub fn new(token_type: TokenType, literal: &str, file_path: &str, line: usize, tok_num: usize) -> Token {
         Token {
             file_path: file_path.to_string(),
             file_row_number: line,
-            file_col_number: 0,
+            token_number_in_line: tok_num,
             token_type,
             literal: literal.to_string(),
         }
@@ -52,6 +52,10 @@ impl Token {
 
     pub fn file_row_number(&self) -> usize {
         self.file_row_number
+    }
+
+    pub fn token_number_in_line(&self) -> usize {
+        self.token_number_in_line
     }
 
     pub fn precedence(&self) -> u32 {

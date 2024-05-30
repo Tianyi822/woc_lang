@@ -19,6 +19,9 @@ pub struct Lexer {
     // The number of lines of code currently parsed
     cur_line: Cell<usize>,
 
+    // The number of columns of code currently parsed
+    cur_tok_num: Cell<usize>,
+
     // The code that is currently being parsed.
     cur_code_chars: Vec<char>,
 
@@ -58,6 +61,7 @@ impl Lexer {
             start_index: Cell::new(0),
             cur_index: Cell::new(0),
             cur_line: Cell::new(0),
+            cur_tok_num: Cell::new(1),
             cur_code_chars: Vec::new(),
             tokens: RefCell::new(Vec::new()),
             cur_state: Cell::new(State::StartState),
@@ -79,7 +83,8 @@ impl Lexer {
             TokenType::Eof,
             "",
             l.woc_file.get_path(),
-            l.cur_line.get(),
+            l.cur_line.get() + 1,
+            l.cur_tok_num.get(),
         )));
 
         l
@@ -89,6 +94,7 @@ impl Lexer {
         self.start_index.set(0);
         self.cur_index.set(0);
         self.cur_state.set(State::StartState);
+        self.cur_tok_num.set(1);
     }
 
     /// Creates a new [`LexerIter`].
@@ -763,7 +769,11 @@ impl Lexer {
             &literal,
             self.woc_file.get_path(),
             self.cur_line.get(),
+            self.cur_tok_num.get(),
         )));
+
+        // Update the column number.
+        self.cur_tok_num.set(self.cur_tok_num.get() + 1);
 
         // Reset the state of lexer.
         self.set_state(State::StartState);
