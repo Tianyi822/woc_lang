@@ -788,7 +788,7 @@ impl Lexer {
     fn move_start_index_to_next_non_blank_char(&self) {
         let mut index = self.start_index.get();
 
-        // Move index to next non blank char.
+        // Move index to next non-blank char.
         while index < self.cur_code_chars.len() && self.cur_code_chars[index].is_whitespace() {
             index += 1;
         }
