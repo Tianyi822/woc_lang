@@ -54,13 +54,8 @@ impl Token {
         self.file_row_number
     }
 
-<<<<<<< HEAD
     pub fn token_number_in_line(&self) -> usize {
         self.token_number_in_line
-=======
-    pub fn column_number_in_line(&self) -> usize {
-        self.column_number_in_line
->>>>>>> 0c7a9c50cacad75c9cf27f4e7cb4f18a9d575fdf
     }
 
     pub fn precedence(&self) -> u32 {
