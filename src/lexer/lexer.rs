@@ -69,8 +69,8 @@ impl Lexer {
 
         loop {
             let (line, code) = match l.woc_file.read_line() {
-                Ok((line, code)) => (line, code),
-                Err(_) => break,
+                Some((line, code)) => (line, code),
+                None => break,
             };
 
             l.cur_line.set(line);
