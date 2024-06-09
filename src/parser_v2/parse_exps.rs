@@ -1,11 +1,10 @@
-use crate::{
-    ast_v2::{
-        expressions::{
-            ArrayExp, ArrayIndexExp, BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp, NumExp, PrefixExp, StringExp
-        },
-        statements::BlockStatement,
-        Expression,
+use crate::ast_v2::{
+    expressions::{
+        ArrayExp, ArrayIndexExp, BooleanExp, CallExp, ElseExp, IdentifierExp, IfExp, InfixExp,
+        NumExp, PrefixExp, StringExp,
     },
+    statements::BlockStatement,
+    Expression,
 };
 use crate::token::precedence::{LEVEL_0, PREFIX};
 use crate::token::types::TokenType;
@@ -182,7 +181,10 @@ impl Parser {
             return None;
         }
 
-        Some(Expression::ArrIndex(ArrayIndexExp::new(arr_name, index.unwrap())))
+        Some(Expression::ArrIndex(ArrayIndexExp::new(
+            arr_name,
+            index.unwrap(),
+        )))
     }
 
     // This method is used to parse the boolean expression.
