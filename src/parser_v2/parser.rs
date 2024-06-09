@@ -12,7 +12,7 @@ use super::{InfixParseFn, PrefixParseFn};
 
 pub struct Parser {
     // The lexer that will generate tokens.
-    tokens_iter: TokensIter,
+    tokens: TokensIter,
 
     // The current token that the parser is looking at.
     cur_token: RefCell<Rc<Token>>,
@@ -36,9 +36,9 @@ pub struct Parser {
 }
 
 impl Parser {
-    pub fn new(code: &str) -> Self {
+    pub fn new(path: &str) -> Self {
         let parser = Parser {
-            tokens_iter: Lexer::new(code).tokens_iter(),
+            tokens: Lexer::new(path).tokens_iter(),
             cur_token: RefCell::new(Rc::new(Token::new(TokenType::Illegal, "", "", 0, 0))),
             peek_token: RefCell::new(Rc::new(Token::new(TokenType::Illegal, "", "", 0, 0))),
             cmd_start_index: Cell::new(0),
@@ -89,8 +89,8 @@ impl Parser {
     fn parse(&self) {
         while !self.cur_token.borrow().is_eof() {
             match self.parse_code() {
-                Some(statement) => {
-                    self.programs.borrow_mut().push(statement);
+                Some(node) => {
+                    self.programs.borrow_mut().push(node);
                     self.next_token();
                 }
                 None => self.next_token(),
@@ -290,6 +290,6 @@ impl Parser {
         if (*self.peek_token.borrow()).is_eof() {
             return;
         }
-        *self.peek_token.borrow_mut() = self.tokens_iter.next().unwrap();
+        *self.peek_token.borrow_mut() = self.tokens.next().unwrap();
     }
 }

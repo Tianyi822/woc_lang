@@ -4,13 +4,9 @@ mod parser_test {
 
     #[test]
     fn test_parse_arr_exp() {
-        let input = "
-        [1, 2 * 2, 3 + 3, add(1, 3)];
-        let arr = [1, 2, 3, add(1, 3)];
-        arr[0];
-        ";
+        let path = "woc_test_files/parser/test_parsing_logic.woc";
 
-        let parser = Parser::new(input);
+        let parser = Parser::new(path);
         let programs = parser.programs();
 
         assert_eq!(programs.len(), 3);
@@ -27,9 +23,9 @@ mod parser_test {
 
     #[test]
     fn test_string() {
-        let input = "let str = \"hello world\"; str;";
+        let path = "woc_test_files/parser/test_string.woc";
 
-        let parser = Parser::new(input);
+        let parser = Parser::new(path);
         let programs = parser.programs();
 
         assert_eq!(programs.len(), 2);

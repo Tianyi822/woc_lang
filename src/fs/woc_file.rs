@@ -78,6 +78,14 @@ impl WocFile {
         Some((line_num, line))
     }
 
+    // Get code line by line number
+    pub fn get_line(&self, line_num: usize) -> Option<String> {
+        match self.line_num_and_code_map.get(&line_num) {
+            Some(line) => Some(line.clone()),
+            None => None,
+        }
+    }
+
     // Get the file path
     pub fn get_path(&self) -> &str {
         &self.path
