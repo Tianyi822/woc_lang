@@ -35,6 +35,7 @@ pub struct Lexer {
 
 /// This is a struct that is used to iterate the tokens.
 pub struct TokensIter {
+    woc_file: WocFile,
     tokens: Vec<Rc<Token>>,
     position: Cell<usize>,
 }
@@ -101,6 +102,7 @@ impl Lexer {
     /// This is used to iterate the tokens.
     pub fn tokens_iter(self) -> TokensIter {
         TokensIter {
+            woc_file: self.woc_file,
             tokens: self.tokens.into_inner(),
             position: Cell::new(0),
         }
